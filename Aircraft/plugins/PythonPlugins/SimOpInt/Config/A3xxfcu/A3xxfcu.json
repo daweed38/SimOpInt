@@ -1,0 +1,42 @@
+{
+  "INT": {
+    "intname": "A3xxfcu",
+    "dummydevice": 1
+  },
+  "DEVICES": {
+    "deviceconfig": "devices.json",
+    "device01": {
+      "module": "DeviceHT16K33",
+      "class": "HT16K33"
+    },
+    "device02": {
+      "module": "DeviceMCP23017",
+      "class": "MCP23017"
+    }
+  },
+  "MODULES": {
+    "SegDisplay" : {
+      "module": "ObjDisplays",
+      "class": "SegDisplay"
+      },
+    "Annunciator": {
+      "module": "ObjDisplays",
+      "class": "Annunciator"
+      },
+    "PushButtonSwitch": {
+      "module": "ObjSwitches",
+      "class": "PushButtonSwitch"
+    },
+    "RotaryEncoder": {
+      "module": "RotaryEncoder",
+      "class": "RotaryEncoder"
+    }
+  },
+  "OBJECTS": {
+    "displays": "displays.json",
+    "swlights": "swlights.json",
+    "annunciators": "annunciator.json",
+    "pushbtns": "pushbtns.json",
+    "encoders": "rotenc.json"
+  }
+}

@@ -1,0 +1,499 @@
+GROUP Autopilot
+  LOCKED
+  HIDE
+  gen_LED Altitude positive
+    POS 1559.500000 -163.000000
+    IMAGE 7segment/Autopilot/altitude_digits
+    DATAREF sim/cockpit2/autopilot/altitude_dial_ft[0]
+    SHOW_GREATER 0.000000 sim/cockpit2/autopilot/altitude_dial_ft
+    LOCKED
+    HIDE
+    LIGHT_MODE GLASS_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME -1000.000000 -1000.000000 1.000000
+    KEY_FRAME 10000.000000 10000.000000
+    DIGITS 5
+    DECIMALS 0
+    PERIOD_WIDTH 0
+    LED_ROWS 5
+
+  gen_LED Altitude negative
+    POS 1570.500000 -163.000000
+    IMAGE 7segment/Autopilot/altitude_digits
+    DATAREF sim/cockpit2/autopilot/altitude_dial_ft[0]
+    SHOW_LESS -0.010000 sim/cockpit2/autopilot/altitude_dial_ft
+    LOCKED
+    HIDE
+    LIGHT_MODE GLASS_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME -1000.000000 -1000.000000 1.000000
+    KEY_FRAME 10000.000000 10000.000000
+    DIGITS 4
+    DECIMALS 0
+    PERIOD_WIDTH 0
+    LED_ROWS 5
+
+  gen_rotary FMS VNAV Circle
+    POS 1629.000000 -163.000000
+    IMAGE 7segment/Autopilot/circle_indicator
+    DATAREF 
+    SHOW_EQUAL 1.000000 sim/cockpit2/autopilot/fms_vnav
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 0.000000
+    DIGITS 1
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  gen_rotary VVI - dashes
+    POS 1705.000000 -163.000000
+    IMAGE 7segment/Autopilot/4_dashes
+    DATAREF 
+    SHOW_EQUAL 0.000000 laminar/A333/autopilot/vvi_fpa_window_open
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 0.000000
+    DIGITS 1
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  GROUP VVI/FPA
+    SHOW_EQUAL 1.000000 laminar/A333/autopilot/vvi_fpa_window_open
+    LOCKED
+    HIDE
+    gen_LED VVI
+      POS 1716.000000 -163.000000
+      IMAGE 7segment/Autopilot/vvi_digits
+      DATAREF sim/cockpit2/autopilot/vvi_dial_fpm[0]
+      SHOW_EQUAL 0.000000 sim/cockpit2/autopilot/trk_fpa
+      LOCKED
+      HIDE
+      LIGHT_MODE GLASS_AUTO
+      LIGHT_RHEOSTAT 10
+      BUS_SRC 3
+      KEY_FRAME -5000.000000 -5000.000000 1.000000
+      KEY_FRAME 5000.000000 5000.000000
+      DIGITS 4
+      DECIMALS 0
+      PERIOD_WIDTH 0
+      LED_ROWS 4
+
+    gen_rotary VVI +/-
+      POS 1655.000000 -163.000000
+      IMAGE 7segment/Autopilot/positive_negative
+      DATAREF sim/cockpit2/autopilot/vvi_dial_fpm
+      SHOW_EQUAL 0.000000 sim/cockpit2/autopilot/trk_fpa
+      LOCKED
+      HIDE
+      LIGHT_MODE BACK_LIT_AUTO
+      LIGHT_RHEOSTAT 10
+      BUS_SRC 3
+      KEY_FRAME -5000.000000 1.000000 1.000000
+      KEY_FRAME -0.000100 1.000000 1.000000
+      KEY_FRAME 0.000000 0.000000 1.000000
+      KEY_FRAME 5000.000000 0.000000
+      DIGITS 2
+      ROTARY_TYPE NO_CLICK
+      CLICK_RADIUS 10.000000
+      CLICK_RADIUS_DY 0.000000
+      OFFSET 0.000000
+      STEP1 1.000000
+      STEP2 1.000000
+      CURSOR DEFAULT
+      CLICK_DX 0
+      CLICK_DY 0
+
+    gen_LED FPA
+      POS 1688.000000 -163.000000
+      IMAGE 7segment/Autopilot/fpa_digits
+      DATAREF sim/cockpit2/autopilot/fpa[0]
+      SHOW_EQUAL 1.000000 sim/cockpit2/autopilot/trk_fpa
+      LOCKED
+      HIDE
+      LIGHT_MODE GLASS_AUTO
+      LIGHT_RHEOSTAT 10
+      BUS_SRC 3
+      KEY_FRAME -10.000000 -10.000000 1.000000
+      KEY_FRAME 10.000000 10.000000
+      DIGITS 2
+      DECIMALS 1
+      PERIOD_WIDTH 3
+      LED_ROWS 2
+
+    gen_rotary FPA +/-
+      POS 1655.000000 -163.000000
+      IMAGE 7segment/Autopilot/positive_negative
+      DATAREF sim/cockpit2/autopilot/fpa
+      SHOW_EQUAL 1.000000 sim/cockpit2/autopilot/trk_fpa
+      LOCKED
+      HIDE
+      LIGHT_MODE BACK_LIT_AUTO
+      LIGHT_RHEOSTAT 10
+      BUS_SRC 3
+      KEY_FRAME -5000.000000 1.000000 1.000000
+      KEY_FRAME -0.000100 1.000000 1.000000
+      KEY_FRAME 0.000000 0.000000 1.000000
+      KEY_FRAME 5000.000000 0.000000
+      DIGITS 2
+      ROTARY_TYPE NO_CLICK
+      CLICK_RADIUS 10.000000
+      CLICK_RADIUS_DY 0.000000
+      OFFSET 0.000000
+      STEP1 1.000000
+      STEP2 1.000000
+      CURSOR DEFAULT
+      CLICK_DX 0
+      CLICK_DY 0
+
+    gen_rotary FPA decimcal
+      POS 1690.000000 -175.000000
+      IMAGE 7segment/Autopilot/digits_decimal
+      DATAREF 
+      SHOW_EQUAL 1.000000 sim/cockpit2/autopilot/trk_fpa
+      LOCKED
+      HIDE
+      LIGHT_MODE BACK_LIT_AUTO
+      LIGHT_RHEOSTAT 10
+      BUS_SRC 3
+      KEY_FRAME 0.000000 0.000000 1.000000
+      KEY_FRAME 1.000000 0.000000
+      DIGITS 1
+      ROTARY_TYPE NO_CLICK
+      CLICK_RADIUS 10.000000
+      CLICK_RADIUS_DY 0.000000
+      OFFSET 0.000000
+      STEP1 1.000000
+      STEP2 1.000000
+      CURSOR DEFAULT
+      CLICK_DX 0
+      CLICK_DY 0
+
+  END_GROUP
+  GROUP Airspeed
+    SHOW_EQUAL 1.000000 sim/cockpit2/autopilot/vnav_speed_window_open
+    LOCKED
+    HIDE
+    gen_LED Airspeed KTS
+      POS 1088.000000 -163.000000
+      IMAGE 7segment/Autopilot/wide_space_digits
+      DATAREF sim/cockpit2/autopilot/airspeed_dial_kts_mach[0]
+      SHOW_EQUAL 0.000000 sim/cockpit/autopilot/airspeed_is_mach
+      LOCKED
+      HIDE
+      LIGHT_MODE GLASS_AUTO
+      LIGHT_RHEOSTAT 10
+      BUS_SRC 3
+      KEY_FRAME 0.000000 0.000000 1.000000
+      KEY_FRAME 340.000000 340.000000
+      DIGITS 3
+      DECIMALS 0
+      PERIOD_WIDTH 0
+      LED_ROWS 4
+
+    gen_LED Airspeed MACH
+      POS 1087.000000 -163.000000
+      IMAGE 7segment/Autopilot/wide_space_digits
+      DATAREF sim/cockpit2/autopilot/airspeed_dial_kts_mach[0]
+      SHOW_EQUAL 1.000000 sim/cockpit/autopilot/airspeed_is_mach
+      LOCKED
+      HIDE
+      LIGHT_MODE GLASS_AUTO
+      LIGHT_RHEOSTAT 10
+      BUS_SRC 3
+      KEY_FRAME 0.000000 0.000000 1.000000
+      KEY_FRAME 340.000000 340.000000
+      DIGITS 3
+      DECIMALS 3
+      PERIOD_WIDTH 1
+      LED_ROWS 4
+
+    gen_rotary Mach decimal
+      POS 1049.000000 -175.000000
+      IMAGE 7segment/Autopilot/digits_decimal
+      DATAREF 
+      SHOW_EQUAL 1.000000 sim/cockpit/autopilot/airspeed_is_mach
+      LOCKED
+      HIDE
+      LIGHT_MODE BACK_LIT_AUTO
+      LIGHT_RHEOSTAT 10
+      BUS_SRC 3
+      KEY_FRAME 0.000000 0.000000 1.000000
+      KEY_FRAME 1.000000 0.000000
+      DIGITS 1
+      ROTARY_TYPE NO_CLICK
+      CLICK_RADIUS 10.000000
+      CLICK_RADIUS_DY 0.000000
+      OFFSET 0.000000
+      STEP1 1.000000
+      STEP2 1.000000
+      CURSOR DEFAULT
+      CLICK_DX 0
+      CLICK_DY 0
+
+  END_GROUP
+  gen_rotary Speed - dashes
+    POS 1087.000000 -163.000000
+    IMAGE 7segment/Autopilot/3_dashes
+    DATAREF 
+    SHOW_EQUAL 0.000000 sim/cockpit2/autopilot/vnav_speed_window_open
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 0.000000
+    DIGITS 1
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  gen_rotary Managed Speed Circl
+    POS 1137.000000 -163.000000
+    IMAGE 7segment/Autopilot/circle_indicator
+    DATAREF 
+    SHOW_EQUAL 1.000000 sim/cockpit2/autopilot/fms_vnav
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 0.000000
+    DIGITS 1
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  gen_LED Heading
+    POS 1231.000000 -163.000000
+    IMAGE 7segment/Autopilot/wide_space_digits
+    DATAREF sim/cockpit2/autopilot/heading_dial_deg_mag_pilot[0]
+    SHOW_EQUAL 1.000000 laminar/A333/autopilot/hdg_window_open
+    LOCKED
+    HIDE
+    LIGHT_MODE GLASS_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 360.000000 360.000000
+    DIGITS 3
+    DECIMALS 0
+    PERIOD_WIDTH 0
+    LED_ROWS 4
+
+  gen_rotary Heading - dashes
+    POS 1230.000000 -163.000000
+    IMAGE 7segment/Autopilot/3_dashes
+    DATAREF 
+    SHOW_EQUAL 0.000000 laminar/A333/autopilot/hdg_window_open
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 0.000000
+    DIGITS 1
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  gen_rotary GPSS Circle
+    POS 1280.000000 -163.000000
+    IMAGE 7segment/Autopilot/circle_indicator
+    DATAREF 
+    SHOW_GREATER 1.000000 sim/cockpit2/autopilot/gpss_status
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 0.000000
+    DIGITS 1
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  gen_rotary SPD_MACH
+    POS 1090.000000 -139.000000
+    IMAGE 7segment/Autopilot/speed_mach
+    DATAREF sim/cockpit2/autopilot/airspeed_is_mach
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 1.000000
+    DIGITS 2
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  gen_rotary LAT
+    POS 1279.000000 -139.000000
+    IMAGE 7segment/Autopilot/LAT
+    DATAREF 
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 1.000000
+    DIGITS 1
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  gen_rotary ALT LVL.CH
+    POS 1623.000000 -139.000000
+    IMAGE 7segment/Autopilot/ALT_LVLCH
+    DATAREF 
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 1.000000
+    DIGITS 1
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  gen_rotary HDG_TRK
+    POS 1225.000000 -139.000000
+    IMAGE 7segment/Autopilot/HDG_TRK
+    DATAREF sim/cockpit2/autopilot/trk_fpa
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 1.000000
+    DIGITS 2
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  gen_rotary HDG TRK V/S FPA
+    POS 1401.000000 -165.000000
+    IMAGE 7segment/Autopilot/HDGVS_TRKFPA
+    DATAREF sim/cockpit2/autopilot/trk_fpa
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 1.000000
+    DIGITS 2
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+  gen_rotary V/S FPA
+    POS 1733.000000 -139.000000
+    IMAGE 7segment/Autopilot/VS_FPA
+    DATAREF sim/cockpit2/autopilot/trk_fpa
+    LOCKED
+    HIDE
+    LIGHT_MODE BACK_LIT_AUTO
+    LIGHT_RHEOSTAT 10
+    BUS_SRC 3
+    KEY_FRAME 0.000000 0.000000 1.000000
+    KEY_FRAME 1.000000 1.000000
+    DIGITS 2
+    ROTARY_TYPE NO_CLICK
+    CLICK_RADIUS 10.000000
+    CLICK_RADIUS_DY 0.000000
+    OFFSET 0.000000
+    STEP1 1.000000
+    STEP2 1.000000
+    CURSOR DEFAULT
+    CLICK_DX 0
+    CLICK_DY 0
+
+END_GROUP
