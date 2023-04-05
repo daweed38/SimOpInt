@@ -31,20 +31,20 @@ class SimOpIntCli:
     # Constructor
     #############################################
 
-    def __init__(self, name='SimOpIntCli', addr='localhost', port=7000, debug=0):
+    def __init__(self, name='SimOpIntCli', srvaddr='localhost', srvport=7000, debug=0):
         self.debug = debug
         self.name = name
-        self.srvaddr = addr
-        self.srvport = int(port)
+        self.srvaddr = srvaddr
+        self.srvport = int(srvport)
         self.clisock = None
-        self.srvtimeout = 1
-        self.clitimeout = 0.025
         self.headersize = 10
-        self.BUFFERSIZE = 16
+        self.buffersize = 16
         self.signals = {'shutdown': False, 'loop': False, 'connect': False, 'kill': False}
         self.state = 0
 
         self.selector = selectors.DefaultSelector()
+        self.looptimeout = 0.2
+        self.seltimeout = 0.025
 
         self.inData = {}
         self.inData_md5 = ''
@@ -172,8 +172,9 @@ class SimOpIntCli:
 
         sock.setblocking(False)
 
+        data = types.SimpleNamespace(srvname=srvname, addr=self.srvaddr, buffersize=self.buffersize, inData=b'', outData=b'', outData_md5='', msg_new_r=True, msg_full_r=b'', msglen_r=0, remain_size_r=0)
         events = selectors.EVENT_READ | selectors.EVENT_WRITE
-        data = types.SimpleNamespace(srvname=srvname, msg_new_r=True, msg_full_r=b'', msglen_r=0, remain_size_r=0, oldmask='', olddata='')
+
         self.selector.register(sock, events, data=data)
 
     def clientDataProcess(self, key, mask):
@@ -183,34 +184,43 @@ class SimOpIntCli:
 
         if mask & selectors.EVENT_READ:
 
-            msg_r = sock.recv(self.BUFFERSIZE)
+            msg_r = sock.recv(data.buffersize)
 
-            if data.msg_new_r and msg_r != b'':
-                if self.debug == 25:
-                    print("New Message. Message Length : {} Remaining Length : {}".format(data.msglen_r, data.remain_size_r))
+            try:
+                if data.msg_new_r and msg_r != b'':
+                    data.msg_new_r = False
+                    data.msglen_r = int(msg_r[:self.headersize])
+                    data.msg_full_r = msg_r[self.headersize:]
+                    data.remain_size_r = data.msglen_r - len(msg_r[self.headersize:])
 
-                data.msg_new_r = False
-                data.msglen_r = int(msg_r[:self.headersize])
-                data.msg_full_r = msg_r[self.headersize:]
-                data.remain_size_r = data.msglen_r - len(msg_r[self.headersize:])
+                    if self.debug == 25:
+                        print("New Message. Message Length : {} Remaining Length : {}".format(data.msglen_r, data.remain_size_r))
 
-            elif msg_r != b'' and len(msg_r) > 0:
-                if self.debug == 25:
-                    print("Continue Message. Message Length : {} Remaining Length : {}".format(data.msglen_r, data.remain_size_r))
-                data.msg_full_r += msg_r
-                data.remain_size_r -= len(msg_r)
+                elif msg_r != b'' and len(msg_r) > 0:
+                    data.msg_full_r += msg_r
+                    data.remain_size_r -= len(msg_r)
 
-            if data.remain_size_r < self.BUFFERSIZE:
-                self.BUFFERSIZE = data.remain_size_r
+                    if self.debug == 25:
+                        print("Continue Message. Message Length : {} Remaining Length : {}".format(data.msglen_r,data.remain_size_r))
 
-            if data.remain_size_r == 0 and data.msg_full_r != b'':
-                self.inData = pickle.loads(data.msg_full_r)
-                if self.debug == 26:
-                    print("Full Message Received from {} : {}".format(data.srvname, self.inData))
-                data.msg_new_r = True
-                data.msg_full_r = b''
-                data.msglen_r = 0
-                self.BUFFERSIZE = 16
+                if data.remain_size_r < data.buffersize:
+                    data.buffersize = data.remain_size_r
+
+                if data.remain_size_r == 0 and data.msg_full_r != b'':
+                    data.inData = pickle.loads(data.msg_full_r)
+
+                    if self.debug == 26:
+                        print("Full Message Received from {} : {}".format(data.srvname, data.inData))
+
+                    self.inData = data.inData
+
+                    data.msg_new_r = True
+                    data.msg_full_r = b''
+                    data.msglen_r = 0
+                    data.buffersize = 16
+
+            except OSError as e:
+                print(f"Error Reading From Socket {e}")
 
         if mask & selectors.EVENT_WRITE:
 
@@ -218,12 +228,14 @@ class SimOpIntCli:
             msg_full_s = bytes(f'{len(msg_s):<{10}}', "utf-8") + msg_s
             outData_md5 = hashlib.md5(msg_full_s).hexdigest()
 
-            if self.outData_md5 != outData_md5:
+            if data.outData_md5 != outData_md5:
                 try:
-                    sock.sendall(msg_full_s)
                     if self.debug == 27:
                         print("Sending Data ...")
-                    self.outData_md5 = outData_md5
+
+                    sock.sendall(msg_full_s)
+
+                    data.outData_md5 = outData_md5
 
                 except OSError as e:
                     if self.debug == 27:
@@ -274,18 +286,18 @@ class SimOpIntCli:
                 if self.debug == 23:
                     print("Client Loop in Progress")
 
-                events = self.selector.select(timeout=0.5)
+                events = self.selector.select(timeout=self.seltimeout)
                 for key, mask in events:
                     self.clientDataProcess(key, mask)
 
-                time.sleep(0.02)
+                # time.sleep(self.looptimeout)
 
             if self.connected:
                 for key, mask in self.selector.select(timeout=0.5):
                     self.clientShutdown(key, mask)
                     self.connected = False
 
-            time.sleep(0.5)
+            time.sleep(self.looptimeout)
 
         if self.debug == 22:
             print("Client Socket Closed at {}".format(datetime.now()))

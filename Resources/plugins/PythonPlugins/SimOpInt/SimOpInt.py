@@ -1,5 +1,4 @@
 # Standard Import
-import time
 import importlib
 
 # FarmerSoft Modules Import
@@ -40,7 +39,10 @@ class SimOpInt:
         self.configdir = configdir
         self.configfile = configfile
         self.dummy = False
-        self.name = ''
+        self.intname = ''
+        self.srvaddr = ''
+        self.srvport = 0
+        
         self.config = {}
         self.modules = {}
         self.devices = {}
@@ -56,24 +58,35 @@ class SimOpInt:
 
         self.readConfig()
 
-        if int(self.getConfigOption('INT', 'dummydevice')):
-            self.dummy = True
+        if self.config:
+            self.intname = self.config['INT']['intname']
+            self.srvaddr = self.config['INT']['srvaddr']
+            self.srvport = self.config['INT']['srvport']
 
-        if self.getConfig():
+            if int(self.getConfigOption('INT', 'dummydevice')):
+                self.dummy = True
 
-            if 'DEVICES' in self.config:
-                self.loadDevicesModule()
-                self.createDevices()
+            if self.getConfig():
 
-            if 'MODULES' in self.config:
-                self.loadModules()
+                if 'DEVICES' in self.config:
+                    self.loadDevicesModule()
+                    self.createDevices()
 
-            if 'OBJECTS' in self.config:
-                self.createObjects()
+                if 'MODULES' in self.config:
+                    self.loadModules()
 
+                if 'OBJECTS' in self.config:
+                    self.createObjects()
+
+                if self.debug == 3:
+                    print("######################################################################")
+                    print("# Sim Open Interface {} initialized".format(self.intname))
+                    print("######################################################################")
+                    print("\r")
+        else:
             if self.debug == 3:
                 print("######################################################################")
-                print("# Sim Open Interface {} initialized".format(self.name))
+                print("# Sim Open Interface {} initialisation error")
                 print("######################################################################")
                 print("\r")
 
@@ -83,7 +96,7 @@ class SimOpInt:
     def __del__(self):
         if self.debug == 3:
             print("######################################################################")
-            print("# Sim Open Interface {} removed".format(self.name))
+            print("# Sim Open Interface {} removed".format(self.intname))
             print("######################################################################")
             print("\r")
 
@@ -93,7 +106,13 @@ class SimOpInt:
     # getName()
     # return the interface name
     def getName(self):
-        return self.name
+        return self.intname
+
+    def getSrvAddr(self):
+        return self.srvaddr
+
+    def getSrvPort(self):
+        return self.srvport
 
     def getDebugLevel(self):
         return self.debug
@@ -108,21 +127,6 @@ class SimOpInt:
         self.debug = int(debuglevel)
 
     ###################################
-    # Data Methods
-    ###################################
-
-    # Method createNodeConds(nodeconds)
-    # Return a formatted Dict Condition
-    def createNodeConds(self, conditions):
-        nodeconds = {}
-        for nodecond in conditions.split(':'):
-            nodeconds[nodecond.split(',')[0]] = {}
-            nodeconds[nodecond.split(',')[0]]['node'] = nodecond.split(',')[1]
-            nodeconds[nodecond.split(',')[0]]['noderefid'] = None
-
-        return nodeconds
-
-    ###################################
     # Configuration Methods
     ###################################
     # getConfigFile()
@@ -134,14 +138,7 @@ class SimOpInt:
         return self.configdir
 
     def readConfig(self):
-        self.config = self.tools.readConfigFile(self.configdir, self.configfile)
-        if self.config:
-            self.name = self.config['INT']['intname']
-        else:
-            print("##################################################")
-            print("# Error reading Configuration file {}".format(self.getConfigFile()))
-            print("##################################################")
-            print("\r")
+        self.config = self.tools.readJsonFile(self.configdir, self.configfile)
 
     # getConfig()
     # return Interface Configuration
@@ -167,23 +164,17 @@ class SimOpInt:
     def loadDevicesModule(self):
         if self.debug == 32:
             print("Loading Devices Modules .... ")
-        for key, value in self.config['DEVICES'].items():
-            # if int(self.getConfigOption('INT', 'dummydevice')) == 1:
-            #     lib = 'DeviceDummy'
-            #     package = 'Dummy'
-            # else:
-            #     lib = value.split(',')[0]
-            #     package = value.split(',')[1]
+        for devicemod, modconf in self.getConfigOption('DEVICES', 'modules').items():
 
-            lib = value.split(',')[0]
-            package = value.split(',')[1]
+            mod = modconf['module']
+            cls = modconf['class']
 
             if self.debug == 32:
-                print("Device Type {} Lib {} Package {}".format(value.split(',')[1], lib, package))
+                print("Key : {} Package : {} Class : {}".format(devicemod, mod, cls))
 
-            self.modules[value.split(',')[1]] = {}
-            self.modules[value.split(',')[1]]['module'] = importlib.import_module(lib, package)
-            self.modules[value.split(',')[1]]['package'] = package
+            self.modules[cls] = {}
+            self.modules[cls]['class'] = cls
+            self.modules[cls]['module'] = importlib.import_module(mod, cls)
 
         if self.debug == 32:
             print("\r")
@@ -194,7 +185,7 @@ class SimOpInt:
         else:
             return False
 
-    def createDevice(self, devicemod, devicename, deviceaddr):
+    def createDevice(self, devicename, devicemod, deviceaddr):
         if self.debug == 32:
             print("Device : {} Device Addr : {} Module : {} Dummy Mode {}".format(devicename, deviceaddr, devicemod, self.dummy))
         self.devices[devicename] = self.getModule(devicemod)(devicename, deviceaddr, dummy=self.dummy)
@@ -203,10 +194,10 @@ class SimOpInt:
         if self.debug == 32:
             print("Loading Devices ...")
 
-        devices = self.tools.readConfigFile(self.configdir, 'devices.cfg')
+        devices = self.tools.readJsonFile(self.configdir, 'devices.json')
 
         for devicename, deviceconf in devices.items():
-            self.createDevice(deviceconf['devicetype'], deviceconf['devicename'], deviceconf['deviceaddr'])
+            self.createDevice(deviceconf['devicename'], deviceconf['devicetype'], deviceconf['deviceaddr'])
 
         if self.debug == 32:
             print("\r")
@@ -217,26 +208,25 @@ class SimOpInt:
     def listLoadedModules(self):
         return self.modules
 
-    def loadModule(self, module, package):
-        self.modules[package] = {}
-        self.modules[package]['module'] = importlib.import_module(module, package)
-        self.modules[package]['package'] = package
+    def loadModule(self, module, cls):
+        self.modules[cls] = {}
+        self.modules[cls]['class'] = cls
+        self.modules[cls]['module'] = importlib.import_module(module, cls)
 
     def loadModules(self):
         if self.debug == 33:
             print("Loading Modules ...")
-        for key, value in self.config['MODULES'].items():
-            package = value.split(',')[1]
-            module = value.split(',')[0]
+
+        for mod, modconf in self.config['MODULES'].items():
             if self.debug == 33:
-                print("Module {} : Lib {} Class {}".format(key, module, package))
-            self.loadModule(module, package)
+                print("Module {} : Lib {} Class {}".format(mod, modconf['module'], modconf['class']))
+            self.loadModule(modconf['module'], modconf['class'])
 
         if self.debug == 33:
             print("\r")
 
     def getModule(self, modulename):
-        return getattr(self.modules[modulename]['module'], self.modules[modulename]['package'])
+        return getattr(self.modules[modulename]['module'], self.modules[modulename]['class'])
 
     ###################################
     # Objects Methods
@@ -269,47 +259,42 @@ class SimOpInt:
     def getObjectOfType(self, objecttype):
         return self.objects[objecttype]['OBJECTS']
 
-    def createObject(self, objectmodule, objecttype, objectname, args):
+    def createObject(self, objmodule, objtype, objname, args):
+        module = self.getModule(objmodule)
+
         if self.debug == 34:
-            print("Creating Object {} {} with Args {}".format(objectmodule, objectname, args))
+            print("Creating Object {} {} with Args {} from Module {}".format(objmodule, objname, args, module))
             print("\r")
 
-        module = self.getModule(objectmodule)
+        self.objects[objtype]['OBJECTS'][objname] = module(*args)
 
-        self.objects[objecttype]['OBJECTS'][objectname] = module(*args)
+    def createObjectOfType(self, objtype, objfile):
+        if self.debug == 34:
+            print("Reading {} configuration for Object Type {}".format(objfile, objtype))
+
+        self.objects[objtype] = {}
+
+        objects = self.tools.readJsonFile(self.configdir, objfile)
 
         if self.debug == 34:
-            print(module)
+            print("Objects Type {} Data : {}".format(objtype, objects))
 
-    def createObjectOfType(self, objecttype, objectsfile):
-        if self.debug == 34:
-            print("Reading {} configuration for Object Type {}".format(objectsfile, objecttype))
-            print("\r")
+        self.objects[objtype]['CONF'] = objects['CONF']
+        self.objects[objtype]['OBJECTS'] = {}
 
-        self.objects[objecttype] = {}
-        objects = self.tools.readConfigFile(self.configdir, objectsfile)
-        objectsconf = {confsection: confdata for confsection, confdata in objects.items() if confsection in ['CONF', 'PROPERTIES']}
+        propkeys = sorted(objects['PROPERTIES'].keys())
 
         if self.debug == 34:
-            for objectsconfsection, objectsconfdata in objectsconf.items():
-                print("Object Type {} Conf Section {} : {}".format(objecttype, objectsconfsection, objectsconfdata))
-            print("\r")
+            print("Properties Keys : {}".format(propkeys))
 
-        self.objects[objecttype]['CONF'] = objectsconf['CONF']
-        self.objects[objecttype]['OBJECTS'] = {}
-
-        objectsdata = {confsection: confdata for confsection, confdata in objects.items() if confsection not in ['CONF', 'PROPERTIES']}
-
-        for objectname, objectdata in objectsdata.items():
+        for objname, objdata in objects['OBJECTS'].items():
             if self.debug == 34:
-                print("Object {} : {}".format(objectname, objectdata))
-
-            propskey = sorted(objectsconf['PROPERTIES'].keys())
+                print("Object {} [{}] : Config : {}".format(objname, objtype, objdata))
 
             args = []
-            for prop in propskey:
-                propname = objectsconf['PROPERTIES'][prop]
-                propvalue = objectdata[propname]
+            for prop in propkeys:
+                propname = objects['PROPERTIES'][prop]
+                propvalue = objdata[propname]
 
                 if self.debug == 34:
                     print("Prop {} Value {}".format(propname, propvalue))
@@ -329,16 +314,30 @@ class SimOpInt:
 
                 args.append(propvalue)
 
-            objectmodule = objectsconf['CONF']['module']
+            if self.debug == 34:
+                print("Args : {}".format(args))
 
-            self.createObject(objectmodule, objecttype, objectname, args)
+            objmodule = objects['CONF']['module']
+
+            self.createObject(objmodule, objtype, objname, args)
 
     def createObjects(self):
         if self.debug == 34:
             print("Creating Objects ...")
-            print("\r")
         for objecttype, objecttypefile in self.getConfigSection('OBJECTS').items():
             self.createObjectOfType(objecttype, objecttypefile)
 
-        if self.debug == 34:
-            print("\r")
+    ###################################
+    # Data Methods
+    ###################################
+
+    # Method createNodeConds(nodeconds)
+    # Return a formatted Dict Condition
+    def createNodeConds(self, conditions):
+        nodeconds = {}
+        for nodecond in conditions.split(':'):
+            nodeconds[nodecond.split(',')[0]] = {}
+            nodeconds[nodecond.split(',')[0]]['node'] = nodecond.split(',')[1]
+            nodeconds[nodecond.split(',')[0]]['noderefid'] = None
+
+        return nodeconds

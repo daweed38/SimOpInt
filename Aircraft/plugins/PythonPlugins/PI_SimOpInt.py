@@ -28,18 +28,20 @@ from PythonPlugins.SimOpInt.SimOpIntSrv import SimOpIntSrv
 
 class PythonInterface:
     def __init__(self) -> None:
-        self.debug = 23
+        self.debug = 0
 
         self.Name = "SimOpInt"
         self.Sig = "xppython3.simopint"
         self.Desc = "Sim Open Interface"
+
+        self.initialized = False
 
         self.tools = SimOpIntTools(self.debug)
 
         self.aircraftdir = xp.extractFileAndPath(xp.getNthAircraftModel(0)[1])[1].removeprefix(xp.getSystemPath())
         self.configdir = self.aircraftdir + '/plugins/PythonPlugins/SimOpint/Config/'
         self.configdir_ok = False
-        self.configfile = 'simopint.cfg'
+        self.configfile = 'simopint.json'
         self.configfile_ok = False
 
         self.flightloopID = None
@@ -54,7 +56,7 @@ class PythonInterface:
         self.simopints = {}
         self.shared_data = {}
 
-        self.flightloopcbktime = 0.2
+        self.flightloopcbktime = 0.02
 
         if os.path.exists(self.configdir):
             if self.debug == 1:
@@ -67,9 +69,41 @@ class PythonInterface:
             self.configfile_ok = True
 
         if self.configdir_ok and self.configfile_ok:
-            self.simopintcfg = self.tools.readConfigFile(self.configdir, self.configfile)
+            self.simopintcfg = self.tools.readJsonFile(self.configdir, self.configfile)
             if self.debug == 1:
                 xp.log("Sim Open Interface Plugin Configuration : {}".format(self.simopintcfg))
+
+            # Sim Open Interface Server Creation
+            if self.simopintcfg is not False:
+
+                srvname = self.getConfigParam('NETWORK', 'srvname')
+                srvaddr = self.getConfigParam('NETWORK', 'srvaddr')
+                srvport = self.getConfigParam('NETWORK', 'srvport')
+                if self.debug == 1:
+                    xp.log("Sim Open Interface Server {} Creation with param Addr {} [{}] / Port {} [{}]".format(srvname, srvaddr, type(srvaddr), srvport, type(srvport)))
+
+                self.simopintsrv = SimOpIntSrv(name='SimOpIntSrv', srvaddr=srvaddr, srvport=srvport, debug=17)
+                self.simopintsrv.setOutData(self.shared_data)
+
+                if self.debug == 1:
+                    xp.log("Sim Open Interface Server Signals {}".format(self.simopintsrv.listSignals()))
+
+                # Sim Open Interface Creation
+                if self.debug == 1:
+                    xp.log("Creating Sim Open Interfaces ...")
+                self.createInterfaces()
+                self.createDataRefId()
+
+                if self.debug == 1:
+                    xp.log("SimOpInt Interfaces List : {}".format(self.getSimOpInterfacesList()))
+
+                if self.debug == 1:
+                    xp.log("Plugin Initialization OK ...")
+
+                self.initialized = True
+
+            else:
+                xp.log("Sim Open Interface Plugin Not Initialized, Configuration Error")
         else:
             xp.log("Configuration File {} not found in {}".format(self.configdir, self.configfile))
 
@@ -105,20 +139,6 @@ class PythonInterface:
 
         xp.appendMenuItem(menuID=self.pluginMenuID, name='About', refCon='about')
 
-        # Sim Open Interface Creation
-        if self.configdir_ok and self.configfile_ok:
-            if self.debug == 1:
-                xp.log("Creating Sim Open Interfaces ...")
-            self.createInterfaces()
-            self.createDataRefId()
-
-        if self.debug == 1:
-            xp.log("SimOpInt Interfaces List : {}".format(self.getSimOpInterfacesList()))
-
-        # Sim Open Interface Server Creation
-        # self.simopintsrv = SimOpIntSrv(addr='192.168.0.150', port=7000)
-        # self.simopintsrv.setOutData(self.shared_data)
-        
         return self.Name, self.Sig, self.Desc
 
     def XPluginStop(self) -> None:
@@ -181,6 +201,18 @@ class PythonInterface:
     def setDebugLevel(self, debuglevel: int) -> None:
         self.debug = debuglevel
 
+    def getConfig(self):
+        return self.simopintcfg
+
+    def getConfigSection(self, section):
+        return self.simopintcfg[section]
+
+    def getConfigParam(self, section, param):
+        return self.simopintcfg[section][param]
+
+    def getSimOpIntServer(self):
+        return self.simopintsrv
+
     ##################################################
     # Plugin Menu Callback Method
     ##################################################
@@ -194,35 +226,54 @@ class PythonInterface:
             xp.log("Actions Menu : {} / {}".format(menuRefCon, itemRefCon))
 
         if itemRefCon == 'start':
-            if self.debug == 22:
-                xp.log("Starting ... at {}".format(datetime.now()))
-                xp.log()
+            if self.initialized:
+                if self.debug == 22:
+                    xp.log("Starting ... at {}".format(datetime.now()))
+                    xp.log()
 
-            # Starting Flight Loop
-            if self.debug == 22:
-                xp.log("Starting Flight Loop ... at {}".format(datetime.now()))
-                xp.log()
-            xp.scheduleFlightLoop(self.flightloopID, self.flightloopcbktime)
+                # Starting Flight Loop is plugin initialized
+                if self.debug == 22:
+                    xp.log("Starting Flight Loop ... at {}".format(datetime.now()))
+                    xp.log()
+                xp.scheduleFlightLoop(self.flightloopID, self.flightloopcbktime)
 
-            if self.debug == 22:
-                xp.log("Started ... at {}".format(datetime.now()))
+                # Thread Creation
+                self.simopintsrv.setOutData(self.shared_data)
+                self.threadsrv = threading.Thread(target=self.simopintsrv.loopSimOpIntServer)
+                self.threadsrv.start()
+                self.simopintsrv.start()
+
+                if self.debug == 22:
+                    xp.log("Started ... at {}".format(datetime.now()))
+                    xp.log()
+            else:
+                xp.log("Plugin Not Initialized")
                 xp.log()
 
         elif itemRefCon == 'stop':
-            if self.debug == 22:
-                xp.log("Stopping ... at {}".format(datetime.now()))
+            if self.initialized:
+                if self.debug == 22:
+                    xp.log("Stopping ... at {}".format(datetime.now()))
+                    xp.log()
+
+                # Stopping Flight Loop
+                if self.debug == 22:
+                    xp.log("Stopping Flight Loop ... at {}".format(datetime.now()))
+                    xp.log()
+                xp.scheduleFlightLoop(self.flightloopID, 0)
+
+                # Stopping Server
+                self.simopintsrv.shutdown()
+                self.threadsrv.join()
+                self.simopintsrv.setSignal('shutdown', False)
+
+                if self.debug == 22:
+                    xp.log("Stopped ... at {}".format(datetime.now()))
+                    xp.log()
+            else:
+                xp.log("Plugin Not Initialized")
                 xp.log()
 
-            # Stopping Flight Loop
-            if self.debug == 22:
-                xp.log("Stopping Flight Loop ... at {}".format(datetime.now()))
-                xp.log()
-            xp.scheduleFlightLoop(self.flightloopID, 0)
-
-            if self.debug == 22:
-                xp.log("Stopped ... at {}".format(datetime.now()))
-                xp.log()
-    
     def configMenuCB(self, menuRefCon, itemRefCon) -> None:
         if self.debug == 23:
             xp.log("Configuration Menu: {} / {}".format(menuRefCon, itemRefCon))
@@ -265,10 +316,8 @@ class PythonInterface:
         if self.debug == 30:
             xp.log('Flight Loop Executed at {} Shared Data : {}'.format(datetime.now(), self.shared_data))
 
-        """
         # Updating OutData in Sim Open Interface Client
-        self.simopintcli.setOutData(self.shared_data)
-        """
+        self.simopintsrv.setOutData(self.shared_data)
 
         return self.flightloopcbktime
 
@@ -288,19 +337,19 @@ class PythonInterface:
     def getSimOpInterface(self, interface: str) -> SimOpInt:
         return self.simopints[interface]['object']
 
-    def createInterfaces(self) -> None:
-        # {confsection: confdata for confsection, confdata in objects.items() if confsection not in ['CONF', 'PROPERTIES']}
-        for interface in self.simopintcfg:
-            self.createInterface(interface)
-        pass
-
     def createInterface(self, interface: str) -> None:
-        if interface in self.simopintcfg:
+        if interface in self.simopintcfg['INTERFACES']:
             self.simopints[interface] = {}
             interfacedir = self.configdir + interface
-            self.simopints[interface]['object'] = SimOpInt(interfacedir, self.simopintcfg[interface]['file'], 0)
+            self.simopints[interface]['object'] = SimOpInt(interfacedir, self.simopintcfg['INTERFACES'][interface]['configfile'], 0)
         else:
             self.simopints[interface]['object'] = False
+        pass
+
+    def createInterfaces(self) -> None:
+        # {confsection: confdata for confsection, confdata in objects.items() if confsection not in ['CONF', 'PROPERTIES']}
+        for interface in self.simopintcfg['INTERFACES']:
+            self.createInterface(interface)
         pass
 
     ##################################################
@@ -323,7 +372,8 @@ class PythonInterface:
                                 nodeRefId = xp.findDataRef(obj.getNodeCond(nodecond))
                                 obj.setNodeCondRef(nodecond, nodeRefId)
 
-    def getDataRefValue(self, dataref, dataformat='string'):
+    @staticmethod
+    def getDataRefValue(dataref, dataformat='string'):
         if xp.getDataRefTypes(dataref) == 1:
             return xp.getDatai(dataref)
         elif xp.getDataRefTypes(dataref) == 2:

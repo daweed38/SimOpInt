@@ -5,6 +5,7 @@ import types
 import pickle
 import time
 import hashlib
+import logging
 from datetime import datetime
 
 ##################################################
@@ -31,20 +32,20 @@ class SimOpIntSrv:
     # Constructor
     #############################################
 
-    def __init__(self, name='SimOpIntSrv', addr='localhost', port=7000, debug=0):
+    def __init__(self, name='SimOpIntSrv', srvaddr='localhost', srvport=7000, debug=0):
         self.debug = debug
         self.srvname = name
-        self.srvaddr = addr
-        self.srvport = int(port)
+        self.srvaddr = srvaddr
+        self.srvport = int(srvport)
         self.srvsock = None
-        self.srvtimeout = 1
-        self.clitimeout = 0.025
         self.headersize = 10
-        self.BUFFERSIZE = 16
+        self.buffersize = 16
         self.signals = {'shutdown': False, 'loop': False, 'connect': False, 'kill': False}
         self.state = 0
 
         self.selector = selectors.DefaultSelector()
+        self.looptimeout = 0.2
+        self.seltimeout = 0.025
 
         self.inData = {}
         self.inData_md5 = ''
@@ -52,6 +53,8 @@ class SimOpIntSrv:
         self.outData_md5 = ''
 
         self.client = 0
+
+        # logging.basicConfig(filename='simopintsrv.log', level=logging.INFO)
 
         if self.debug == 1:
             print("######################################################################")
@@ -153,7 +156,6 @@ class SimOpIntSrv:
     def setInterInData(self, intname, indata):
         self.inData[intname] = indata
 
-
     #############################################
     # Server Method
     #############################################
@@ -181,7 +183,8 @@ class SimOpIntSrv:
         sock.setblocking(False)
 
         events = selectors.EVENT_READ | selectors.EVENT_WRITE
-        data = types.SimpleNamespace(addr=addr, intname=intname, msg_new_r=True, msg_full_r=b'', msglen_r=0, remain_size_r=0, oldmask='', olddata='')
+        data = types.SimpleNamespace(addr=addr, intname=intname, buffersize=self.buffersize, inData=b'', outData=b'', outData_md5='', msg_new_r=True, msg_full_r=b'', msglen_r=0, remain_size_r=0)
+
         self.selector.register(sock, events, data=data)
 
         self.client += 1
@@ -194,47 +197,51 @@ class SimOpIntSrv:
         data = key.data
 
         if mask & selectors.EVENT_READ:
+            if self.debug == 12:
+                print(f"Reading Socket from {sock} on Addr {data.addr}")
 
-            msg_r = sock.recv(self.BUFFERSIZE)
+            try:
+                msg_r = sock.recv(data.buffersize)
 
-            if data.msg_new_r and msg_r != b'':
-                if self.debug == 15:
-                    print("New Message. Message Length : {} Remaining Length : {}".format(data.msglen_r, data.remain_size_r))
+                if data.msg_new_r and msg_r != b'':
 
-                data.msg_new_r = False
-                data.msglen_r = int(msg_r[:self.headersize])
-                data.msg_full_r = msg_r[self.headersize:]
-                data.remain_size_r = data.msglen_r - len(msg_r[self.headersize:])
+                    data.msg_new_r = False
+                    data.msglen_r = int(msg_r[:self.headersize])
+                    data.msg_full_r = msg_r[self.headersize:]
+                    data.remain_size_r = data.msglen_r - len(msg_r[self.headersize:])
 
-            elif msg_r != b'' and len(msg_r) > 0:
-                if self.debug == 15:
-                    print("Continue Message. Message Length : {} Remaining Length : {}".format(data.msglen_r, data.remain_size_r))
-                data.msg_full_r += msg_r
-                data.remain_size_r -= len(msg_r)
+                    if self.debug == 15:
+                        print("New Message. Message Length : {} Remaining Length : {}".format(data.msglen_r, data.remain_size_r))
 
-            if data.remain_size_r < self.BUFFERSIZE:
-                self.BUFFERSIZE = data.remain_size_r
+                elif msg_r != b'' and len(msg_r) > 0:
+                    data.msg_full_r += msg_r
+                    data.remain_size_r -= len(msg_r)
 
-            if data.remain_size_r == 0 and data.msg_full_r != b'':
-                inData = pickle.loads(data.msg_full_r)
+                    if self.debug == 15:
+                        print("Continue Message. Message Length : {} Remaining Length : {}".format(data.msglen_r, data.remain_size_r))
 
-                if inData == 'shutdown':
-                    print("Client {} Shutdown".format(data.intname))
-                    try:
-                        del self.inData[data.intname]
-                    except KeyError:
-                        print("Error when removing {} key in self.inData")
-                    self.selector.unregister(sock)
-                    sock.close()
+                if data.remain_size_r < data.buffersize:
+                    data.buffersize = data.remain_size_r
 
-                else:
+                if data.remain_size_r == 0 and data.msg_full_r != b'':
+                    data.inData = pickle.loads(data.msg_full_r)
+
                     if self.debug == 16:
-                        print("Full Message Received from {} : {}".format(data.intname, inData))
-                    self.inData[data.intname] = inData
-                    data.msg_new_r = True
-                    data.msg_full_r = b''
-                    data.msglen_r = 0
-                    self.BUFFERSIZE = 16
+                        print("Full Message Received from {} : {}".format(data.intname, data.inData))
+
+                    if data.inData == 'shutdown':
+                        self.selector.unregister(sock)
+                        sock.close()
+
+                    else:
+                        self.inData[data.intname] = data.inData
+                        data.msg_new_r = True
+                        data.msg_full_r = b''
+                        data.msglen_r = 0
+                        data.buffersize = 16
+
+            except OSError:
+                print(f"Error Reading From Socket")
 
         if mask & selectors.EVENT_WRITE:
 
@@ -242,17 +249,17 @@ class SimOpIntSrv:
             msg_full_s = bytes(f'{len(msg_s):<{10}}', "utf-8") + msg_s
             outData_md5 = hashlib.md5(msg_full_s).hexdigest()
 
-            if self.outData_md5 != outData_md5:
+            if data.outData_md5 != outData_md5:
                 try:
                     sock.sendall(msg_full_s)
                     if self.debug == 17:
-                        print("Sending Data ...")
-                    self.outData_md5 = outData_md5
+                        print(f"Sending Data to {data.intname} ... {self.getOutData()}")
+
+                    data.outData_md5 = outData_md5
 
                 except OSError as e:
-                    print("OSError")
                     if self.debug == 17:
-                        print("Error Sending : {}".format(e))
+                        print(f"OSError {e}")
 
     #############################################
     # Server Loop Method
@@ -268,9 +275,9 @@ class SimOpIntSrv:
         Level 16 : SimOpIntSrv Received Message Debug Level
         Level 17 : SimOpIntSrv Sending Message Debug Level
         """
-        oldmask = 0
 
         self.srvsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.srvsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.srvsock.bind((self.srvaddr, self.srvport))
         self.srvsock.listen()
         self.srvsock.setblocking(False)
@@ -290,16 +297,17 @@ class SimOpIntSrv:
                 if self.debug == 13:
                     print("Server Loop in Progress ... ")
 
-                events = self.selector.select(timeout=None)
+                events = self.selector.select(timeout=self.seltimeout)
+
                 for key, mask in events:
                     if key.data is None:
                         self.serverAcceptConn()
                     else:
                         self.serverDataProcess(key, mask)
 
-                time.sleep(0.02)
+                # time.sleep(self.looptimeout)
 
-            time.sleep(0.5)
+            time.sleep(self.looptimeout)
 
         if self.debug == 12:
             print("Server Socket {} Closed at {}".format(self.srvsock, datetime.now()))
