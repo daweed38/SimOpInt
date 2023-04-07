@@ -58,58 +58,6 @@ class PythonInterface:
 
         self.flightloopcbktime = 0.02
 
-        if os.path.exists(self.configdir):
-            if self.debug == 1:
-                xp.log("Configuration Directory {} Exist".format(self.configdir))
-            self.configdir_ok = True
-
-        if os.path.isfile(self.configdir+self.configfile):
-            if self.debug == 1:
-                xp.log("Configuration {} found in {}".format(self.configfile, self.configdir))
-            self.configfile_ok = True
-
-        if self.configdir_ok and self.configfile_ok:
-            self.simopintcfg = self.tools.readJsonFile(self.configdir, self.configfile)
-            if self.debug == 1:
-                xp.log("Sim Open Interface Plugin Configuration : {}".format(self.simopintcfg))
-
-            # Sim Open Interface Server Creation
-            if self.simopintcfg is not False:
-
-                srvname = self.getConfigParam('NETWORK', 'srvname')
-                srvaddr = self.getConfigParam('NETWORK', 'srvaddr')
-                srvport = self.getConfigParam('NETWORK', 'srvport')
-                if self.debug == 1:
-                    xp.log("Sim Open Interface Server {} Creation with param Addr {} [{}] / Port {} [{}]".format(srvname, srvaddr, type(srvaddr), srvport, type(srvport)))
-
-                self.simopintsrv = SimOpIntSrv(name='SimOpIntSrv', srvaddr=srvaddr, srvport=srvport, debug=17)
-                self.simopintsrv.setOutData(self.shared_data)
-
-                if self.debug == 1:
-                    xp.log("Sim Open Interface Server Signals {}".format(self.simopintsrv.listSignals()))
-
-                # Sim Open Interface Creation
-                if self.debug == 1:
-                    xp.log("Creating Sim Open Interfaces ...")
-                self.createInterfaces()
-                self.createDataRefId()
-
-                if self.debug == 1:
-                    xp.log("SimOpInt Interfaces List : {}".format(self.getSimOpInterfacesList()))
-
-                if self.debug == 1:
-                    xp.log("Plugin Initialization OK ...")
-
-                self.initialized = True
-
-            else:
-                xp.log("Sim Open Interface Plugin Not Initialized, Configuration Error")
-        else:
-            xp.log("Configuration File {} not found in {}".format(self.configdir, self.configfile))
-
-        if self.debug == 1:
-            xp.log("Plugin Initialization OK ...")
-
     ##################################################
     # Plugin System Method (Required)
     ##################################################
@@ -138,6 +86,57 @@ class PythonInterface:
         xp.appendMenuSeparator(self.pluginMenuID)
 
         xp.appendMenuItem(menuID=self.pluginMenuID, name='About', refCon='about')
+
+        if os.path.exists(self.configdir):
+            if self.debug == 1:
+                xp.log("Configuration Directory {} Exist".format(self.configdir))
+            self.configdir_ok = True
+
+        if os.path.isfile(self.configdir+self.configfile):
+            if self.debug == 1:
+                xp.log("Configuration {} found in {}".format(self.configfile, self.configdir))
+            self.configfile_ok = True
+
+        if self.configdir_ok and self.configfile_ok:
+            self.simopintcfg = self.tools.readJsonFile(self.configdir, self.configfile)
+            if self.debug == 1:
+                xp.log("Sim Open Interface Plugin Configuration : {}".format(self.simopintcfg))
+
+            # Sim Open Interface Server Creation
+            if self.simopintcfg is not False:
+
+                srvname = self.getConfigParam('NETWORK', 'srvname')
+                srvaddr = self.getConfigParam('NETWORK', 'srvaddr')
+                srvport = self.getConfigParam('NETWORK', 'srvport')
+                if self.debug == 1:
+                    xp.log("Sim Open Interface Server {} Creation with param Addr {} [{}] / Port {} [{}]".format(srvname, srvaddr, type(srvaddr), srvport, type(srvport)))
+
+                self.simopintsrv = SimOpIntSrv(name='SimOpIntSrv', srvaddr=srvaddr, srvport=srvport, debug=0)
+                self.simopintsrv.setOutData(self.shared_data)
+
+                if self.debug == 1:
+                    xp.log("Sim Open Interface Server Signals {}".format(self.simopintsrv.listSignals()))
+
+                # Sim Open Interface Creation
+                if self.debug == 1:
+                    xp.log("Creating Sim Open Interfaces ...")
+                self.createInterfaces()
+
+                if self.debug == 1:
+                    xp.log("SimOpInt Interfaces List : {}".format(self.getSimOpInterfacesList()))
+
+                if self.debug == 1:
+                    xp.log("Plugin Initialization OK ...")
+
+                self.initialized = True
+
+            else:
+                xp.log("Sim Open Interface Plugin Not Initialized, Configuration Error")
+        else:
+            xp.log("Configuration File {} not found in {}".format(self.configdir, self.configfile))
+
+        if self.debug == 1:
+            xp.log("Plugin Initialization OK ...")
 
         return self.Name, self.Sig, self.Desc
 
@@ -179,6 +178,8 @@ class PythonInterface:
         if self.flightloopID:
             xp.destroyFlightLoop(self.flightloopID)
 
+        self.simopintsrv.shutdown()
+
         pass
 
     def XPluginReceiveMessage(self, inFromWho, inMessage, inParam) -> None:
@@ -188,7 +189,15 @@ class PythonInterface:
         # Messages may be custom inter-plugin messages, as defined by other plugins.
         # Return is ignored
         if self.debug == 1:
-            xp.log("Message Receive at {}".format(datetime.now()))
+            xp.log(f"Message Receive From {inFromWho} : {inMessage} Param : {inParam}")
+            xp.log()
+
+        if inFromWho == 0 and inMessage == 114:
+            if self.debug == 1:
+                xp.log(f"Message DataRef have been added to A330 Get DataRefID from laminar/A333/autopilot/hdg_window_open {xp.findDataRef('laminar/A333/autopilot/hdg_window_open')}")
+                xp.log()
+            if self.initialized:
+                self.createDataRefId()
         pass
 
     ##################################################
@@ -294,24 +303,7 @@ class PythonInterface:
 
         # Formatting OutData Stuff To be Sent
         for interface in self.simopints:
-            simopint = self.getSimOpInterface(interface)
-
-            self.shared_data[interface] = {}
-
-            for objtype in simopint.listExportedObjects():
-
-                self.shared_data[interface][objtype] = {}
-
-                for objname, obj in simopint.getObjectOfType(objtype).items():
-                    if obj.getNode() is not None:
-
-                        self.shared_data[interface][objtype][objname] = {}
-                        self.shared_data[interface][objtype][objname]['nodeval'] = self.getDataRefValue(obj.getNodeRef(), obj.getNodeFormat())
-                        self.shared_data[interface][objtype][objname]['nodecond'] = {}
-
-                        if obj.getNodeConds() is not None:
-                            for nodecond in obj.getNodeConds():
-                                self.shared_data[interface][objtype][objname]['nodecond'][nodecond] = self.getDataRefValue(obj.getNodeCondRef(nodecond))
+            self.updateSharedData(interface)
 
         if self.debug == 30:
             xp.log('Flight Loop Executed at {} Shared Data : {}'.format(datetime.now(), self.shared_data))
@@ -369,26 +361,27 @@ class PythonInterface:
 
                         if obj.getNodeConds() is not None:
                             for nodecond in obj.getNodeConds():
-                                nodeRefId = xp.findDataRef(obj.getNodeCond(nodecond))
-                                obj.setNodeCondRef(nodecond, nodeRefId)
+                                noderefid = xp.findDataRef(obj.getNodeCond(nodecond))
+                                xp.log(f"Object {obj.getName()} Node Cond : {nodecond} / NodeRefId {noderefid}")
+                                obj.setNodeCondRef(nodecond, noderefid)
 
     @staticmethod
-    def getDataRefValue(dataref, dataformat='string'):
-        if xp.getDataRefTypes(dataref) == 1:
+    def getDataRefValue(dataref, datareftype, dataformat='string'):
+        if datareftype == "int":
             return xp.getDatai(dataref)
-        elif xp.getDataRefTypes(dataref) == 2:
+        elif datareftype == "float":
             return xp.getDataf(dataref)
-        elif xp.getDataRefTypes(dataref) == 4:
+        elif datareftype == "double":
             return xp.getDatad(dataref)
-        elif xp.getDataRefTypes(dataref) == 8:
+        elif datareftype == "float_array":
             value = []
             xp.getDatavf(dataref, value, 0, -1)
             return value
-        elif xp.getDataRefTypes(dataref) == 16:
+        elif datareftype == "int_array":
             value = []
             xp.getDatavi(dataref, value, 0, -1)
             return value
-        elif xp.getDataRefTypes(dataref) == 32:
+        elif datareftype == "data":
             if dataformat == 'string':
                 return xp.getDatas(dataref)
             else:
@@ -398,3 +391,22 @@ class PythonInterface:
         else:
             # Case Data Type is Unknow
             return "Unknow Type"
+
+    def updateSharedData(self, interface):
+        self.shared_data[interface] = {}
+
+        simopint = self.getSimOpInterface(interface)
+
+        for objtype in simopint.listExportedObjects():
+
+            self.shared_data[interface][objtype] = {}
+
+            for objname, obj in simopint.getObjectOfType(objtype).items():
+                if obj.getNode() is not None and obj.getNodeType() is not None:
+                    self.shared_data[interface][objtype][objname] = {}
+                    self.shared_data[interface][objtype][objname]['nodeval'] = self.getDataRefValue(obj.getNodeRef(), obj.getNodeType())
+                    self.shared_data[interface][objtype][objname]['nodecond'] = {}
+
+                    if obj.getNodeConds() is not None:
+                        for nodecond in obj.getNodeConds():
+                            self.shared_data[interface][objtype][objname]['nodecond'][nodecond] = self.getDataRefValue(obj.getNodeCondRef(nodecond), obj.getNodeCondType(nodecond))

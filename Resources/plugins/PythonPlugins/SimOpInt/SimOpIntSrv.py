@@ -144,6 +144,12 @@ class SimOpIntSrv:
     def setOutData(self, data):
         self.outData = data
 
+    def getIntOutData(self, interface):
+        return self.outData[interface]
+
+    def setIntOuData(self, interface, data):
+        self.outData[interface] = data
+
     def getInData(self):
         return self.inData
 
@@ -245,7 +251,7 @@ class SimOpIntSrv:
 
         if mask & selectors.EVENT_WRITE:
 
-            msg_s = pickle.dumps(self.getOutData())
+            msg_s = pickle.dumps(self.getIntOutData(data.intname))
             msg_full_s = bytes(f'{len(msg_s):<{10}}', "utf-8") + msg_s
             outData_md5 = hashlib.md5(msg_full_s).hexdigest()
 
@@ -253,7 +259,7 @@ class SimOpIntSrv:
                 try:
                     sock.sendall(msg_full_s)
                     if self.debug == 17:
-                        print(f"Sending Data to {data.intname} ... {self.getOutData()}")
+                        print(f"Sending Data to {data.intname} ... {self.getIntOutData(data.intname)}")
 
                     data.outData_md5 = outData_md5
 

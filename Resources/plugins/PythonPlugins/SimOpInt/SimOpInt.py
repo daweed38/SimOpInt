@@ -306,10 +306,12 @@ class SimOpInt:
                     if propvalue == 'None':
                         propvalue = None
 
+                if propname == 'nodetype':
+                    if propvalue == 'None':
+                        propvalue = None
+
                 if propname == 'nodecond':
-                    if propvalue != 'None':
-                        propvalue = self.createNodeConds(propvalue)
-                    else:
+                    if propvalue == 'None':
                         propvalue = None
 
                 args.append(propvalue)
@@ -331,6 +333,7 @@ class SimOpInt:
     # Data Methods
     ###################################
 
+    """
     # Method createNodeConds(nodeconds)
     # Return a formatted Dict Condition
     def createNodeConds(self, conditions):
@@ -341,3 +344,4 @@ class SimOpInt:
             nodeconds[nodecond.split(',')[0]]['noderefid'] = None
 
         return nodeconds
+    """

@@ -108,29 +108,6 @@ class ObjBase:
     def setNodeRef(self, noderef) -> None:
         self.noderef = noderef
 
-    # Method getNodeConds()
-    # Return Object Conditions Dict
-    def getNodeConds(self) -> dict:
-        return self.nodeconds
-
-    # Method getNodeCond(nodecond)
-    # Return Object Condition for Node nodecond
-    # nodecond is str
-    def getNodeCond(self, nodecond: str) -> str:
-        return self.nodeconds[nodecond]['node']
-
-    # Method getNodeCondRef(nodecond)
-    # Return X-Plane Node RefID Condition for nodecond
-    # nodecond is str
-    def getNodeCondRef(self, nodecond: str) -> object:
-        return self.nodeconds[nodecond]['noderefid']
-
-    # Method setNodeCondRef(nodecond, noderefid)
-    # Set X-Plane Node RefID Condition to noderefid for nodecond
-    # nodecond is str and noderefid is an X-Plane DataRef Object
-    def setNodeCondRef(self, nodecond: str, noderefid) -> None:
-        self.nodeconds[nodecond]['noderefid'] = noderefid
-
     # Method getNodeFormat()
     # Return Node Format
     # Used when Getting or Setting DataType Data [32]
@@ -143,6 +120,35 @@ class ObjBase:
     # nodeformat is str
     def setNodeFormat(self, nodeformat: str) -> None:
         self.nodeformat = nodeformat
+
+    # Method getNodeConds()
+    # Return Object Conditions Dict
+    def getNodeConds(self) -> dict:
+        return self.nodeconds
+
+    # Method getNodeCond(nodecond)
+    # Return Object Condition for Node nodecond
+    # nodecond is str
+    def getNodeCond(self, nodecond: str) -> str:
+        return self.nodeconds[nodecond]['node']
+
+    # Method getNodeCondType()
+    # Return Object Condition Type for Node nodecond
+    # nodecond is str
+    def getNodeCondType(self, nodecond: str) -> str:
+        return self.nodeconds[nodecond]['nodetype']
+
+    # Method getNodeCondRef(nodecond)
+    # Return X-Plane Node RefID Condition for nodecond
+    # nodecond is str
+    def getNodeCondRef(self, nodecond: str) -> object:
+        return self.nodeconds[nodecond]['noderefid']
+
+    # Method setNodeCondRef(nodecond, noderefid)
+    # Set X-Plane Node RefID Condition to noderefid for nodecond
+    # nodecond is str and noderefid is an X-Plane DataRef Object
+    def setNodeCondRef(self, nodecond: str, noderefid) -> None:
+        self.nodeconds[nodecond]['noderefid'] = noderefid
 
     ########################################
     # Object Status & Value

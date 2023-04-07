@@ -24,7 +24,17 @@
             "node": "sim/cockpit2/autopilot/airspeed_dial_kts_mach",
             "nodetype": "float",
             "nodeformat": "None",
-            "nodecond": "dashes,sim/cockpit2/autopilot/vnav_speed_window_open:ismach,sim/cockpit/autopilot/airspeed_is_mach",
+            "nodecond": {
+                "dashes":  {
+                    "node": "sim/cockpit2/autopilot/vnav_speed_window_open",
+                    "nodetype": "int"
+                },
+                "ismach": {
+                    "node": "sim/cockpit/autopilot/airspeed_is_mach",
+                    "nodetype": "int"
+                }
+
+            },
             "device": "LEDPACK1",
             "port": "B",
             "row1": "1",
@@ -36,7 +46,12 @@
             "node": "sim/cockpit2/autopilot/heading_dial_deg_mag_pilot",
             "nodetype": "float",
             "nodeformat": "None",
-            "nodecond": "None",
+            "nodecond": {
+                "dashes":  {
+                    "node": "laminar/A333/autopilot/hdg_window_open",
+                    "nodetype": "double"
+                }
+            },
             "device": "LEDPACK1",
             "port": "A",
             "row1": "1",
@@ -60,12 +75,42 @@
             "node": "sim/cockpit2/autopilot/vvi_dial_fpm",
             "nodetype": "float",
             "nodeformat": "None",
-            "nodecond": "None",
+            "nodecond": {
+                "dashes": {
+                    "node": "laminar/A333/autopilot/vvi_fpa_window_open",
+                    "nodetype": "double"
+                },
+                "trkfpa": {
+                    "node": "sim/cockpit2/autopilot/trk_fpa",
+                    "nodetype": "int"
+                }
+            },
             "device": "LEDPACK1",
             "port": "A",
             "row1": "4",
             "nbdigit": "5",
             "decdigit": "0"
+        },
+        "FPADSP": {
+            "name": "FPADSP",
+            "node": "sim/cockpit2/autopilot/fpa",
+            "nodetype": "float",
+            "nodeformat": "None",
+            "nodecond": {
+                "dashes": {
+                    "node": "laminar/A333/autopilot/vvi_fpa_window_open",
+                    "nodetype": "double"
+                },
+                "trkfpa": {
+                    "node": "sim/cockpit2/autopilot/trk_fpa",
+                    "nodetype": "int"
+                }
+            },
+            "device": "LEDPACK1",
+            "port": "A",
+            "row1": "4",
+            "nbdigit": "5",
+            "decdigit": "1"
         }
     }
 }
