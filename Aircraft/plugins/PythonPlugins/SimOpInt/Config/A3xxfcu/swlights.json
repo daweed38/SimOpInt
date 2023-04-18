@@ -4,7 +4,8 @@
     "library": "ObjDisplays",
     "module": "Annunciator",
     "properylist": "name,node,nodetype,nodeformat,nodecond,device,port,row,out1,nblight,activemode,initstate",
-    "export": "yes"
+    "export": "yes",
+    "import": "no"
   },
   "PROPERTIES": {
     "prop01": "name",
@@ -23,8 +24,8 @@
   "OBJECTS": {
     "LOCSWL": {
       "name": "locswl",
-      "node": "None",
-      "nodetype": "None",
+      "node": "laminar/A333/annun/autopilot/loc_mode",
+      "nodetype": "int",
       "nodeformat": "None",
       "nodecond": "None",
       "device": "LEDPACK2",
@@ -37,8 +38,8 @@
     },
     "AP2SWL": {
       "name": "ap2swl",
-      "node": "None",
-      "nodetype": "None",
+      "node": "laminar/A333/annun/autopilot/ap2_mode",
+      "nodetype": "int",
       "nodeformat": "None",
       "nodecond": "None",
       "device": "LEDPACK2",
@@ -51,8 +52,8 @@
     },
     "AP1SWL": {
       "name": "ap1swl",
-      "node": "None",
-      "nodetype": "None",
+      "node": "laminar/A333/annun/autopilot/ap1_mode",
+      "nodetype": "int",
       "nodeformat": "None",
       "nodecond": "None",
       "device": "LEDPACK2",
@@ -65,8 +66,8 @@
     },
     "APPRSWL": {
       "name": "apprswl",
-      "node": "None",
-      "nodetype": "None",
+      "node": "laminar/A333/annun/autopilot/appr_mode",
+      "nodetype": "int",
       "nodeformat": "None",
       "nodecond": "None",
       "device": "LEDPACK2",
@@ -79,8 +80,8 @@
     },
     "EXPDSWL": {
       "name": "expdswl",
-      "node": "None",
-      "nodetype": "None",
+      "node": "laminar/A333/annun/autopilot/alt_mode",
+      "nodetype": "int",
       "nodeformat": "None",
       "nodecond": "None",
       "device": "LEDPACK2",
@@ -93,8 +94,8 @@
     },
     "ATHSWL": {
       "name": "athswl",
-      "node": "None",
-      "nodetype": "None",
+      "node": "laminar/A333/annun/autopilot/a_thr_mode",
+      "nodetype": "int",
       "nodeformat": "None",
       "nodecond": "None",
       "device": "LEDPACK2",

@@ -4,7 +4,8 @@
         "library": "RotaryEncoder",
         "module": "RotaryEncoder",
         "properylist": "device,encodername,port,in1,in2,swin,initvalue,minvalue,maxvalue,increment",
-        "createmethod": "CreateRotEncoders"
+        "export": "no",
+        "import": "no"
     },
     "PROPERTIES": {
         "prop01": "device",

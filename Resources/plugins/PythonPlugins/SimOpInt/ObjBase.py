@@ -34,7 +34,7 @@ class ObjBase:
 
         if self.debug:
             print("######################################################################")
-            print("{} Object {} creation".format(self.objtype, self.name))
+            print("# {} Object {} creation".format(self.objtype, self.name))
             print("######################################################################")
             print("\r")
 

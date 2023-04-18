@@ -4,7 +4,8 @@
         "library": "ObjSwitches",
         "module": "PushButtonSwitch",
         "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,pin,values,valuestype",
-        "export": "no"
+        "export": "no",
+        "import": "yes"
     },
     "PROPERTIES": {
         "prop01": "name",
@@ -21,110 +22,110 @@
     "OBJECTS": {
         "ATHSW": {
             "name": "athsw",
-            "node": "None",
-            "nodetype": "None",
+            "node": "laminar/A333/autopilot/a_thr_toggle",
+            "nodetype": "cmd",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "IOPACK1",
             "port": "B",
             "pin": "2",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "AP1SW": {
             "name": "ap1sw",
-            "node": "None",
-            "nodetype": "None",
+            "node": "sim/autopilot/servos_toggle",
+            "nodetype": "cmd",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "IOPACK1",
             "port": "B",
             "pin": "4",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "AP2SW": {
             "name": "ap2sw",
-            "node": "None",
-            "nodetype": "None",
+            "node": "sim/autopilot/servos2_toggle",
+            "nodetype": "cmd",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "IOPACK1",
             "port": "B",
             "pin": "6",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "LOCSW": {
             "name": "locsw",
-            "node": "None",
-            "nodetype": "None",
+            "node": "sim/autopilot/NAV",
+            "nodetype": "cmd",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "IOPACK1",
             "port": "B",
             "pin": "3",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "APPRSW": {
             "name": "apprsw",
-            "node": "None",
-            "nodetype": "None",
+            "node": "sim/autopilot/approach",
+            "nodetype": "cmd",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "IOPACK1",
             "port": "B",
             "pin": "1",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "EXPDSW": {
             "name": "expdsw",
-            "node": "None",
+            "node": "sim/autopilot/altitude_hold",
             "nodetype": "None",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "IOPACK1",
             "port": "B",
             "pin": "5",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "SPDSW": {
             "name": "spdsw",
-            "node": "None",
-            "nodetype": "None",
+            "node": "sim/autopilot/knots_mach_toggle",
+            "nodetype": "cmd",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "IOPACK1",
             "port": "B",
             "pin": "8",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "HDGSW": {
             "name": "hdgsw",
-            "node": "None",
-            "nodetype": "None",
+            "node": "sim/autopilot/trkfpa",
+            "nodetype": "cmd",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "IOPACK1",
             "port": "B",
             "pin": "7",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "METALTSW": {
             "name": "metaltsw",
-            "node": "None",
-            "nodetype": "None",
+            "node": "laminar/A333/autopilot/metric_alt_push",
+            "nodetype": "cmd",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "IOPACK1",
             "port": "A",
             "pin": "1",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "SPDPUSH": {
@@ -136,7 +137,7 @@
             "device": "IOPACK2",
             "port": "A",
             "pin": "2",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "SPDPULL": {
@@ -148,7 +149,7 @@
             "device": "IOPACK2",
             "port": "A",
             "pin": "1",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "HDGPUSH": {
@@ -160,7 +161,7 @@
             "device": "IOPACK2",
             "port": "A",
             "pin": "4",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "HDGPULL": {
@@ -172,7 +173,7 @@
             "device": "IOPACK2",
             "port": "A",
             "pin": "3",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "ALTPUSH": {
@@ -184,7 +185,7 @@
             "device": "IOPACK2",
             "port": "A",
             "pin": "6",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "ALTPULL": {
@@ -196,7 +197,7 @@
             "device": "IOPACK2",
             "port": "A",
             "pin": "5",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "VSPUSH": {
@@ -208,7 +209,7 @@
             "device": "IOPACK2",
             "port": "A",
             "pin": "8",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         },
         "VSPULL": {
@@ -220,7 +221,7 @@
             "device": "IOPACK2",
             "port": "A",
             "pin": "7",
-            "values": "0,1",
+            "values": {"pushed": 1, "released": 0},
             "valuestype": "int"
         }
     }

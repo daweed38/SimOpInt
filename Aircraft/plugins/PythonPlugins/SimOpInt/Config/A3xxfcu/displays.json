@@ -4,7 +4,8 @@
         "library": "ObjDisplays",
         "module": "SegDisplay",
         "properylist": "name,node,nodetype,nodeformat,nodecond,device,port,row1,nbdigit,decdigit",
-        "export": "yes"
+        "export": "yes",
+        "import": "no"
     },
     "PROPERTIES": {
         "prop01": "name",
@@ -33,7 +34,6 @@
                     "node": "sim/cockpit/autopilot/airspeed_is_mach",
                     "nodetype": "int"
                 }
-
             },
             "device": "LEDPACK1",
             "port": "B",

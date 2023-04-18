@@ -60,8 +60,8 @@ class SimOpInt:
 
         if self.config:
             self.intname = self.config['INT']['intname']
-            self.srvaddr = self.config['INT']['srvaddr']
-            self.srvport = self.config['INT']['srvport']
+            self.srvaddr = self.config['NETWORK']['srvaddr']
+            self.srvport = self.config['NETWORK']['srvport']
 
             if int(self.getConfigOption('INT', 'dummydevice')):
                 self.dummy = True
@@ -83,6 +83,7 @@ class SimOpInt:
                     print("# Sim Open Interface {} initialized".format(self.intname))
                     print("######################################################################")
                     print("\r")
+
         else:
             if self.debug == 3:
                 print("######################################################################")
@@ -235,14 +236,24 @@ class SimOpInt:
         return self.objects
 
     def listExportedObjects(self):
-        expobject = {}
+        expobjects = {}
         for objtype in self.listObjects():
             if self.getObjectConfOfType(objtype)['export'] == 'yes':
-                expobject[objtype] = {}
+                expobjects[objtype] = {}
                 for objname, obj in self.getObjectOfType(objtype).items():
-                    expobject[objtype][objname] = obj
+                    expobjects[objtype][objname] = obj
 
-        return expobject
+        return expobjects
+
+    def listImportedObjects(self):
+        impobjects = {}
+        for objtype in self.listObjects():
+            if self.getObjectConfOfType(objtype)['import'] == 'yes':
+                impobjects[objtype] = {}
+                for objname, obj in self.getObjectOfType(objtype).items():
+                    impobjects[objtype][objname] = obj
+
+        return impobjects
 
     def getObject(self, objecttype, objectname):
         if objecttype in self.objects:
@@ -266,7 +277,8 @@ class SimOpInt:
             print("Creating Object {} {} with Args {} from Module {}".format(objmodule, objname, args, module))
             print("\r")
 
-        self.objects[objtype]['OBJECTS'][objname] = module(*args)
+        # self.objects[objtype]['OBJECTS'][objname] = module(*args)
+        self.objects[objtype]['OBJECTS'][args[0]] = module(*args)
 
     def createObjectOfType(self, objtype, objfile):
         if self.debug == 34:
@@ -332,16 +344,3 @@ class SimOpInt:
     ###################################
     # Data Methods
     ###################################
-
-    """
-    # Method createNodeConds(nodeconds)
-    # Return a formatted Dict Condition
-    def createNodeConds(self, conditions):
-        nodeconds = {}
-        for nodecond in conditions.split(':'):
-            nodeconds[nodecond.split(',')[0]] = {}
-            nodeconds[nodecond.split(',')[0]]['node'] = nodecond.split(',')[1]
-            nodeconds[nodecond.split(',')[0]]['noderefid'] = None
-
-        return nodeconds
-    """

@@ -1,9 +1,13 @@
 {
   "INT": {
     "intname": "A3xxfcu",
+    "dummydevice": 1
+  },
+  "NETWORK": {
     "srvaddr": "192.168.0.150",
     "srvport": 7000,
-    "dummydevice": 1
+    "cliaddr": "localhost",
+    "cliport": 7500
   },
   "DEVICES": {
     "deviceconfig": "devices.json",

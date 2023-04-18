@@ -305,15 +305,18 @@ class PushButtonSwitch(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: str, valuestype: str, debug=False) -> None:
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: dict, valuestype: str, debug=False) -> None:
         super().__init__(name, node, nodetype, nodeformat, nodeconds, debug)
         self.objtype = 'Rotary Switch'
         self.device = device
         self.port = str(port)
         self.pin = int(pin)
-        self.values = values.split(',')
+        self.values = values
         self.valuestype = valuestype
         self.timestamp = datetime.now()
+        self.bouncetime = 250
+        self.status = 0
+        self.value = 0
 
         """
         self.swstate = initstate
@@ -358,16 +361,47 @@ class PushButtonSwitch(ObjBase):
     # Object Status & Value
     ########################################
 
-    # Method getSwitchState()
-    # Return Switch GPIO Pin Status
-    def getSwitchState(self) -> int | bool:
-        return self.device.readGpioPin(self.port, self.pin)
+    def getValue(self) -> int:
+        return self.value
+
+    def setValue(self, value: int) -> None:
+        self.value = value
+
+    def getStatus(self) -> int:
+        return self.status
+
+    def setStatus(self, status: int) -> None:
+        self.status = status
 
     ########################################
     # Object Methods
     ########################################
 
+    def getBounceTime(self):
+        return self.bouncetime
+
+    def setBounceTime(self, bouncetime):
+        self.bouncetime = bouncetime
+
+    def getTimeStamp(self):
+        return self.timestamp
+
+    def setTimeStamp(self):
+        self.timestamp = datetime.now()
+
     def getMillis(self) -> float:
         dt = datetime.now() - self.timestamp
         ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
         return ms
+
+    # Method getSwitchState()
+    # Return Switch GPIO Pin Status
+    def getInputState(self) -> int | bool:
+        return self.device.readGpioPin(self.port, self.pin)
+
+    def getSwitchState(self):
+        if self.getMillis() > self.getBounceTime() and self.getInputState() == 1:
+            self.setTimeStamp()
+            return self.values['pushed']
+        else:
+            return self.values['released']

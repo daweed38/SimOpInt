@@ -4,7 +4,8 @@
         "library": "ObjDisplays",
         "module": "Annunciator",
         "properylist": "name,node,nodetype,nodeformat,nodecond,device,port,row,out1,nblight,activemode,initstate",
-        "export": "yes"
+        "export": "yes",
+        "import": "no"
     },
     "PROPERTIES": {
         "prop01": "name",
@@ -51,7 +52,7 @@
         },
         "SPDFMGCSWL": {
             "name": "spdfmgcswl",
-            "node": "sim/cockpit2/autopilot/fms_vnav",
+            "node": "sim/cockpit2/autopilot/vnav_speed_window_open",
             "nodetype": "int",
             "nodeformat": "None",
             "nodecond": "None",
@@ -65,8 +66,8 @@
         },
         "HDGSWL1": {
             "name": "hdgswl1",
-            "node": "sim/cockpit2/autopilot/heading_dial_deg_mag_pilot",
-            "nodetype": "None",
+            "node": "sim/cockpit2/autopilot/trk_fpa",
+            "nodetype": "int",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "LEDPACK2",
@@ -79,8 +80,8 @@
         },
         "HDGSWL2": {
             "name": "hdgswl2",
-            "node": "sim/cockpit2/autopilot/heading_dial_deg_mag_pilot",
-            "nodetype": "None",
+            "node": "sim/cockpit2/autopilot/trk_fpa",
+            "nodetype": "int",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "LEDPACK2",
@@ -93,8 +94,8 @@
         },
         "TRKSWL1": {
             "name": "trkswl1",
-            "node": "sim/cockpit2/autopilot/heading_dial_deg_mag_pilot",
-            "nodetype": "None",
+            "node": "sim/cockpit2/autopilot/trk_fpa",
+            "nodetype": "int",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "LEDPACK2",
@@ -107,8 +108,8 @@
         },
         "TRKSWL2": {
             "name": "trkswl2",
-            "node": "sim/cockpit2/autopilot/heading_dial_deg_mag_pilot",
-            "nodetype": "None",
+            "node": "sim/cockpit2/autopilot/trk_fpa",
+            "nodetype": "int",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "LEDPACK2",
@@ -135,8 +136,8 @@
         },
         "LATFMGCSWL": {
             "name": "latfmgcswl",
-            "node": "None",
-            "nodetype": "None",
+            "node": "sim/cockpit2/autopilot/gpss_status",
+            "nodetype": "int",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "LEDPACK2",
@@ -161,6 +162,20 @@
             "activemode": "1",
             "initstate": "OFF"
         },
+        "ALTFMGCSWL": {
+            "name": "altfmgcswl",
+            "node": "sim/cockpit2/autopilot/fms_vnav",
+            "nodetype": "int",
+            "nodeformat": "None",
+            "nodecond": "None",
+            "device": "LEDPACK2",
+            "port": "A",
+            "row": "7",
+            "out1": "5",
+            "nblight": "1",
+            "activemode": "1",
+            "initstate": "OFF"
+        },
         "LVLCHSWL": {
             "name": "lvlchswl",
             "node": "None",
@@ -177,8 +192,8 @@
         },
         "VSSWL1": {
             "name": "vsswl1",
-            "node": "sim/cockpit2/autopilot/heading_dial_deg_mag_pilot",
-            "nodetype": "None",
+            "node": "sim/cockpit2/autopilot/trk_fpa",
+            "nodetype": "int",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "LEDPACK2",
@@ -191,8 +206,8 @@
         },
         "VSSWL2": {
             "name": "vsswl2",
-            "node": "sim/cockpit2/autopilot/heading_dial_deg_mag_pilot",
-            "nodetype": "None",
+            "node": "sim/cockpit2/autopilot/trk_fpa",
+            "nodetype": "int",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "LEDPACK2",
@@ -205,8 +220,8 @@
         },
         "FPASWL1": {
             "name": "fpaswl1",
-            "node": "sim/cockpit2/autopilot/heading_dial_deg_mag_pilot",
-            "nodetype": "None",
+            "node": "sim/cockpit2/autopilot/trk_fpa",
+            "nodetype": "int",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "LEDPACK2",
@@ -219,28 +234,14 @@
         },
         "FPASWL2": {
             "name": "fpaswl2",
-            "node": "sim/cockpit2/autopilot/heading_dial_deg_mag_pilot",
-            "nodetype": "None",
+            "node": "sim/cockpit2/autopilot/trk_fpa",
+            "nodetype": "int",
             "nodeformat": "None",
             "nodecond": "None",
             "device": "LEDPACK2",
             "port": "A",
             "row": "8",
             "out1": "3",
-            "nblight": "1",
-            "activemode": "1",
-            "initstate": "OFF"
-        },
-        "ALTFMGCSWL": {
-            "name": "altfmgcswl",
-            "node": "sim/cockpit2/autopilot/fms_vnav",
-            "nodetype": "None",
-            "nodeformat": "None",
-            "nodecond": "None",
-            "device": "LEDPACK2",
-            "port": "A",
-            "row": "7",
-            "out1": "5",
             "nblight": "1",
             "activemode": "1",
             "initstate": "OFF"
