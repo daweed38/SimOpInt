@@ -1,7 +1,7 @@
 {
   "NETWORK": {
     "srvname": "SimOpIntSrv",
-    "srvaddr": "192.168.0.150",
+    "srvaddr": "localhost",
     "srvport": 7000
   },
   "INTERFACES": {

@@ -1,11 +1,8 @@
 # System Modules Import
-import socket
-import selectors
-import types
-import pickle
-import time
-import hashlib
 from datetime import datetime
+import time
+import pickle
+import socket
 
 ##################################################
 # FarmerSoft Open Interface Client Class
@@ -15,12 +12,10 @@ from datetime import datetime
 # By Daweed
 ##################################################
 
-
 class SimOpIntCli:
     """
     This Class is the main Interface TCP Client class
     Manage communication between X-Plane Plugin and Hardware
-    Level 2 : SimOpIntCli Class Debug Level
     """
 
     #############################################
@@ -33,34 +28,27 @@ class SimOpIntCli:
 
     def __init__(self, name='SimOpIntCli', srvaddr='localhost', srvport=7000, debug=0) -> None:
         self.debug = debug
-        self.name = name
+        self.cliname = name
         self.srvaddr = srvaddr
         self.srvport = int(srvport)
         self.clisock = None
         self.headersize = 10
         self.buffersize = 16
-        self.signals = {'shutdown': False, 'loop': False, 'connect': False, 'kill': False}
+        self.signals = {'connected': False, 'loop': False, 'shutdown': False}
         self.state = 0
-
-        self.selector = selectors.DefaultSelector()
-        self.looptimeout = 0.2
-        self.seltimeout = 0.025
-
-        self.msg_new_r = False
+        self.inData = {}
+        self.outData = {}
+        self.msg_new_r = True
         self.msglen_r = 0
         self.remain_size_r = 0
         self.msg_full_r = b''
-        
-        self.inData = {}
-        self.inData_md5 = ''
-        self.outData = {}
-        self.outData_md5 = ''
 
-        self.connected = False
+        self.waitsleep = 0.5
+        self.loopsleep = 0.25
 
         if self.debug == 2:
             print(f"######################################################################")
-            print(f"# Sim Open Interface Client {self.name} initialization")
+            print(f"# Sim Open Interface Client {self.cliname} initialization")
             print(f"######################################################################")
             print("\r")
 
@@ -71,7 +59,7 @@ class SimOpIntCli:
     def __del__(self) -> None:
         if self.debug == 2:
             print(f"######################################################################")
-            print(f"# Sim Open Interface Client {self.name} Ended")
+            print(f"# Sim Open Interface Client {self.cliname} Ended")
             print(f"######################################################################")
             print("\r")
 
@@ -80,7 +68,7 @@ class SimOpIntCli:
     #############################################
 
     def getName(self) -> str:
-        return self.name
+        return self.cliname
 
     def getStatus(self) -> int:
         return self.state
@@ -113,196 +101,84 @@ class SimOpIntCli:
     def setDebugLevel(self, debuglevel) -> None:
         self.debug = debuglevel
 
+    #############################################
+    # Client Method
+    #############################################
+
     def start(self) -> None:
-        if not self.getSignal('loop'):
-            self.setSignal('loop', True)
-
-        if self.state != 1:
-            self.state = 1
-
-        if self.debug == 21:
-            print(f"Client Started at {datetime.now()}")
+        self.setSignal('loop', True)
 
     def stop(self) -> None:
-        if self.getSignal('loop'):
-            self.setSignal('loop', False)
-
-        if self.state != 0:
-            self.state = 0
-
-        if self.debug == 21:
-            print(f"Client Stopped at {datetime.now()}")
+        self.setSignal('loop', False)
 
     def shutdown(self) -> None:
         self.stop()
+        self.setSignal('shutdown', True)
 
-        if not self.getSignal('shutdown'):
-            self.setSignal('shutdown', True)
+    def clientOpenSocket(self) -> None:
+        self.clisock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.clisock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.clisock.settimeout(0.25)
 
-    #############################################
-    # DATA Method
-    #############################################
+    def clientCloseSocket(self) -> None:
+        self.clisock.close()
+        self.setSignal('connected', False)
 
-    def getOutData(self):
-        return self.outData
-
-    def setOutData(self, data):
-        self.outData = data
-
-    def getInData(self):
-        return self.inData
-
-    def setInData(self, data):
-        self.inData = data
-
-    #############################################
-    # Client Methods
-    #############################################
-
-    def clientConnect(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.setblocking(True)
-        sock.connect_ex((self.srvaddr, self.srvport))
+    def clientConnect(self) -> None:
         if self.debug == 21:
-            print("Connecting to {} on port {}".format(self.srvaddr, self.srvport))
-
-        self.connected = True
-
-        intname = pickle.dumps(self.name)
-        intname_msg = bytes(f'{len(intname):<{10}}', "utf-8") + intname
-        sock.sendall(intname_msg)
-
-        srvname_r = sock.recv(1024)
-        srvname = pickle.loads(srvname_r[self.headersize:])
-
-        if self.debug == 21:
-            print(f"Header : {srvname_r[:self.headersize]}")
-            print(f"Length Received : {len(srvname_r)} Length intname {len(srvname)}")
-            print(f"Interface Name Message : {srvname}")
-
-        sock.setblocking(False)
-
-        data = types.SimpleNamespace(srvname=srvname, addr=self.srvaddr)
-        events = selectors.EVENT_READ | selectors.EVENT_WRITE
-
-        self.selector.register(sock, events, data=data)
-
-    def clientDataProcess(self, key, mask):
-
-        sock = key.fileobj
-        data = key.data
-
-        if mask & selectors.EVENT_READ:
-
-            msg_r = sock.recv(self.buffersize)
-
-            try:
-                if self.msg_new_r and msg_r != b'':
-                    self.msg_new_r = False
-                    self.msglen_r = int(msg_r[:self.headersize])
-                    self.msg_full_r = msg_r[self.headersize:]
-                    self.remain_size_r = self.msglen_r - len(msg_r[self.headersize:])
-
-                    if self.debug == 25:
-                        print(f"New Message. Message Length : {self.msglen_r} Remaining Length : {self.remain_size_r}")
-
-                elif msg_r != b'' and len(msg_r) > 0:
-                    self.msg_full_r += msg_r
-                    self.remain_size_r -= len(msg_r)
-
-                    if self.debug == 25:
-                        print(f"Continue Message. Message Length : {self.msglen_r} Remaining Length : {self.remain_size_r}")
-
-                if self.remain_size_r < self.buffersize:
-                    self.buffersize = self.remain_size_r
-
-                if self.remain_size_r == 0 and self.msg_full_r != b'':
-                    inData = pickle.loads(self.msg_full_r)
-
-                    if self.debug == 26:
-                        print(f"Full Message Received from {data.srvname} : {inData}")
-
-                    self.inData = inData
-
-                    self.msg_new_r = True
-                    self.msg_full_r = b''
-                    self.msglen_r = 0
-                    self.buffersize = 16
-
-            except OSError as e:
-                print(f"Error Reading From Socket {e}")
-
-        if mask & selectors.EVENT_WRITE:
-
-            msg_s = pickle.dumps(self.getOutData())
-            msg_full_s = bytes(f'{len(msg_s):<{10}}', "utf-8") + msg_s
-            outData_md5 = hashlib.md5(msg_full_s).hexdigest()
-
-            if self.outData_md5 != outData_md5:
-                try:
-                    if self.debug == 27:
-                        print(f"Sending Data {self.getOutData()}")
-
-                    sock.sendall(msg_full_s)
-
-                    self.outData_md5 = outData_md5
-
-                except OSError as e:
-                    if self.debug == 27:
-                        print(f"Error Sending : {e}")
-
-    def clientShutdown(self, key, mask):
-        sock = key.fileobj
-        msg_shut = pickle.dumps('shutdown')
-        msg_shut_s = bytes(f'{len(msg_shut):<{10}}', "utf-8") + msg_shut
+            print(f"Connection to Server {self.srvaddr} on Port {self.srvport} at {datetime.now()}")
 
         try:
-            sock.sendall(msg_shut_s)
-            if self.debug == 27:
-                print("Sending Data ...")
+            self.clisock.connect((self.srvaddr, self.srvport))
 
-        except OSError as e:
-            if self.debug == 27:
-                print(f"Error Sending : {e}")
+            cliname = pickle.dumps(self.cliname)
+            srvname_s = bytes(f'{len(cliname):<{10}}', "utf-8") + cliname
+            self.clisock.sendall(srvname_s)
 
-        self.selector.unregister(sock)
-        sock.close()
+            srvname_r = self.clisock.recv(1024)
+            srvname = pickle.loads(srvname_r[self.headersize:])
+
+            if self.debug == 21:
+                print(f"Header : {srvname_r[:self.headersize]}")
+                print(f"Length Received : {len(srvname_r)} Length intname {len(srvname)}")
+                print(f"Server Name Message : {srvname}")
+
+            self.setSignal('connected', True)
+
+        except TimeoutError:
+            pass
+
+    def clientDataProcess(self) -> None:
+        if self.debug == 22:
+            print(f"Processing Data at {datetime.now()}")
 
     #############################################
     # Client Loop Method
     #############################################
 
-    def loopSimOpIntClient(self):
+    def clientLoop(self):
+        self.clientOpenSocket()
+        while self.getSignal('shutdown') is not True:
 
-        while not self.getSignal('shutdown'):
+            while self.getSignal('loop') is True:
 
-            if self.debug == 23:
-                print("Client Loop Stopped, Waiting to Start  ....")
-
-            while self.getSignal('loop'):
-
-                if not self.connected:
+                if self.getSignal('connected') is False:
+                    if self.debug == 23:
+                        print(f"Waiting for Connexion at {datetime.now()}")
                     self.clientConnect()
 
-                if self.debug == 23:
-                    print("Client Loop in Progress")
+                else:
+                    if self.debug == 23:
+                        print(f"Client Loop in Progress at {datetime.now()}")
+                    self.clientDataProcess()
 
-                events = self.selector.select(timeout=self.seltimeout)
+                time.sleep(self.loopsleep)
 
-                for key, mask in events:
-                    self.clientDataProcess(key, mask)
+            if self.debug == 23:
+                print(f"Waiting for Client Loop to Start at {datetime.now()}")
+            time.sleep(self.waitsleep)
 
-                # time.sleep(self.looptimeout)
+        self.clientCloseSocket()
 
-            if self.connected:
-                for key, mask in self.selector.select(timeout=0.5):
-                    self.clientShutdown(key, mask)
-                    self.connected = False
-
-            time.sleep(self.looptimeout)
-
-        if self.debug == 22:
-            print("Client Socket Closed at {}".format(datetime.now()))
-
-        if self.debug == 21:
-            print("SimOpInt Server Shutdown at {}".format(datetime.now()))
+        if self.debug == 23:
+            print(f"Client Shutdown at {datetime.now()}")

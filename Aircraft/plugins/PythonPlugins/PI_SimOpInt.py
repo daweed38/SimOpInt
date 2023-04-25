@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*-coding:Utf-8 -*
-
 # System Modules Import
 import os
 import hashlib
@@ -17,7 +14,6 @@ import xp
 from PythonPlugins.SimOpInt.SimOpIntTools import SimOpIntTools
 from PythonPlugins.SimOpInt.SimOpInt import SimOpInt
 from PythonPlugins.SimOpInt.SimOpIntSrv import SimOpIntSrv
-from PythonPlugins.SimOpInt.SimOpIntCli import SimOpIntCli
 
 ########################################
 # FarmerSoft Sim Open Interface Plugin
@@ -30,8 +26,8 @@ from PythonPlugins.SimOpInt.SimOpIntCli import SimOpIntCli
 
 class PythonInterface:
     def __init__(self) -> None:
-        self.debug = 41
-        self.srvdebug = 0
+        self.debug = 0
+        self.srvdebug = 98
 
         self.Name = "SimOpInt"
         self.Sig = "xppython3.simopint"
@@ -62,9 +58,9 @@ class PythonInterface:
         self.simopints = {}
         self.shared_data = {}
 
-        self.flightloopcbktime = 0.02
+        self.flightloopcbktime = 0.0025
 
-        if self.debug == 1:
+        if self.debug == 10:
             xp.log(f"Plugin Init at {datetime.now()}")
 
     ##################################################
@@ -76,7 +72,7 @@ class PythonInterface:
         # Called once by X-Plane on startup (or when plugins are re-starting as part of reload)
         # You need to return three strings
 
-        if self.debug == 1:
+        if self.debug == 10:
             xp.log(f"Starting Plugin at {datetime.now()}")
 
         # Sim Open Interface Plugin Menu Creation
@@ -97,18 +93,18 @@ class PythonInterface:
         xp.appendMenuItem(menuID=self.pluginMenuID, name='About', refCon='about')
 
         if os.path.exists(self.configdir):
-            if self.debug == 2:
+            if self.debug == 20:
                 xp.log(f"Configuration Directory {self.configdir} Exist")
             self.configdir_ok = True
 
         if os.path.isfile(self.configdir+self.configfile):
-            if self.debug == 2:
+            if self.debug == 20:
                 xp.log(f"Configuration {self.configfile} found in {self.configdir}")
             self.configfile_ok = True
 
         if self.configdir_ok and self.configfile_ok:
             self.simopintcfg = self.tools.readJsonFile(self.configdir, self.configfile)
-            if self.debug == 2:
+            if self.debug == 20:
                 xp.log(f"Sim Open Interface Plugin Configuration : {self.simopintcfg}")
         else:
             xp.log(f"Configuration File {self.configdir} not found in {self.configfile}")
@@ -120,23 +116,23 @@ class PythonInterface:
             srvaddr = self.getConfigParam('NETWORK', 'srvaddr')
             srvport = self.getConfigParam('NETWORK', 'srvport')
 
-            if self.debug == 2:
+            if self.debug == 20:
                 xp.log(f"Sim Open Interface Server {srvname} Creation with param Addr {srvaddr} / Port {srvport}")
 
             self.simopintsrv = SimOpIntSrv(name=srvname, srvaddr=srvaddr, srvport=srvport, debug=self.srvdebug)
 
-            if self.debug == 2:
+            if self.debug == 20:
                 xp.log(f"Sim Open Interface Client {srvname} Creation with param Addr {srvaddr} / Port {srvport}")
 
             # Sim Open Interface Creation
-            if self.debug == 2:
+            if self.debug == 20:
                 xp.log(f"Creating Sim Open Interfaces ...")
             self.createInterfaces()
 
-            if self.debug == 2:
+            if self.debug == 20:
                 xp.log(f"SimOpInt Interfaces List : {self.getSimOpInterfacesList()}")
 
-            if self.debug == 1:
+            if self.debug == 10:
                 xp.log(f"Plugin Initialization OK at {datetime.now()}")
 
             self.initialized = True
@@ -149,7 +145,7 @@ class PythonInterface:
     def XPluginStop(self) -> None:
         # Called once by X-Plane on quit (or when plugins are exiting as part of reload)
         # Return is ignored
-        if self.debug == 1:
+        if self.debug == 10:
             xp.log(f"Stopping Plugin at {datetime.now()}")
 
         xp.destroyMenu(self.pluginMenuID)
@@ -160,7 +156,7 @@ class PythonInterface:
         # Required by XPPython3
         # Called once by X-Plane, after all plugins have "Started" (including during reload sequence).
         # You need to return an integer 1, if you have successfully enabled, 0 otherwise.
-        if self.debug == 1:
+        if self.debug == 10:
             xp.log(f"Enable Plugin at {datetime.now()}")
 
         # Create Flight Loop
@@ -178,7 +174,7 @@ class PythonInterface:
         # Called once by X-Plane, when plugin is requested to be disabled. All plugins
         # are disabled prior to Stop.
         # Return is ignored
-        if self.debug == 1:
+        if self.debug == 10:
             xp.log(f"Disable Plugin at {datetime.now()}")
 
         # If there is a Flight Loop ID , it is destroyed
@@ -195,14 +191,14 @@ class PythonInterface:
         # described in XPLMPlugin module.
         # Messages may be custom inter-plugin messages, as defined by other plugins.
         # Return is ignored
-        if self.debug == 1:
+        if self.debug == 10:
             xp.log(f"Message Receive From {inFromWho} : {inMessage} Param : {inParam}")
-            xp.log()
+            # xp.log()
 
         if inFromWho == 0 and inMessage == 114:
-            if self.debug == 1:
+            if self.debug == 10:
                 xp.log(f"Message DataRef have been added to A330")
-                xp.log()
+                # xp.log()
 
             if self.initialized:
                 self.createDataRefId()
@@ -248,12 +244,12 @@ class PythonInterface:
             if self.initialized:
                 if self.debug == 22:
                     xp.log(f"Starting ... at {datetime.now()}")
-                    xp.log()
+                    # xp.log()
 
                 # Starting Flight Loop is plugin initialized
                 if self.debug == 22:
                     xp.log(f"Starting Flight Loop ... at {datetime.now()}")
-                    xp.log()
+                    # xp.log()
 
                 xp.scheduleFlightLoop(self.flightloopID, self.flightloopcbktime)
 
@@ -264,21 +260,21 @@ class PythonInterface:
 
                 if self.debug == 22:
                     xp.log(f"Started ... at {datetime.now()}")
-                    xp.log()
+                    # xp.log()
             else:
                 xp.log(f"Plugin Not Initialized")
-                xp.log()
+                # xp.log()
 
         elif itemRefCon == 'stop':
             if self.initialized:
                 if self.debug == 22:
                     xp.log(f"Stopping ... at {datetime.now()}")
-                    xp.log()
+                    # xp.log()
 
                 # Stopping Flight Loop
                 if self.debug == 22:
                     xp.log(f"Stopping Flight Loop ... at {datetime.now()}")
-                    xp.log()
+                    # xp.log()
 
                 xp.scheduleFlightLoop(self.flightloopID, 0)
 
@@ -288,10 +284,10 @@ class PythonInterface:
 
                 if self.debug == 22:
                     xp.log(f"Stopped ... at {datetime.now()}")
-                    xp.log()
+                    # xp.log()
             else:
                 xp.log(f"Plugin Not Initialized")
-                xp.log()
+                # xp.log()
 
     def configMenuCB(self, menuRefCon, itemRefCon) -> None:
         if self.debug == 23:
@@ -316,11 +312,12 @@ class PythonInterface:
 
         for interface in self.getSimOpInterfaces():
             self.updateCockpit(interface)
+            self.updateInterfaceData(interface)
 
         fploopend = datetime.now()
         if self.debug == 30:
             xp.log(f"Flight Loop Started at {fploopstart} Ended at {fploopend}")
-            xp.log()
+            # xp.log()
 
         return self.flightloopcbktime
 
@@ -393,6 +390,33 @@ class PythonInterface:
             # Case Data Type is Unknow
             return "Unknow Type"
 
+    @staticmethod
+    def setDataRefValue(dataref, value, dataformat='string'):
+        if bool(xp.getDatai(dataref) & xp.Type_Int):
+            xp.setDatai(dataref, value)
+
+        elif bool(xp.getDataRefTypes(dataref) & xp.Type_Float):
+            xp.setDataf(dataref, value)
+
+        elif bool(xp.getDatad(dataref) & xp.Type_Double):
+            xp.setDatad(dataref, value)
+
+        elif bool(xp.getDataRefTypes(dataref) & xp.Type_FloatArray):
+            xp.setDatavf(dataref, value, 0, -1)
+
+        elif bool(xp.getDataRefTypes(dataref) & xp.Type_IntArray):
+            xp.setDatavi(dataref, value, 0, -1)
+
+        elif bool(xp.getDataRefTypes(dataref) & xp.Type_Data):
+            if dataformat == 'string':
+                return xp.setDatas(dataref, value)
+            else:
+                xp.setDatab(dataref, value, 0, -1)
+
+        else:
+            # Case Data Type is Unknow
+            return "Unknow Type"
+
     def createDataRefId(self) -> None:
         for interface in self.simopints:
             simopint = self.getSimOpInterface(interface)
@@ -420,32 +444,63 @@ class PythonInterface:
                         if obj.getNodeType() == 'cmd':
                             cmdRefId = xp.findCommand(obj.getNode())
                             obj.setNodeRef(cmdRefId)
+                        elif obj.getNodeType() == 'dref':
+                            dRefId = xp.findDataRef(obj.getNode())
+                            obj.setNodeRef(dRefId)
 
     ##################################################
     # Plugin Data Method
     ##################################################
 
     def updateInterfaceData(self, intname: str) -> None:
-        pass
+        if self.debug == 40:
+            updatestart = datetime.now()
 
-    def updateCockpit(self, interface: str):
-        updatestart = datetime.now()
+        outData = {}
+
+        intobj = self.getSimOpInterface(intname)
+        objdict = intobj.listExportedObjects()
+        for objtype, objs in objdict.items():
+            if len(objs) > 0:
+                outData[objtype] = {}
+                for objname in objs:
+                    obj = intobj.getObject(objtype, objname)
+                    if obj.getNode() is not None:
+                        outData[objtype][objname] = {'nodeval': self.getDataRefValue(obj.getNodeRef()), 'nodecond': {}}
+                        if obj.getNodeConds() is not None:
+                            for cond, conddata in obj.getNodeConds().items():
+                                outData[objtype][objname]['nodecond'][cond] = self.getDataRefValue(obj.getNodeCondRef(cond))
+
+        if self.debug == 41:
+            xp.log(f"outData : {outData}")
+            # xp.log()
+
+        self.simopintsrv.setInterOuData(intname, outData)
+
+        if self.debug == 40:
+            updatesend = datetime.now()
+            xp.log(f"Update Interface Data Start at {updatestart} End at {updatesend}")
+
+    def updateCockpit(self, intname: str):
+        if self.debug == 42:
+            updatestart = datetime.now()
 
         obj2remove = []
 
-        intobj = self.getSimOpInterface(interface)
-        objdict = self.simopintsrv.getInterInData(interface)
+        intobj = self.getSimOpInterface(intname)
+        objdict = self.simopintsrv.getInterInData(intname)
         for objtype, objs in objdict.items():
             if len(objs) > 0:
                 for objname, objvalue in objs.items():
                     obj = intobj.getObject(objtype, objname)
                     if obj.getNode() is not None:
-                        if self.debug == 41:
-                            xp.log(f"Obj Name : {objname} Obj Value {objvalue} Node {obj.getNode()} ({type(obj.getNode())}) Node Ref {obj.getNodeRef()}")
-                            xp.log()
-                        if objvalue == 1:
-                            if obj.getNodeType() == 'cmd':
-                                xp.commandOnce(obj.getNodeRef())
+                        if self.debug == 43:
+                            xp.log(f"At {datetime.now()} Obj Name : {objname} Obj Value {objvalue} Node {obj.getNode()} ({type(obj.getNode())}) Node Ref {obj.getNodeRef()}")
+                            # xp.log()
+                        if obj.getNodeType() == 'cmd' and objvalue == 1:
+                            xp.commandOnce(obj.getNodeRef())
+                        elif obj.getNodeType() == 'dref':
+                            self.setDataRefValue(obj.getNodeRef(), objvalue)
 
                     obj2remove.append((objtype, objname))
 
@@ -454,7 +509,6 @@ class PythonInterface:
             objname = objinfos[1]
             del objdict[objtype][objname]
 
-        updatesend = datetime.now()
-
-        if self.debug == 40:
-            xp.log(f"Update Cockpit Start at {updatestart} End at {updatesend}")
+        if self.debug == 42:
+            updatesend = datetime.now()
+            xp.log(f"Update Cockpit Data Start at {updatestart} End at {updatesend}")

@@ -42,7 +42,7 @@ class SegDisplay(ObjBase):
     def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: HT16K33, port: str, row1: str, nbdigit: str, decdigit: str, debug=False) -> None:
         super().__init__(name, node, nodetype, nodeformat, nodeconds, debug)
         # ----- standard properties -----
-        self.objtype = '7 segments display'
+        self.objtype = '7 Segments Display'
         self.device = device
         self.port = str(port)
         self.row1 = int(row1)

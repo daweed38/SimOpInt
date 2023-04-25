@@ -307,7 +307,7 @@ class PushButtonSwitch(ObjBase):
 
     def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: dict, valuestype: str, debug=False) -> None:
         super().__init__(name, node, nodetype, nodeformat, nodeconds, debug)
-        self.objtype = 'Rotary Switch'
+        self.objtype = 'Push Button'
         self.device = device
         self.port = str(port)
         self.pin = int(pin)

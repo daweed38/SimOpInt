@@ -322,7 +322,7 @@ class SimOpInt:
                     if propvalue == 'None':
                         propvalue = None
 
-                if propname == 'nodecond':
+                if propname == 'nodeconds':
                     if propvalue == 'None':
                         propvalue = None
 

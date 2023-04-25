@@ -4,7 +4,7 @@
     "dummydevice": 1
   },
   "NETWORK": {
-    "srvaddr": "192.168.0.150",
+    "srvaddr": "localhost",
     "srvport": 7000,
     "cliaddr": "localhost",
     "cliport": 7500
@@ -44,6 +44,7 @@
     "displays": "displays.json",
     "swlights": "swlights.json",
     "annunciators": "annunciator.json",
-    "pushbtns": "pushbtns.json"
+    "pushbtns": "pushbtns.json",
+    "rotenc": "rotenc.json"
   }
 }
