@@ -4,10 +4,12 @@
     "dummydevice": 1
   },
   "NETWORK": {
+    "srvname": "A3xxfcuSrv",
     "srvaddr": "localhost",
     "srvport": 7000,
+    "cliname": "A3xxfcuCli",
     "cliaddr": "localhost",
-    "cliport": 7500
+    "cliport": 7000
   },
   "DEVICES": {
     "deviceconfig": "devices.json",
@@ -36,7 +38,7 @@
       "class": "PushButtonSwitch"
     },
     "RotaryEncoder": {
-      "module": "RotaryEncoder",
+      "module": "ObjEncoders",
       "class": "RotaryEncoder"
     }
   },

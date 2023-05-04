@@ -1,9 +1,4 @@
 {
-  "NETWORK": {
-    "srvname": "SimOpIntSrv",
-    "srvaddr": "localhost",
-    "srvport": 7000
-  },
   "INTERFACES": {
     "A3xxfcu": {
       "configfile": "A3xxfcu.json"

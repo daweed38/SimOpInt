@@ -1,27 +1,26 @@
-# File: encoder.py
-# Scott M Baker, http://www.smbaker.com/
-
-# Raspberry Pi Driver for the Sparkfun RGB Encoder (COM-10982 or COM-10984)
-
-# Acknowledgements:
-#    py-gaugette by Guy Carpenter, https://github.com/guyc/py-gaugette
-
 # System Modules Import
 import math
 import threading
 import time
-
 # Device Base Import
 from ObjBase import ObjBase
 # MCP23017 Import
 from DeviceMCP23017 import MCP23017
 
+##################################################
+# FarmerSoft Sim Open Interface
+##################################################
+# Object Rotary Encoder Class REV 2.0
+# FarmerSoft © 2023
+# By Daweed
+##################################################
+
 
 class RotaryEncoder(ObjBase):
     # Just the encoder, no switch, no LEDs
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: int, pin2: int, swpin: int, initvalue: int, minvalue: int, maxvalue: int, increment: int, debug=False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: int, pin2: int, swpin: int, initvalue: int, minvalue: int, maxvalue: int, increment: int, exported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, debug)
         self.objtype = 'Push Button'
         self.device = device
         self.port = port

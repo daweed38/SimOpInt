@@ -1,7 +1,7 @@
 {
     "CONF": {
         "confname": "ROTARYENC",
-        "library": "RotaryEncoder",
+        "library": "ObjEncoders",
         "module": "RotaryEncoder",
         "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,pin1,pin2,swpin,initvalue,minvalue,maxvalue,increment",
         "export": "no",

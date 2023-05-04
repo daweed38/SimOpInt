@@ -21,7 +21,7 @@ class ObjBase:
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, debug=False) -> None:
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, exported: bool = False, debug: bool = False) -> None:
         # ----- standard properties -----
         self.debug = debug
         self.objtype = 'Base'
@@ -31,6 +31,7 @@ class ObjBase:
         self.noderef = None
         self.nodeformat = nodeformat
         self.nodeconds = nodeconds
+        self.exported = exported
 
         if self.debug:
             print("######################################################################")
@@ -123,7 +124,7 @@ class ObjBase:
 
     # Method getNodeConds()
     # Return Object Conditions Dict
-    def getNodeConds(self) -> dict:
+    def getNodeConds(self) -> dict | bool:
         return self.nodeconds
 
     # Method getNodeCond(nodecond)
@@ -149,6 +150,17 @@ class ObjBase:
     # nodecond is str and noderefid is an X-Plane DataRef Object
     def setNodeCondRef(self, nodecond: str, noderefid) -> None:
         self.nodeconds[nodecond]['noderefid'] = noderefid
+
+    # Method getExpStatus()
+    # Return Object Export Status
+    def getExpStatus(self) -> bool:
+        return self.exported
+
+    # Method getExpStatus(status)
+    # Set Object Export Status
+    # status is bool
+    def setExpStatus(self, status: bool) -> None:
+        self.exported = status
 
     ########################################
     # Object Status & Value

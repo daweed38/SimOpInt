@@ -3,6 +3,10 @@ from datetime import datetime
 import time
 import pickle
 import socket
+import selectors
+import types
+import hashlib
+import json
 
 ##################################################
 # FarmerSoft Open Interface Server Class
@@ -17,6 +21,13 @@ class SimOpIntSrv:
     """
     This Class is the main Interface TCP Server class
     Manage communication between X-Plane Plugin and Hardware
+    Level 1  : SimOpIntSrv Class Debug Level
+    Level 11 : SimOpIntSrv Server Loop Debug Level
+    Level 12 : SimOpIntSrv Server Socket Debug Level
+    Level 13 : SimOpIntSrv Server Selector Debug Level
+    Level 14 : SimOpIntSrv Server Socket Read Debug Level
+    Level 15 : SimOpIntSrv Server Read Message Debug Level
+    Level 16 : SimOpIntSrv Server Socket Write Debug Level
     """
 
     #############################################
@@ -33,19 +44,26 @@ class SimOpIntSrv:
         self.srvaddr = srvaddr
         self.srvport = int(srvport)
         self.srvsock = None
+        self.selsock = selectors.DefaultSelector()
         self.headersize = 10
-        self.buffersize = 16
+        self.buffersize = 32
         self.signals = {'connected': False, 'loop': False, 'shutdown': False}
         self.state = 0
-        self.inData = {}
-        self.outData = {}
-        self.msg_new_r = True
-        self.msglen_r = 0
-        self.remain_size_r = 0
-        self.msg_full_r = b''
 
         self.waitsleep = 0.5
-        self.loopsleep = 0.25
+        self.loopsleep = 0.01
+
+        self.inData = {}
+        self.inDatamd5 = ''
+        self.outData = {}
+        self.outDatamd5 = ''
+
+        self.newmsg = True
+        self.msglen = 0
+        self.fullmsg = b''
+        self.remainsize = 0
+
+        self.interfaces = {}
 
         if self.debug == 1:
             print(f"######################################################################")
@@ -103,89 +121,194 @@ class SimOpIntSrv:
         self.debug = debuglevel
 
     #############################################
+    # DATA Method
+    #############################################
+
+    # Return Out Data Dictionary
+    def getOutData(self) -> dict:
+        return self.outData
+
+    # Set Out Data Dictionary
+    def setOutData(self, outdata: dict) -> None:
+        self.outData = outdata
+
+    #############################################
     # Server Method
     #############################################
 
-    def start(self) -> None:
+    def run(self) -> None:
         self.setSignal('loop', True)
 
-    def stop(self) -> None:
+    def pause(self) -> None:
         self.setSignal('loop', False)
 
     def shutdown(self) -> None:
-        self.stop()
+        self.waitsleep = 0.02
+        self.pause()
         self.setSignal('shutdown', True)
 
-    def serverOpenSocket(self) -> None:
+    def openSocket(self) -> None:
+        if self.debug == 12:
+            print(f"Opening Server Socket at {datetime.now()} : {self.srvsock}")
+
         self.srvsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.srvsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.srvsock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
         self.srvsock.bind((self.srvaddr, self.srvport))
-        self.srvsock.settimeout(0.25)
         self.srvsock.listen()
+        self.srvsock.setblocking(False)
+        self.selsock.register(self.srvsock, selectors.EVENT_READ, data=None)
 
-    def serverCloseSocket(self) -> None:
+        if self.debug == 12:
+            print(f"Server Socket Opened at {datetime.now()} : {self.srvsock}")
+
+    def closeSocket(self) -> None:
+        if self.debug == 12:
+            print(f"Closing Server Socket at {datetime.now()} : {self.srvsock}")
+
+        self.selsock.unregister(self.srvsock)
         self.srvsock.close()
-        self.setSignal('connected', False)
+        self.selsock.close()
 
-    def serveWaitConn(self) -> None:
+        if self.debug == 12:
+            print(f"Server Socket Closed at {datetime.now()} : {self.srvsock}")
 
-        if self.debug == 11:
-            print(f"Waiting for Connexion at {datetime.now()}")
-
+    def connexionHandle(self) -> None:
         try:
-            sock, addr = self.srvsock.accept()
+            # Accept Connexion from Sim Open Interface
+            intsock, intaddr = self.srvsock.accept()
 
-            if self.debug == 11:
-                print(f"Connexion from {addr} at {datetime.now()}")
-
-            intname_r = sock.recv(1024)
+            # Receive Interface Name
+            intname_r = intsock.recv(1024)
             intname = pickle.loads(intname_r[self.headersize:])
 
-            if self.debug == 11:
-                print(f"Header : {intname_r[:self.headersize]}")
-                print(f"Length Received : {len(intname_r)} Length intname {len(intname)}")
-                print(f"Interface Name Message : {intname}")
+            # Sending Server Name
+            srvname = pickle.dumps(self.getName())
+            srvname_msg = bytes(f'{len(srvname):<{10}}', "utf-8") + srvname
+            intsock.sendall(srvname_msg)
 
-            srvname = pickle.dumps(self.srvname)
-            srvname_s = bytes(f'{len(srvname):<{10}}', "utf-8") + srvname
-            sock.sendall(srvname_s)
+            if self.debug == 12:
+                print(f"Connexion from Interface {intname} Address {intaddr}")
 
-            self.setSignal('connected', True)
+            # Set Client Socket in Non Blocking Mode
+            intsock.setblocking(False)
+
+            # Set Client Socket Events & Register Client Socket
+            events = selectors.EVENT_READ | selectors.EVENT_WRITE
+            data = types.SimpleNamespace(intname=intname, intaddr=intaddr)
+            self.selsock.register(intsock, events, data=data)
 
         except TimeoutError:
             pass
 
-    def serverDataProcess(self) -> None:
+        except OSError as e:
+            if self.debug == 12:
+                print(f"OSError : {e}")
+            else:
+                pass
+
+    def dataHandle(self, key, mask) -> None:
+        sock = key.fileobj
+        data = key.data
+
+        if mask & selectors.EVENT_READ:
+            if self.debug == 13:
+                print(f"Selector Read Step")
+
+            try:
+                indata = sock.recv(self.buffersize)
+
+                if self.newmsg is True and len(indata) > 0:
+                    self.newmsg = False
+                    self.msglen = int(indata[:self.headersize])
+                    self.remainsize = self.msglen + self.headersize
+                    if self.debug == 14:
+                        print(f"New Message at {datetime.now()}. Message Length {self.msglen}")
+
+                self.fullmsg += indata
+                self.remainsize -= len(indata)
+
+                if self.remainsize < self.buffersize:
+                    if self.remainsize < 0:
+                        self.buffersize = 16
+                    else:
+                        self.buffersize = self.remainsize
+
+                if self.debug == 14:
+                    print(f"Message Length Waited {self.msglen} Full Message Length {len(self.fullmsg)}")
+
+                if self.remainsize == 0 and self.newmsg is False:
+                    self.inData = pickle.loads(self.fullmsg[self.headersize:])
+                    if self.debug == 15:
+                        print(f"Full Message Received {self.inData}")
+                    self.newmsg = True
+                    self.msglen = 0
+                    self.fullmsg = b''
+                    self.remainsize = 0
+                    self.buffersize = 16
+
+            except TimeoutError:
+                pass
+
+            except OSError as e:
+                if self.debug == 12:
+                    print(f"OSError {e}")
+
+        if mask & selectors.EVENT_WRITE:
+            if self.debug == 13:
+                print(f"Selector Write Step")
+
+            if len(self.outData) > 0:
+                outDatamd5 = hashlib.md5(json.dumps(self.outData, sort_keys=True).encode()).hexdigest()
+                if outDatamd5 != self.outDatamd5:
+                    try:
+                        if self.debug == 16:
+                            print(f"Sending Data {self.outData}")
+                        oudata = pickle.dumps(self.outData)
+                        oudata_msg = bytes(f'{len(oudata):<{10}}', "utf-8") + oudata
+                        sock.sendall(oudata_msg)
+                        self.outDatamd5 = outDatamd5
+
+                    except OSError as e:
+                        if self.debug == 12:
+                            print(f"OSError {e}")
+                        self.selsock.unregister(sock)
+                        sock.close()
+
+    def closeClient(self, key):
         if self.debug == 12:
-            print(f"Processing Data at {datetime.now()}")
+            print(f"Closing Interface Socket at {datetime.now()}")
+        sock = key.fileobj
+        self.selsock.unregister(sock)
+        sock.close()
 
     #############################################
     # Server Loop Method
     #############################################
 
-    def serverLoop(self):
-        self.serverOpenSocket()
+    def mainLoop(self):
+        self.openSocket()
+
         while self.getSignal('shutdown') is not True:
 
             while self.getSignal('loop') is True:
 
-                if self.getSignal('connected') is False:
-                    if self.debug == 13:
-                        print(f"Waiting for Connexion at {datetime.now()}")
-                    self.serveWaitConn()
+                if self.debug == 11:
+                    print(f"Server Loop in Progress at {datetime.now()}")
 
-                else:
-                    if self.debug == 13:
-                        print(f"Server Loop in Progress at {datetime.now()}")
-                    self.serverDataProcess()
+                events = self.selsock.select(timeout=self.waitsleep)
+                for key, mask in events:
+                    if key.data is None:
+                        self.connexionHandle()
+                    else:
+                        self.dataHandle(key, mask)
 
                 time.sleep(self.loopsleep)
 
-            if self.debug == 13:
+            if self.debug == 11:
                 print(f"Waiting for Server Loop to Start at {datetime.now()}")
             time.sleep(self.waitsleep)
 
-        self.serverCloseSocket()
+        self.closeSocket()
 
-        if self.debug == 13:
+        if self.debug == 11:
             print(f"Server Shutdown at {datetime.now()}")

@@ -40,6 +40,10 @@ class SimOpInt:
         self.configfile = configfile
         self.dummy = False
         self.intname = ''
+        self.cliname = ''
+        self.cliaddr = ''
+        self.cliport = ''
+        self.srvname = ''
         self.srvaddr = ''
         self.srvport = 0
         
@@ -60,6 +64,10 @@ class SimOpInt:
 
         if self.config:
             self.intname = self.config['INT']['intname']
+            self.cliname = self.config['NETWORK']['cliname']
+            self.cliaddr = self.config['NETWORK']['cliaddr']
+            self.cliport = self.config['NETWORK']['cliport']
+            self.srvname = self.config['NETWORK']['srvname']
             self.srvaddr = self.config['NETWORK']['srvaddr']
             self.srvport = self.config['NETWORK']['srvport']
 
@@ -108,6 +116,18 @@ class SimOpInt:
     # return the interface name
     def getName(self):
         return self.intname
+
+    def getCliName(self):
+        return self.cliname
+
+    def getCliAddr(self):
+        return self.cliaddr
+
+    def getCliPort(self):
+        return self.cliport
+
+    def getSrvName(self):
+        return self.srvname
 
     def getSrvAddr(self):
         return self.srvaddr
@@ -241,7 +261,8 @@ class SimOpInt:
             if self.getObjectConfOfType(objtype)['export'] == 'yes':
                 expobjects[objtype] = {}
                 for objname, obj in self.getObjectOfType(objtype).items():
-                    expobjects[objtype][objname] = obj
+                    if obj.getExpStatus():
+                        expobjects[objtype][objname] = obj
 
         return expobjects
 
@@ -325,6 +346,12 @@ class SimOpInt:
                 if propname == 'nodeconds':
                     if propvalue == 'None':
                         propvalue = None
+
+                if propname == 'exported':
+                    if propvalue == 'True':
+                        propvalue = True
+                    else:
+                        propvalue = False
 
                 args.append(propvalue)
 

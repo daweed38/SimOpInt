@@ -3,7 +3,7 @@
         "confname": "ANNUNCIATOR",
         "library": "ObjDisplays",
         "module": "Annunciator",
-        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,row,out1,nblight,activemode,initstate",
+        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,row,out1,nblight,activemode,initstate,exported",
         "export": "yes",
         "import": "no"
     },
@@ -19,7 +19,8 @@
         "prop09": "out1",
         "prop10": "nblight",
         "prop11": "activemode",
-        "prop12": "initstate"
+        "prop12": "initstate",
+        "prop13": "exported"
     },
     "OBJECTS": {
         "SPDSWL": {
@@ -34,7 +35,8 @@
             "out1": "2",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "MCHSWL": {
             "name": "mchswl",
@@ -48,7 +50,8 @@
             "out1": "1",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "SPDFMGCSWL": {
             "name": "spdfmgcswl",
@@ -62,7 +65,8 @@
             "out1": "3",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "HDGSWL1": {
             "name": "hdgswl1",
@@ -76,7 +80,8 @@
             "out1": "7",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "HDGSWL2": {
             "name": "hdgswl2",
@@ -90,7 +95,8 @@
             "out1": "2",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "TRKSWL1": {
             "name": "trkswl1",
@@ -104,7 +110,8 @@
             "out1": "6",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "TRKSWL2": {
             "name": "trkswl2",
@@ -118,7 +125,8 @@
             "out1": "1",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "LATSWL": {
             "name": "latswl",
@@ -132,7 +140,8 @@
             "out1": "5",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "False"
         },
         "LATFMGCSWL": {
             "name": "latfmgcswl",
@@ -146,7 +155,8 @@
             "out1": "4",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "ALTSWL": {
             "name": "altswl",
@@ -160,7 +170,8 @@
             "out1": "8",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "False"
         },
         "ALTFMGCSWL": {
             "name": "altfmgcswl",
@@ -174,7 +185,8 @@
             "out1": "5",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "LVLCHSWL": {
             "name": "lvlchswl",
@@ -188,7 +200,8 @@
             "out1": "5",
             "nblight": "3",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "False"
         },
         "VSSWL1": {
             "name": "vsswl1",
@@ -202,7 +215,8 @@
             "out1": "6",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "VSSWL2": {
             "name": "vsswl2",
@@ -216,7 +230,8 @@
             "out1": "4",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "FPASWL1": {
             "name": "fpaswl1",
@@ -230,7 +245,8 @@
             "out1": "7",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         },
         "FPASWL2": {
             "name": "fpaswl2",
@@ -244,7 +260,8 @@
             "out1": "3",
             "nblight": "1",
             "activemode": "1",
-            "initstate": "OFF"
+            "initstate": "OFF",
+            "exported": "True"
         }
     }
 }

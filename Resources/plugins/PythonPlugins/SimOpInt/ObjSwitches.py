@@ -30,8 +30,8 @@ class Switch(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: str, valuestype: str, debug=False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: str, valuestype: str, exported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, debug)
         # ----- Object properties -----
         self.objtype = 'Switch'
         self.device = device
@@ -115,8 +115,8 @@ class DoubleSwitch(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: str, pin2: str, values: str, valuestype: str, debug=False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: str, pin2: str, values: str, valuestype: str, exported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, debug)
         # ----- Object properties -----
         self.objtype = 'Double Switch'
         self.device = device
@@ -201,8 +201,8 @@ class RotarySwitch(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pins: str, values: str, valuestype: str, bincode: str, debug=False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pins: str, values: str, valuestype: str, bincode: str, exported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, debug)
         # ----- Object properties -----
         self.objtype = 'Rotary Switch'
         self.device = device
@@ -305,8 +305,8 @@ class PushButtonSwitch(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: dict, valuestype: str, debug=False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: dict, valuestype: str, exported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, debug)
         self.objtype = 'Push Button'
         self.device = device
         self.port = str(port)

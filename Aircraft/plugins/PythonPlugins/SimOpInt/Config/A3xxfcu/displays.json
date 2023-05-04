@@ -3,7 +3,7 @@
         "confname": "DISPLAYS",
         "library": "ObjDisplays",
         "module": "SegDisplay",
-        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,row1,nbdigit,decdigit",
+        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,row1,nbdigit,decdigit,exported",
         "export": "yes",
         "import": "no"
     },
@@ -17,7 +17,8 @@
         "prop07": "port",
         "prop08": "row1",
         "prop09": "nbdigit",
-        "prop10": "decdigit"
+        "prop10": "decdigit",
+        "prop11": "exported"
     },
     "OBJECTS": {
         "SPDDSP": {
@@ -39,7 +40,8 @@
             "port": "B",
             "row1": "1",
             "nbdigit": "3",
-            "decdigit": "1"
+            "decdigit": "1",
+            "exported": "True"
         },
         "HDGDSP": {
             "name": "HDGDSP",
@@ -56,7 +58,8 @@
             "port": "A",
             "row1": "1",
             "nbdigit": "3",
-            "decdigit": "0"
+            "decdigit": "0",
+            "exported": "True"
         },
         "ALTDSP": {
             "name": "ALTDSP",
@@ -68,7 +71,8 @@
             "port": "B",
             "row1": "4",
             "nbdigit": "5",
-            "decdigit": "0"
+            "decdigit": "0",
+            "exported": "True"
         },
         "VSDSP": {
             "name": "VSDSP",
@@ -89,7 +93,8 @@
             "port": "A",
             "row1": "4",
             "nbdigit": "5",
-            "decdigit": "0"
+            "decdigit": "0",
+            "exported": "True"
         },
         "FPADSP": {
             "name": "FPADSP",
@@ -110,7 +115,8 @@
             "port": "A",
             "row1": "4",
             "nbdigit": "5",
-            "decdigit": "1"
+            "decdigit": "1",
+            "exported": "True"
         }
     }
 }
