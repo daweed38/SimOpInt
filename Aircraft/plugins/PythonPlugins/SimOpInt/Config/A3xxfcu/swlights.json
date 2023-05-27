@@ -3,7 +3,7 @@
     "confname": "SWLIGHTS",
     "library": "ObjDisplays",
     "module": "Annunciator",
-    "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,row,out1,nblight,activemode,initstate,exported",
+    "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,row,out1,nblight,activemode,initstate,exported,imported",
     "export": "yes",
     "import": "no"
   },
@@ -20,7 +20,8 @@
     "prop10": "nblight",
     "prop11": "activemode",
     "prop12": "initstate",
-    "prop13": "exported"
+    "prop13": "exported",
+    "prop14": "imported"
   },
   "OBJECTS": {
     "LOCSWL": {
@@ -36,7 +37,8 @@
       "nblight": "1",
       "activemode": "1",
       "initstate": "OFF",
-      "exported": "True"
+      "exported": "True",
+      "imported": "False"
     },
     "AP2SWL": {
       "name": "ap2swl",
@@ -51,7 +53,8 @@
       "nblight": "1",
       "activemode": "1",
       "initstate": "OFF",
-      "exported": "True"
+      "exported": "True",
+      "imported": "False"
     },
     "AP1SWL": {
       "name": "ap1swl",
@@ -66,7 +69,8 @@
       "nblight": "1",
       "activemode": "1",
       "initstate": "OFF",
-      "exported": "True"
+      "exported": "True",
+      "imported": "False"
     },
     "APPRSWL": {
       "name": "apprswl",
@@ -81,7 +85,8 @@
       "nblight": "1",
       "activemode": "1",
       "initstate": "OFF",
-      "exported": "True"
+      "exported": "True",
+      "imported": "False"
     },
     "EXPDSWL": {
       "name": "expdswl",
@@ -96,7 +101,8 @@
       "nblight": "1",
       "activemode": "1",
       "initstate": "OFF",
-      "exported": "False"
+      "exported": "False",
+      "imported": "False"
     },
     "ATHSWL": {
       "name": "athswl",
@@ -111,7 +117,8 @@
       "nblight": "1",
       "activemode": "1",
       "initstate": "OFF",
-      "exported": "True"
+      "exported": "True",
+      "imported": "False"
     }
   }
 }

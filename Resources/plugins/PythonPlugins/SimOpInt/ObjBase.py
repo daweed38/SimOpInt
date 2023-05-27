@@ -21,7 +21,7 @@ class ObjBase:
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, exported: bool = False, debug: bool = False) -> None:
+    def __init__(self, name: str, node: str | dict, nodetype: str, nodeformat: str, nodeconds: dict, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
         # ----- standard properties -----
         self.debug = debug
         self.objtype = 'Base'
@@ -32,6 +32,7 @@ class ObjBase:
         self.nodeformat = nodeformat
         self.nodeconds = nodeconds
         self.exported = exported
+        self.imported = imported
 
         if self.debug:
             print("######################################################################")
@@ -161,6 +162,17 @@ class ObjBase:
     # status is bool
     def setExpStatus(self, status: bool) -> None:
         self.exported = status
+
+    # Method getImpStatus()
+    # Return Object Export Status
+    def getImpStatus(self) -> bool:
+        return self.imported
+
+    # Method setImpStatus(status)
+    # Set Object Export Status
+    # status is bool
+    def setImpStatus(self, status: bool) -> None:
+        self.imported = status
 
     ########################################
     # Object Status & Value

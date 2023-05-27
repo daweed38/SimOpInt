@@ -3,7 +3,7 @@
         "confname": "PUSHBTN",
         "library": "ObjSwitches",
         "module": "PushButtonSwitch",
-        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,pin,values,valuestype,exported",
+        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,pin,values,valuestype,exported,imported",
         "export": "no",
         "import": "yes"
     },
@@ -18,7 +18,8 @@
         "prop08": "pin",
         "prop09": "values",
         "prop10": "valuestype",
-        "prop11": "exported"
+        "prop11": "exported",
+        "prop12": "imported"
     },
     "OBJECTS": {
         "ATHSW": {
@@ -32,7 +33,8 @@
             "pin": "2",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "AP1SW": {
             "name": "ap1sw",
@@ -45,7 +47,8 @@
             "pin": "4",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "AP2SW": {
             "name": "ap2sw",
@@ -58,7 +61,8 @@
             "pin": "6",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "LOCSW": {
             "name": "locsw",
@@ -71,7 +75,8 @@
             "pin": "3",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "APPRSW": {
             "name": "apprsw",
@@ -84,7 +89,8 @@
             "pin": "1",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "EXPDSW": {
             "name": "expdsw",
@@ -97,7 +103,8 @@
             "pin": "5",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "SPDSW": {
             "name": "spdsw",
@@ -110,7 +117,8 @@
             "pin": "8",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "True"
         },
         "HDGSW": {
             "name": "hdgsw",
@@ -123,7 +131,8 @@
             "pin": "7",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "True"
         },
         "METALTSW": {
             "name": "metaltsw",
@@ -136,7 +145,8 @@
             "pin": "1",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "SPDPUSH": {
             "name": "spdpush",
@@ -149,7 +159,8 @@
             "pin": "1",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "SPDPULL": {
             "name": "spdpull",
@@ -162,7 +173,8 @@
             "pin": "2",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "HDGPUSH": {
             "name": "hdgpush",
@@ -175,7 +187,8 @@
             "pin": "4",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "HDGPULL": {
             "name": "hdgpull",
@@ -188,7 +201,8 @@
             "pin": "3",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "ALTPUSH": {
             "name": "altpush",
@@ -201,7 +215,8 @@
             "pin": "6",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "ALTPULL": {
             "name": "altpull",
@@ -214,7 +229,8 @@
             "pin": "5",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "VSPUSH": {
             "name": "vspush",
@@ -227,7 +243,8 @@
             "pin": "8",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         },
         "VSPULL": {
             "name": "vspull",
@@ -240,7 +257,8 @@
             "pin": "7",
             "values": {"pushed": 1, "released": 0},
             "valuestype": "int",
-            "exported": "False"
+            "exported": "False",
+            "imported": "False"
         }
     }
 }

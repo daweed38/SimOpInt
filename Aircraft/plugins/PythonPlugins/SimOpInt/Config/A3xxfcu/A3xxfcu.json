@@ -1,15 +1,15 @@
 {
   "INT": {
     "intname": "A3xxfcu",
-    "dummydevice": 1
+    "dummydevice": 0
   },
   "NETWORK": {
     "srvname": "A3xxfcuSrv",
-    "srvaddr": "localhost",
-    "srvport": 7000,
     "cliname": "A3xxfcuCli",
-    "cliaddr": "localhost",
-    "cliport": 7000
+    "xpladdr": "192.168.0.150",
+    "xplport": 7000,
+    "intaddr": "192.168.0.60",
+    "intport": 7000
   },
   "DEVICES": {
     "deviceconfig": "devices.json",

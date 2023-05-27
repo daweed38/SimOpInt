@@ -39,8 +39,8 @@ class SegDisplay(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: HT16K33, port: str, row1: str, nbdigit: str, decdigit: str, exported: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: HT16K33, port: str, row1: str, nbdigit: str, decdigit: str, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
         # ----- standard properties -----
         self.objtype = '7 Segments Display'
         self.device = device
@@ -233,8 +233,8 @@ class Annunciator(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: HT16K33, port: str, row: str, out1: str, nblight: str, activemode: str, initstate: str, exported: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: HT16K33, port: str, row: str, out1: str, nblight: str, activemode: str, initstate: str, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
         # ----- Object properties -----
         self.objtype = 'Annunciator'
         self.device = device

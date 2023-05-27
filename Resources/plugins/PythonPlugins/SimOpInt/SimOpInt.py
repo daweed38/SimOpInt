@@ -52,6 +52,9 @@ class SimOpInt:
         self.devices = {}
         self.objects = {}
 
+        self.expobjs = {}
+        self.impobjs = {}
+
         self.tools = SimOpIntTools(debug)
 
         if self.debug == 3:
@@ -65,11 +68,11 @@ class SimOpInt:
         if self.config:
             self.intname = self.config['INT']['intname']
             self.cliname = self.config['NETWORK']['cliname']
-            self.cliaddr = self.config['NETWORK']['cliaddr']
-            self.cliport = self.config['NETWORK']['cliport']
+            self.intaddr = self.config['NETWORK']['intaddr']
+            self.intport = self.config['NETWORK']['intport']
             self.srvname = self.config['NETWORK']['srvname']
-            self.srvaddr = self.config['NETWORK']['srvaddr']
-            self.srvport = self.config['NETWORK']['srvport']
+            self.xpladdr = self.config['NETWORK']['xpladdr']
+            self.xplport = self.config['NETWORK']['xplport']
 
             if int(self.getConfigOption('INT', 'dummydevice')):
                 self.dummy = True
@@ -85,6 +88,8 @@ class SimOpInt:
 
                 if 'OBJECTS' in self.config:
                     self.createObjects()
+                    self.expobjs = self.listExportedObjects()
+                    self.impobjs = self.listImportedObjects()
 
                 if self.debug == 3:
                     print("######################################################################")
@@ -120,20 +125,20 @@ class SimOpInt:
     def getCliName(self):
         return self.cliname
 
-    def getCliAddr(self):
-        return self.cliaddr
+    def getIntAddr(self):
+        return self.intaddr
 
-    def getCliPort(self):
-        return self.cliport
+    def getIntPort(self):
+        return self.intport
 
     def getSrvName(self):
         return self.srvname
 
-    def getSrvAddr(self):
-        return self.srvaddr
+    def getXplAddr(self):
+        return self.xpladdr
 
-    def getSrvPort(self):
-        return self.srvport
+    def getXplPort(self):
+        return self.xplport
 
     def getDebugLevel(self):
         return self.debug
@@ -266,15 +271,22 @@ class SimOpInt:
 
         return expobjects
 
+    def getExportedObjects(self):
+        return self.expobjs
+
     def listImportedObjects(self):
         impobjects = {}
         for objtype in self.listObjects():
             if self.getObjectConfOfType(objtype)['import'] == 'yes':
                 impobjects[objtype] = {}
                 for objname, obj in self.getObjectOfType(objtype).items():
-                    impobjects[objtype][objname] = obj
+                    if obj.getImpStatus():
+                        impobjects[objtype][objname] = obj
 
         return impobjects
+
+    def getImportedObjects(self):
+        return self.impobjs
 
     def getObject(self, objecttype, objectname):
         if objecttype in self.objects:
@@ -348,6 +360,12 @@ class SimOpInt:
                         propvalue = None
 
                 if propname == 'exported':
+                    if propvalue == 'True':
+                        propvalue = True
+                    else:
+                        propvalue = False
+
+                if propname == 'imported':
                     if propvalue == 'True':
                         propvalue = True
                     else:

@@ -197,6 +197,8 @@ class SimOpIntSrv:
             data = types.SimpleNamespace(intname=intname, intaddr=intaddr)
             self.selsock.register(intsock, events, data=data)
 
+            self.setSignal('connected', True)
+
         except TimeoutError:
             pass
 

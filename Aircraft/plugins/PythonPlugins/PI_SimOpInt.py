@@ -28,7 +28,7 @@ class PythonInterface:
         self.Desc = "Sim Open Interface"
 
         self.debug = 0
-        self.srvdebug = 0
+        # self.srvdebug = 0
 
         self.tools = SimOpIntTools(0)
 
@@ -144,7 +144,8 @@ class PythonInterface:
         # Message Receive From 0: 114 Param: -1383074416
         if inFromWho == 0 and inMessage == 114 and self.datarefinit is False:
             for intname in self.listInterfaces():
-                self.createNodeRefId(intname)
+                self.createObjectsRefId(intname)
+                # self.createCmdRefId(intname)
             self.datarefinit = True
         pass
 
@@ -172,8 +173,11 @@ class PythonInterface:
     ##################################################
 
     def loadPluginConfig(self) -> None:
+        # Check Configuration Directory
         self.configdir_ok = os.path.exists(self.configdir)
+        # Check Configuration File
         self.configfile_ok = os.path.isfile(self.configdir+'/'+self.configfile)
+        # Loading Plugin Configuration in self.simopintcfg dict
         self.simopintcfg = self.tools.readJsonFile(self.configdir, self.configfile)
 
         if self.configdir_ok is True and self.configfile_ok is True and self.simopintcfg is not False:
@@ -183,7 +187,7 @@ class PythonInterface:
 
             # Interfaces Creation
             self.createInterfaces()
-
+            # Plugin Init Flag
             self.initialized = True
         else:
             if self.debug == 20:
@@ -208,35 +212,27 @@ class PythonInterface:
     def interfacesMenuCB(self, menuRefCon, itemRefCon) -> None:
         if self.debug == 30:
             xp.log(f"Interfaces Menu : {menuRefCon} / {itemRefCon}")
+            xp.log()
 
-        if itemRefCon == 'srvstart':
+        if itemRefCon == 'start':
             if self.debug == 32:
-                xp.log(f"Starting Interface {menuRefCon} Server at {datetime.now()}")
-                xp.log(f"Interface {menuRefCon} Server Started at {datetime.now()}")
+                xp.log(f"Starting Interface {menuRefCon} at {datetime.now()}")
+                xp.log(f"Interface {menuRefCon} Started at {datetime.now()}")
                 xp.log()
-
-            intsrv = self.getInterfaceSrv(menuRefCon)
-            if intsrv.getSignal('shutdown'):
-                intsrv.setSignal('shutdown', False)
-            self.threadsrv[menuRefCon] = threading.Thread(target=intsrv.mainLoop)
-            self.threadsrv[menuRefCon].start()
-            # intsrv.start()
-            intsrv.run()
             xp.enableMenuItem(menuID=self.simopints[menuRefCon]['menuID'], index=3, enabled=0)
             xp.enableMenuItem(menuID=self.simopints[menuRefCon]['menuID'], index=4, enabled=1)
+            self.startInterfaceSrv(menuRefCon)
+            self.startInterfaceCli(menuRefCon)
 
-        elif itemRefCon == 'srvstop':
+        elif itemRefCon == 'stop':
             if self.debug == 32:
-                xp.log(f"Stopping Interface {menuRefCon} Server at {datetime.now()}")
-                xp.log(f"Interface {menuRefCon} Server Stopped at {datetime.now()}")
+                xp.log(f"Stopping Interface {menuRefCon} at {datetime.now()}")
+                xp.log(f"Interface {menuRefCon} Stopped at {datetime.now()}")
                 xp.log()
-
-            intsrv = self.getInterfaceSrv(menuRefCon)
-            intsrv.shutdown()
-            # self.threadsrv[menuRefCon].join()
-
             xp.enableMenuItem(menuID=self.simopints[menuRefCon]['menuID'], index=3, enabled=1)
             xp.enableMenuItem(menuID=self.simopints[menuRefCon]['menuID'], index=4, enabled=0)
+            self.stopInterfaceSrv(menuRefCon)
+            self.stopInterfaceCli(menuRefCon)
 
         elif itemRefCon == 'reloadconf':
             if self.debug == 32:
@@ -266,6 +262,7 @@ class PythonInterface:
             xp.log(f"Flight Loop Started at {datetime.now()}")
 
         # Get Data From X-Plane for Objects To be Exported
+        # for each declared Interface
         for intname in self.listInterfaces():
             self.refreshExportedData(intname)
 
@@ -273,8 +270,11 @@ class PythonInterface:
                 xp.log(f"Interface {intname} {self.outData}")
                 xp.log()
 
-            intsrv = self.getInterfaceSrv(intname)
-            intsrv.setOutData(self.outData[intname])
+            # Interface intname Server Out Data Update
+            self.getInterfaceSrv(intname).setOutData(self.outData[intname])
+
+            # Refresh Cockpit
+            self.refreshImportedData(intname)
 
         if self.debug == 40:
             xp.log(f"Flight Loop Ended at {datetime.now()}")
@@ -298,6 +298,8 @@ class PythonInterface:
         configdir = self.configdir+'/'+intname
         configfile = self.simopintcfg['INTERFACES'][intname]['configfile']
         interface = SimOpInt(configdir, configfile, 0)
+        self.inData[intname] = {}
+
         if interface is not False:
             self.simopints[intname] = {}
             self.simopints[intname]['SimOpInt'] = interface
@@ -306,12 +308,16 @@ class PythonInterface:
             xp.appendMenuItem(menuID=self.simopints[intname]['menuID'], name='Open Config', refCon='openconf')
             xp.enableMenuItem(menuID=self.simopints[intname]['menuID'], index=0, enabled=0)  # Open Action is actually not active
             xp.appendMenuItem(menuID=self.simopints[intname]['menuID'], name='Reload Config', refCon='reloadconf')
-            intsrv = SimOpIntSrv(interface.getSrvName(), interface.getSrvAddr(), interface.getSrvPort())
-            if intsrv is not False:
+
+            intsrv = SimOpIntSrv(interface.getSrvName(), interface.getXplAddr(), interface.getXplPort())
+            intcli = SimOpIntCli(interface.getCliName(), interface.getIntAddr(), interface.getIntPort())
+
+            if intsrv is not False and intcli is not False:
                 self.simopints[intname]['SimOpIntSrv'] = intsrv
-                xp.appendMenuSeparator(self.simopints[intname]['menuID']) # Caution This
-                xp.appendMenuItem(menuID=self.simopints[intname]['menuID'], name='Start Srv', refCon='srvstart')
-                xp.appendMenuItem(menuID=self.simopints[intname]['menuID'], name='Stop Srv', refCon='srvstop')
+                self.simopints[intname]['SimOpIntCli'] = intcli
+                xp.appendMenuSeparator(self.simopints[intname]['menuID'])  # Caution This
+                xp.appendMenuItem(menuID=self.simopints[intname]['menuID'], name='Start Srv', refCon='start')
+                xp.appendMenuItem(menuID=self.simopints[intname]['menuID'], name='Stop Srv', refCon='stop')
                 xp.enableMenuItem(menuID=self.simopints[intname]['menuID'], index=4, enabled=0)
 
     def createInterfaces(self) -> None:
@@ -319,8 +325,26 @@ class PythonInterface:
             self.createInterface(intname)
 
     ##################################################
-    # Interfaces Servers Method
+    # Interfaces Client & Servers Method
     ##################################################
+
+    def getInterfaceCli(self, intname: str) -> SimOpIntCli | bool:
+        if intname in self.simopints:
+            return self.simopints[intname]['SimOpIntCli']
+        else:
+            return False
+
+    def startInterfaceCli(self, intname: str) -> None:
+        # Thread Creation
+        intcli = self.getInterfaceCli(intname)
+        self.simopints[intname]['CliThread'] = threading.Thread(target=intcli.mainLoop)
+        self.simopints[intname]['CliThread'].start()
+        intcli.run()
+
+    def stopInterfaceCli(self, intname: str) -> None:
+        intcli = self.getInterfaceCli(intname)
+        intcli.shutdown()
+        self.simopints[intname]['CliThread'].join()
 
     def getInterfaceSrv(self, intname: str) -> SimOpIntSrv | bool:
         if intname in self.simopints:
@@ -330,38 +354,80 @@ class PythonInterface:
 
     def startInterfaceSrv(self, intname: str) -> None:
         # Thread Creation
-        """
-        srvname.setSignal('shutdown', False)
-        self.thrsrv[srvname.getName()] = threading.Thread(target=srvname.mainLoop)
-        self.thrsrv[srvname.getName()].start()
-        """
-        pass
+        intsrv = self.getInterfaceSrv(intname)
+        self.simopints[intname]['SrvThread'] = threading.Thread(target=intsrv.mainLoop)
+        self.simopints[intname]['SrvThread'].start()
+        intsrv.run()
 
     def stopInterfaceSrv(self, intname: str) -> None:
-        """
-        srvname.shutdown()
-        self.thrsrv[srvname.getName()].join()
-        """
-        pass
+        intsrv = self.getInterfaceSrv(intname)
+        intsrv.shutdown()
+        self.simopints[intname]['SrvThread'].join()
 
     ##################################################
     # DataRef & Command Method
     ##################################################
 
-    def createNodeRefId(self, intname):
-        for objtype, objs in self.getInterface(intname).listExportedObjects().items():
-            for objtitle, obj in objs.items():
-                if self.debug == 50:
-                    xp.log(f"Obj Name {obj.getName()} NodeRef {obj.getNodeRef()}")
+    def createObjectsRefId(self, intname: str) -> None:
+        interface = self.getInterface(intname)
+        if self.debug == 50:
+            xp.log(f"Exported Objects Processing")
+            xp.log()
 
+        for objtype, objs in interface.getExportedObjects().items():
+            for obj in objs.values():
+                self.createObjectRefId(objtype, obj)
+
+        if self.debug == 50:
+            xp.log(f"Imported Objects Processing")
+            xp.log()
+
+        for objtype, objs in interface.getImportedObjects().items():
+            for obj in objs.values():
+                self.createObjectRefId(objtype, obj)
+
+    def createObjectRefId(self, objtype: str, obj) -> None:
+        node = None
+        noderef = None
+
+        # Object RefId Management
+        if obj.getNodeFormat() == 'base':
+            if obj.getNodeType() == 'dref':
                 obj.setNodeRef(xp.findDataRef(obj.getNode()))
+            elif obj.getNodeType() == 'cmd':
+                obj.setNodeRef(xp.findCommand(obj.getNode()))
+            else:
+                obj.setNodeRef(None)
 
-                if obj.getNodeConds():
-                    for cond in obj.getNodeConds():
-                        if self.debug == 50:
-                            xp.log(f"Obj {obj.getName()} Condition {cond} Node {obj.getNodeCond(cond)} NodeRef {xp.findDataRef(obj.getNodeCond(cond))}")
-                        obj.setNodeCondRef(cond, xp.findDataRef(obj.getNodeCond(cond)))
-        xp.log()
+            if self.debug == 50:
+                node = obj.getNode()
+                noderef = obj.getNodeRef()
+
+        elif obj.getNodeFormat() == 'encoder':
+            for nodekey in obj.getAllNodes():
+                if obj.getNodeType() == 'dref':
+                    obj.setNodeRef(nodekey, xp.findDataRef(obj.getNode(nodekey)))
+                elif obj.getNodeType() == 'cmd':
+                    obj.setNodeRef(nodekey, xp.findCommand(obj.getNode(nodekey)))
+                else:
+                    obj.setNodeRef(nodekey, None)
+
+            if self.debug == 50:
+                node = obj.getAllNodes()
+                noderef = obj.getAllNodesRef()
+
+        else:
+            obj.setNodeRef(None)
+
+        # Object Condition RefId Management
+        if obj.getNodeConds():
+            for nodecond in obj.getNodeConds():
+                obj.setNodeCondRef(nodecond, xp.findDataRef(obj.getNodeCond(nodecond)))
+
+        if self.debug == 50:
+            xp.log(
+                f"Object Type {objtype} Object {obj.getName()} Node Type {obj.getNodeType()} Node Format {obj.getNodeFormat()} Node {node} Node Ref {noderef}")
+            xp.log()
 
     ##################################################
     # Plugin Data Method
@@ -427,24 +493,119 @@ class PythonInterface:
             # Case Data Type is Unknow
             return "Unknow Type"
 
-    def refreshExportedData(self, intname):
+    def refreshExportedData(self, intname) -> None:
+        interface = self.getInterface(intname)
         self.outData[intname] = {}
-        for objtype, objs in self.getInterface(intname).listExportedObjects().items():
+
+        # Phase 1 Getting Exported Objects
+        for objtype, objs in interface.getExportedObjects().items():
             self.outData[intname][objtype] = {}
-            for objtitle, obj in objs.items():
-                if self.debug == 60:
-                    xp.log(f"Obj Name {obj.getName()} NodeRef {obj.getNodeRef()} Value {self.getDataRefValue(obj.getNodeRef())}")
+
+            # Phase 2 Main Node Value Processing
+            for obj in objs.values():
                 self.outData[intname][objtype][obj.getName()] = {}
-                self.outData[intname][objtype][obj.getName()]['nodeval'] = self.getDataRefValue(obj.getNodeRef())
+
+                if obj.getNodeFormat() == 'base':
+                    self.outData[intname][objtype][obj.getName()]['nodeval'] = self.getDataRefValue(obj.getNodeRef())
+
+                else:
+                    self.outData[intname][objtype][obj.getName()]['nodeval'] = 'Unknow'
+
+                # Phase 3 Conditions Node Value Processing
                 if obj.getNodeConds():
                     self.outData[intname][objtype][obj.getName()]['nodeconds'] = {}
                     for cond in obj.getNodeConds():
-                        if self.debug == 60:
-                            xp.log(f"Obj {obj.getName()} Condition {cond} Node {obj.getNodeCond(cond)} NodeRef {obj.getNodeCondRef(cond)} Value {self.getDataRefValue(obj.getNodeCondRef(cond))}")
                         self.outData[intname][objtype][obj.getName()]['nodeconds'][cond] = self.getDataRefValue(obj.getNodeCondRef(cond))
-        if self.debug == 60:
-            xp.log()
+                else:
+                    self.outData[intname][objtype][obj.getName()]['nodeconds'] = None
+
+                if self.debug == 60:
+                    xp.log(f"Obj {obj.getName()} Node Val {self.outData[intname][objtype][obj.getName()]['nodeval']} Node Cond {self.outData[intname][objtype][obj.getName()]['nodeconds']}")
+                    xp.log()
+
+    def refreshImportedData(self, intname):
+        interface = self.getInterface(intname)
+        interfacecli = self.getInterfaceCli(intname)
+        self.inData[intname] = interfacecli.getInData()
+        if interfacecli.getSignal('newmsg'):
+            if self.debug == 70:
+                xp.log(f"Received Data {self.inData[intname]}")
+                xp.log()
+            for objtype, objs in self.inData[intname].items():
+                if len(interfacecli.getInData()[objtype]) > 0:
+                    for rcvobj in objs.values():
+                        # obj = interface.getObject(objtype, rcvobj)
+                        xp.log(f"{interfacecli.getInData()[objtype]} {rcvobj}")
+                        xp.log()
+
+            interfacecli.setSignal('newmsg', False)
 
     ##################################################
     # TEMP / JUNK
     ##################################################
+
+    """
+    # V2
+                            if obj.getNodeFormat() == 'base':
+                            if obj.getNodeType() == 'dref':
+                                pass
+                            elif obj.getNodeType() == 'cmd':
+                                pass
+
+                        elif obj.getNodeFormat() == 'encoder':
+                            if obj.getNodeType() == 'dref':
+                                pass
+                            elif obj.getNodeType() == 'cmd':
+                                pass
+
+                        else:
+                            pass
+                            
+                            
+                            
+    # V1
+    def refreshImportedData(self, intname):
+    self.inData[intname] = {}
+    interface = self.getInterface(intname)
+    for objtype, objs in interface.getImportedObjects().items():
+        for obj in objs.values():
+            if obj.getNodeFormat() == 'base':
+                pass
+            elif obj.getNodeFormat() == 'encoder':
+                pass
+            else:
+                pass
+
+            if self.debug == 70:
+                xp.log(f"Type : {objtype} Object {obj.getName()} Object Type {obj.getObjType()} Node Format {obj.getNodeFormat()} Node Type {obj.getNodeType()}")
+                xp.log()
+                    
+    
+    # V0    
+    # To be Review to take Encoder data form
+    def refreshImportedData(self, intname, data):
+        for objtype, objs in self.getInterface(intname).listImportedObjects().items():
+
+            if objtype in data and len(data[objtype]) > 0:
+
+                if objtype not in self.inData[intname]:
+                    self.inData[intname][objtype] = {}
+
+                for objtitle, obj in objs.items():
+                    
+                    if obj.getName() in data[objtype] and obj.getNode is not None:
+
+                        if obj.getName() not in self.inData[intname][objtype] or self.inData[intname][objtype][obj.getName()] != data[objtype][obj.getName()]:
+                            self.inData[intname][objtype][obj.getName()] = data[objtype][obj.getName()]
+                            if self.debug == 70:
+                                xp.log(f"Object {obj.getName()} Recv Value {self.inData[intname][objtype][obj.getName()]} Node {obj.getNode()} Node Type {obj.getNodeType()} Node Ref {obj.getNodeRef()}")
+                                xp.log()
+
+                            if obj.getNodeType() == 'cmd' and data[objtype][obj.getName()] == 1:
+                                xp.commandOnce(obj.getNodeRef())
+                            elif obj.getNodeType() == 'dref':
+                                if self.getDataRefValue(obj.getNodeRef()) != data[objtype][obj.getName()]:
+                                    # self.setDataRefValue(obj.getNodeRef(), data[objtype][obj.getName()])
+                                    xp.log(f"{self.getDataRefValue(obj.getNodeRef())} / {data[objtype][obj.getName()]}")
+                                    xp.log()
+    """

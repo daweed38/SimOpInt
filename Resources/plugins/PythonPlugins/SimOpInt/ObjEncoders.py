@@ -19,8 +19,8 @@ from DeviceMCP23017 import MCP23017
 class RotaryEncoder(ObjBase):
     # Just the encoder, no switch, no LEDs
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: int, pin2: int, swpin: int, initvalue: int, minvalue: int, maxvalue: int, increment: int, exported: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, debug)
+    def __init__(self, name: str, node: dict, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: int, pin2: int, swpin: int, initvalue: int, minvalue: int, maxvalue: int, increment: int, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
         self.objtype = 'Push Button'
         self.device = device
         self.port = port
@@ -35,6 +35,7 @@ class RotaryEncoder(ObjBase):
         self.r_seq = self.rotation_sequence()
         self.steps_per_cycle = 4    # 4 steps between detents
         self.remainder = 0
+        self.noderef = {}
 
     def rotation_sequence(self) -> int:
         a_state = self.device.readGpioPin(self.port, self.a_pin)
@@ -72,6 +73,32 @@ class RotaryEncoder(ObjBase):
 
     def setEncoderValue(self, value) -> None:
         self.value = value
+
+    ########################################
+    # System Methods Override
+    ########################################
+
+    # Method getNode(direction)
+    # Return Object Node
+    def getNode(self, direction: str) -> str:
+        return self.node[direction]
+
+    # Method setNode(direction, node)
+    # Set Object Node to node
+    # node is str
+    def setNode(self, node: str, direction: str) -> None:
+        self.node[direction] = node
+
+    # Method getNodeRef(direction)
+    # Return X-Plane Node Reference
+    def getNodeRef(self, direction: str) -> object:
+        return self.noderef[direction]
+
+    # Method setNodeRef(direction, noderef)
+    # Set X-Plane Node Reference to noderef
+    # noderef is an X-Plane DataRef Object
+    def setNodeRef(self, noderef, direction: str) -> None:
+        self.noderef[direction] = noderef
 
 
 class EncoderWorker(threading.Thread):

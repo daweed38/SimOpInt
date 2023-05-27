@@ -3,7 +3,7 @@
         "confname": "ROTARYENC",
         "library": "ObjEncoders",
         "module": "RotaryEncoder",
-        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,pin1,pin2,swpin,initvalue,minvalue,maxvalue,increment",
+        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,pin1,pin2,swpin,initvalue,minvalue,maxvalue,increment,exported,imported",
         "export": "no",
         "import": "yes"
     },
@@ -21,24 +21,31 @@
         "prop11": "initvalue",
         "prop12": "minvalue",
         "prop13": "maxvalue",
-        "prop14": "increment"
+        "prop14": "increment",
+        "prop15": "exported",
+        "prop16": "imported"
     },
     "OBJECTS": {
         "SPDENC": {
             "name": "spdenc",
-            "node": "sim/cockpit2/autopilot/airspeed_dial_kts_mach",
-            "nodetype": "dref",
-            "nodeformat": "None",
+            "node": {
+                "incr": "sim/autopilot/airspeed_up",
+                "decr": "sim/autopilot/airspeed_down"
+            },
+            "nodetype": "cmd",
+            "nodeformat": "encoder",
             "nodeconds": "None",
             "device": "IOPACK2",
             "port": "B",
             "pin1": 3,
             "pin2": 4,
             "swpin": 0,
-            "initvalue": 0,
-            "minvalue": 0,
+            "initvalue": 125,
+            "minvalue": 125,
             "maxvalue": 355,
-            "increment": 1
+            "increment": 1,
+            "exported": "False",
+            "imported": "True"
         },
         "HDGENC": {
             "name": "hdgenc",
@@ -54,7 +61,9 @@
             "initvalue": 0,
             "minvalue": 0,
             "maxvalue": 359,
-            "increment": 1
+            "increment": 1,
+            "exported": "False",
+            "imported": "False"
         },
         "ALTENC": {
             "name": "altenc",
@@ -69,8 +78,10 @@
             "swpin": 0,
             "initvalue": 0,
             "minvalue": 0,
-            "maxvalue": 360,
-            "increment": 1
+            "maxvalue": 359,
+            "increment": 1,
+            "exported": "False",
+            "imported": "False"
         },
         "VSENC": {
             "name": "vsenc",
@@ -85,8 +96,10 @@
             "swpin": 0,
             "initvalue": 0,
             "minvalue": 0,
-            "maxvalue": 360,
-            "increment": 1
+            "maxvalue": 359,
+            "increment": 1,
+            "exported": "False",
+            "imported": "False"
         }
     }
 }
