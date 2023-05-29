@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*-coding:Utf-8 -*
 
-import smbus2
+# import smbus2
 
 ##################################################
 # FarmerSoft Open Interface I2C Class
@@ -25,8 +25,16 @@ class I2CBus:
     # Constructor
     ###############
 
-    def __init__(self):
-        self.i2c = smbus2.SMBus(1)
+    def __init__(self, i2cdriver, i2cbusaddr):
+        if i2cdriver == 'rpi':
+            import smbus2
+            self.i2c = smbus2.SMBus(i2cbusaddr)
+        elif i2cdriver == 'ftdi':
+            from pyftdi.i2c import I2cController
+            self.i2c = I2cController()
+            self.i2c.configure(i2cbusaddr, frequency=400000.0)
+        else:
+            self.i2c = 'dummy'
 
     ###############
     # Destructor
@@ -39,9 +47,10 @@ class I2CBus:
     # Destructor
     ###############
 
-    def getBus(self) -> smbus2:
+    def getBus(self):
         return self.i2c
 
+    """
     def scan(self):
         # Try to read a byte from each address, if you get an OSError
         # it means the device isnt there
@@ -53,9 +62,10 @@ class I2CBus:
                 continue
             found.append(addr)
         return found
+    """
 
 
-class I2CDevice(I2CBus):
+class I2CDevice:
     """
     This Class Defined I2C Device
     FarmerSoft 2023
@@ -78,18 +88,22 @@ class I2CDevice(I2CBus):
     ###############
     # Constructor
     ###############
-    def __init__(self, devicename, deviceaddr, debug=0):
-        super().__init__()
+    def __init__(self, i2cdriver, i2cbus, devicename, deviceaddr, debug=0):
         self.debug = debug
-        self.bus = 1
+        self.i2cdriver = i2cdriver
+        self.i2c = i2cbus
         self.devicename = devicename
         self.deviceaddr = deviceaddr
-        # self.i2c = smbus2.SMBus(self.bus)
+
+        if self.i2cdriver == 'ftdi':
+            self.i2cdevice = self.i2c.get_port(self.deviceaddr)
+        else:
+            self.i2cdevice = None
 
         if int(self.debug) == 3:
-            print("######################################################################")
-            print("# Device I2C {} initialization at {}".format(self.devicename, hex(self.deviceaddr)))
-            print("######################################################################")
+            print(f"######################################################################")
+            print(f"# Device I2C {self.devicename} initialization at {hex(self.deviceaddr)}")
+            print(f"######################################################################")
             print("\r")
 
     ###############
@@ -97,55 +111,82 @@ class I2CDevice(I2CBus):
     ###############
     def __del__(self):
         if int(self.debug) == 3:
-            print("######################################################################")
-            print("# Device I2C {} removed".format(self.devicename))
-            print("######################################################################")
+            print(f"######################################################################")
+            print(f"# Device I2C {self.devicename} removed")
+            print(f"######################################################################")
             print("\r")
 
     ###############
-    # Methods
+    # Device Methods
     ###############
 
     # Method readDevice()
     # Return one bytes from device
-    def readDevice(self) -> int:
-        if int(self.debug) == 3:
-            print("######################################################################")
-            print("# Reading Device {}".format(self.devicename))
-            print("######################################################################")
+    def readDevice(self) -> int | None:
+        if self.i2cdriver == 'rpi':
+            data = self.i2c.read_byte(self.deviceaddr)
+        elif self.i2cdriver == 'ftdi':
+            data = int.from_bytes(self.i2cdevice.read(1), 'big')
+        else:
+            data = None
+
+        if self.debug == 3:
+            print(f"######################################################################")
+            print(f"# Reading Device {self.devicename} : {hex(data)}")
+            print(f"######################################################################")
             print("\r")
-        return self.i2c.read_byte(self.deviceaddr)
+
+        return data
 
     # Method writeDevice(data)
     # Write data to device
     def writeDevice(self, data) -> None:
         if int(self.debug) == 3:
-            print("######################################################################")
-            print("# Writing Data {} to Device {}".format(data, self.devicename))
-            print("######################################################################")
+            print(f"######################################################################")
+            print(f"# Writing Data {data} to Device {self.devicename}")
+            print(f"######################################################################")
             print("\r")
-        self.i2c.write_byte(self.deviceaddr, data)
+
+        if self.i2cdriver == 'rpi':
+            self.i2c.write_byte(self.deviceaddr, data)
+        elif self.i2cdriver == 'ftdi':
+            self.i2cdevice.write([data])
+        else:
+            pass
 
     # readRegister(registeraddr)
     # Return value from Device Register at registeraddr Address
-    def readRegister(self, registeraddr) -> int:
-        data = self.i2c.read_byte_data(self.deviceaddr, registeraddr)
+    def readRegister(self, registeraddr) -> int | None:
+        if self.i2cdriver == 'rpi':
+            data = self.i2c.read_byte_data(self.deviceaddr, registeraddr)
+        elif self.i2cdriver == 'ftdi':
+            data = int.from_bytes(self.i2cdevice.read_from(registeraddr, 1), 'big')
+        else:
+            data = None
+
         if int(self.debug) == 3:
-            print("######################################################################")
-            print("# Reading Value from Register at Address {} : {}".format(hex(registeraddr),bin(data)))
-            print("######################################################################")
+            print(f"######################################################################")
+            print(f"# Reading Value from Register at Address {hex(registeraddr)} : {hex(data)}")
+            print(f"######################################################################")
             print("\r")
+
         return data
 
     # writeRegister(registeraddr, registervalue)
     # Write Value on Device Register at registeraddr Address
     def writeRegister(self, registeraddr, data) -> None:
         if int(self.debug) == 3:
-            print("######################################################################")
-            print("# Writing Value {} to Register at Address {}".format(hex(data), hex(registeraddr)))
-            print("######################################################################")
+            print(f"######################################################################")
+            print(f"# Writing Value {hex(data)} to Register at Address {hex(registeraddr)}")
+            print(f"######################################################################")
             print("\r")
-        self.i2c.write_byte_data(self.deviceaddr, registeraddr, data)
+
+        if self.i2cdriver == 'rpi':
+            self.i2c.write_byte_data(self.deviceaddr, registeraddr, data)
+        elif self.i2cdriver == 'ftdi':
+            self.i2cdevice.write_to(registeraddr, [data])
+        else:
+            pass
 
     # Method readBit(registeraddr, bit)
     # Return Bit value from Register at registeraddr
@@ -153,9 +194,9 @@ class I2CDevice(I2CBus):
         mask = self.maskup[bit]
         bitvalue = self.readRegister(registeraddr) & mask
         if int(self.debug) == 3:
-            print("######################################################################")
-            print("# Reading Bit {} Value from Register at Address {} : {}".format(bit, hex(registeraddr), bitvalue))
-            print("######################################################################")
+            print(f"######################################################################")
+            print(f"# Reading Bit {bit} Value from Register at Address {hex(registeraddr)} : {bitvalue}")
+            print(f"######################################################################")
             print("\r")
 
         if int(bitvalue) > 0:
@@ -178,9 +219,9 @@ class I2CDevice(I2CBus):
             mask = self.maskdown[bit]
             newregisterdata = registerdata & mask
         if int(self.debug) == 3:
-            print("######################################################################")
-            print("# Writing Value {} to Bit {} from Register at Address {}".format(state, bit, hex(registeraddr)))
-            print("######################################################################")        
+            print(f"######################################################################")
+            print(f"# Writing Value {state} to Bit {bit} from Register at Address {hex(registeraddr)}")
+            print(f"######################################################################")
             print("\r")
 
         self.writeRegister(registeraddr, newregisterdata)

@@ -78,8 +78,8 @@ class MCP23017(DeviceBase):
     # Constructor
     ########################################
 
-    def __init__(self, devicename: str, deviceaddr: str, dummy=False, debug=False) -> None:
-        super().__init__(devicename, deviceaddr, dummy, debug)
+    def __init__(self, i2cdriver, i2cbus, devicename: str, deviceaddr: str, debug=False) -> None:
+        super().__init__(i2cdriver, i2cbus, devicename, deviceaddr, debug)
 
         self.devicetype = 'MCP23017'
         self.bankmode = 0
@@ -87,9 +87,9 @@ class MCP23017(DeviceBase):
         self.pullup = 0
 
         if self.debug:
-            print("######################################################################")
-            print("# Device {} Addr {} initialization at {}".format(self.devicename, hex(self.deviceaddr), datetime.now()))
-            print("######################################################################")
+            print(f"######################################################################")
+            print(f"# Device {self.devicename} Addr {hex(self.deviceaddr)} initialization at {datetime.now()}")
+            print(f"######################################################################")
             print("\r")
 
     ########################################
@@ -99,9 +99,9 @@ class MCP23017(DeviceBase):
     def __del__(self) -> None:
 
         if self.debug:
-            print("######################################################################")
-            print("# Device {} removed at {}".format(self.devicename, datetime.now()))
-            print("######################################################################")
+            print(f"######################################################################")
+            print(f"# Device {self.devicename} removed at {datetime.now()}")
+            print(f"######################################################################")
             print("\r")
 
         self.configMCP(0)
@@ -137,17 +137,17 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('iocona')
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Setting Device {} in Bank Mode {}".format(self.getName(), bankmode))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Setting Device {self.getName()} in Bank Mode {bankmode}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
+            if self.i2cdriver != 'dummy':
                 if bankmode == 1:
-                    self.i2cdevice.writeBit(registeraddr, 8, 1)
+                    self.writeBit(registeraddr, 8, 1)
                     self.registers = self.registers_bank1
                 else:
-                    self.i2cdevice.writeBit(registeraddr, 8, 0)
+                    self.writeBit(registeraddr, 8, 0)
                     self.registers = self.registers_bank0
 
             self.bankmode = bankmode
@@ -161,13 +161,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('iodir' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading Direction for Port {}".format(port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading Direction for Port {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readRegister(registeraddr)
+            if self.i2cdriver != 'dummy':
+                return self.readRegister(registeraddr)
             else:
                 return False
         else:
@@ -185,13 +185,13 @@ class MCP23017(DeviceBase):
                 registervalue = 0xff
 
             if self.debug:
-                print("######################################################################")
-                print("# Setting Direction for Port {} to {}".format(port.upper(), direction))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Setting Direction for Port {port.upper()} to {direction}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeRegister(registeraddr, registervalue)
+            if self.i2cdriver != 'dummy':
+                self.writeRegister(registeraddr, registervalue)
 
     # Method getPinDirection(port, pin)
     # Return direction for pin on GPIO port
@@ -200,13 +200,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('iodir' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading Pin {} Direction on Port {}".format(pin, port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading Pin {pin} Direction on Port {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readBit(registeraddr, pin)
+            if self.i2cdriver != 'dummy':
+                return self.readBit(registeraddr, pin)
             else:
                 return False
         else:
@@ -215,13 +215,14 @@ class MCP23017(DeviceBase):
     # Method setPinDirection(port, pin, direction)
     # Setup direction for pin on GPIO port
     # port is str and pin is int
+    # dir is 'input' or 'output'
     def setPinDirection(self, port: str, pin: int, direction: str) -> None:
         registeraddr = self.getRegisterAddr('iodir' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Setting Pin {} Direction on Port {} to {}".format(pin, port.upper(), direction))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Setting Pin {pin} Direction on Port {port.upper()} to {direction}")
+                print(f"######################################################################")
                 print("\r")
 
             if direction == 'input':
@@ -229,8 +230,8 @@ class MCP23017(DeviceBase):
             else:
                 pindir = 0
 
-            if self.dummy is not True:
-                self.i2cdevice.writeBit(registeraddr, pin, pindir)
+            if self.i2cdriver != 'dummy':
+                self.writeBit(registeraddr, pin, pindir)
 
     # ----- GPIO Polarity -----
 
@@ -241,13 +242,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('iopol' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading Input Polarity for Port {}".format(port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading Input Polarity for Port {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readRegister(registeraddr)
+            if self.i2cdriver != 'dummy':
+                return self.readRegister(registeraddr)
             else:
                 return False
         else:
@@ -260,13 +261,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('iopol' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Setting Input Polarity for Port {} to {}".format(port.upper(), polarity))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Setting Input Polarity for Port {port.upper()} to {polarity}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeRegister(registeraddr, polarity)
+            if self.i2cdriver != 'dummy':
+                self.writeRegister(registeraddr, polarity)
 
     # ----- GPIO Interrupt -----
 
@@ -277,13 +278,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('gpinten' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading GPIO Interrupt Configuration for Port {}".format(port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading GPIO Interrupt Configuration for Port {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readRegister(registeraddr)
+            if self.i2cdriver != 'dummy':
+                return self.readRegister(registeraddr)
             else:
                 return False
         else:
@@ -291,18 +292,18 @@ class MCP23017(DeviceBase):
 
     # Method setPortInterruptConfig(port, interruptconf)
     # Setup GPIO Interrupt on Change configuration for port
-    # port is str and interrupconfig is int
+    # port is str and interruptconf is int
     def setPortInterruptConfig(self, port: str, interruptconf: int) -> None:
         registeraddr = self.getRegisterAddr('gpinten' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Setting GPIO Interrupt Configuration for Port {} to {}".format(port.upper(), interruptconf))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Setting GPIO Interrupt Configuration for Port {port.upper()} to {interruptconf}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeRegister(registeraddr, interruptconf)
+            if self.i2cdriver != 'dummy':
+                self.writeRegister(registeraddr, interruptconf)
 
     # Method getPortCompareDefault(port)
     # Return GPIO Default Compare Value for port
@@ -311,13 +312,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('defval' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading GPIO Default Compare Value for Port {}".format(port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading GPIO Default Compare Value for Port {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readRegister(registeraddr)
+            if self.i2cdriver != 'dummy':
+                return self.readRegister(registeraddr)
             else:
                 return False
         else:
@@ -330,13 +331,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('defval' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Setting GPIO Default Compare Value for Port {} to {}".format(port.upper(), hex(default)))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Setting GPIO Default Compare Value for Port {port.upper()} to {hex(default)}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeRegister(registeraddr, default)
+            if self.i2cdriver != 'dummy':
+                self.writeRegister(registeraddr, default)
 
     # Method getPortCompareMode(port)
     # Return GPIO Compare Mode for port
@@ -345,13 +346,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('intcon' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading GPIO Compare Mode for Port {}".format(port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading GPIO Compare Mode for Port {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readRegister(registeraddr)
+            if self.i2cdriver != 'dummy':
+                return self.readRegister(registeraddr)
             else:
                 return False
         else:
@@ -364,13 +365,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('intcon' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Setting GPIO Default Mode for Port {} to {}".format(port.upper(), hex(compareconfig)))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Setting GPIO Default Mode for Port {port.upper()} to {hex(compareconfig)}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeRegister(registeraddr, compareconfig)
+            if self.i2cdriver != 'dummy':
+                self.writeRegister(registeraddr, compareconfig)
 
     # Method getPortInterrupt(port)
     # Return GPIO Interrupt on Change Flag for port
@@ -379,13 +380,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('intf' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading GPIO Interrupt Configuration for Port {}".format(port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading GPIO Interrupt Configuration for Port {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readRegister(registeraddr)
+            if self.i2cdriver != 'dummy':
+                return self.readRegister(registeraddr)
             else:
                 return False
         else:
@@ -398,13 +399,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('intcap' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading GPIO Interrupt Configuration for Port {}".format(port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading GPIO Interrupt Configuration for Port {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readRegister(registeraddr)
+            if self.i2cdriver != 'dummy':
+                return self.readRegister(registeraddr)
             else:
                 return False
         else:
@@ -419,13 +420,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('gppu' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading Pull Up Register for Port {}".format(port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading Pull Up Register for Port {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readRegister(registeraddr)
+            if self.i2cdriver != 'dummy':
+                return self.readRegister(registeraddr)
             else:
                 return False
         else:
@@ -438,13 +439,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('gppu' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Setting Pull Up Register for Port {} to {}".format(port.upper(), hex(pullupdata)))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Setting Pull Up Register for Port {port.upper()} to {hex(pullupdata)}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeRegister(registeraddr, pullupdata)
+            if self.i2cdriver != 'dummy':
+                self.writeRegister(registeraddr, pullupdata)
 
     # Method getPullUpPin(port, pin)
     # Return Value for pin from Port PullUp Register
@@ -453,13 +454,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('gppu' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading Pull Up Status for Pin {} on Port {}".format(pin, port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading Pull Up Status for Pin {pin} on Port {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readBit(registeraddr, pin)
+            if self.i2cdriver != 'dummy':
+                return self.readBit(registeraddr, pin)
             else:
                 return False
         else:
@@ -468,17 +469,17 @@ class MCP23017(DeviceBase):
     # Method setPullUpPin(port, pin, pullupstatus)
     # Setup PullUp Resistor for pin Port PullUp Register
     # port is str, pin is int and pullupstatus is bool
-    def setPullUpPin(self, port: str, pin: int, pullupstatus: bool) -> None:
+    def setPullUpPin(self, port: str, pin: int, pullupstatus: int) -> None:
         registeraddr = self.getRegisterAddr('gppu' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Setting Pull Up Status for Pin {} on Port {} to {}".format(pin, port.upper(), pullupstatus))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Setting Pull Up Status for Pin {pin} on Port {port.upper()} to {pullupstatus}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeBit(registeraddr, pin, pullupstatus)
+            if self.i2cdriver != 'dummy':
+                self.writeBit(registeraddr, pin, pullupstatus)
 
     # ----- GPIO -----
 
@@ -489,13 +490,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('gpio' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading GPIO {}".format(port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading GPIO {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readRegister(registeraddr)
+            if self.i2cdriver != 'dummy':
+                return self.readRegister(registeraddr)
             else:
                 return False
         else:
@@ -508,13 +509,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('gpio' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Writing Data {} on GPIO {}".format(hex(data), port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Writing Data {hex(data)} on GPIO {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeRegister(registeraddr, data)
+            if self.i2cdriver != 'dummy':
+                self.writeRegister(registeraddr, data)
 
     # Method readGpioPin(port, pin)
     # Return GPIO Pin Value
@@ -523,13 +524,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('gpio' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading Pin {} on GPIO {}".format(pin, port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading Pin {pin} on GPIO {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readBit(registeraddr, pin)
+            if self.i2cdriver != 'dummy':
+                return self.readBit(registeraddr, pin)
             else:
                 return False
         else:
@@ -542,13 +543,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('gpio' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Writing Data {} to Pin {} on GPIO {}".format(data, pin, port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Writing Data {data} to Pin {pin} on GPIO {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeBit(registeraddr, pin, data)
+            if self.i2cdriver != 'dummy':
+                self.writeBit(registeraddr, pin, data)
 
     # Method readOutLatch(port)
     # Return GPIO Output Latch (not actual GPIO State)
@@ -557,13 +558,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('olat' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading GPIO Output Latch {}".format(port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading GPIO Output Latch {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readRegister(registeraddr)
+            if self.i2cdriver != 'dummy':
+                return self.readRegister(registeraddr)
             else:
                 return False
         else:
@@ -577,13 +578,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('olat' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Writing Data {} on GPIO Output Latch {}".format(hex(data), port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Writing Data {hex(data)} on GPIO Output Latch {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeRegister(registeraddr, data)
+            if self.i2cdriver != 'dummy':
+                self.writeRegister(registeraddr, data)
 
     # Method readOutputLatchPin(port, pin)
     # Return GPIO Output Latch Pin state
@@ -592,13 +593,13 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('olat' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Reading Pin {} on GPIO Output Latch {}".format(pin, port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Reading Pin {pin} on GPIO Output Latch {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                return self.i2cdevice.readBit(registeraddr, pin)
+            if self.i2cdriver != 'dummy':
+                return self.readBit(registeraddr, pin)
             else:
                 return False
         else:
@@ -611,10 +612,10 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('olat' + port.lower())
         if registeraddr is not False:
             if self.debug:
-                print("######################################################################")
-                print("# Writing Data {} to Pin {} on GPIO Output Latch {}".format(data, pin, port.upper()))
-                print("######################################################################")
+                print(f"######################################################################")
+                print(f"# Writing Data {data} to Pin {pin} on GPIO Output Latch {port.upper()}")
+                print(f"######################################################################")
                 print("\r")
 
-            if self.dummy is not True:
-                self.i2cdevice.writeBit(registeraddr, pin, data)
+            if self.i2cdriver != 'dummy':
+                self.writeBit(registeraddr, pin, data)

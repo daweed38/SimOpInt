@@ -1,15 +1,12 @@
 {
   "INT": {
     "intname": "A3xxfcu",
-    "dummydevice": 0
+    "i2cdriver": "dummy",
+    "i2cbusaddr": "None"
   },
   "NETWORK": {
-    "srvname": "A3xxfcuSrv",
-    "cliname": "A3xxfcuCli",
     "xpladdr": "192.168.0.150",
-    "xplport": 7000,
-    "intaddr": "192.168.0.60",
-    "intport": 7000
+    "xplport": 49500
   },
   "DEVICES": {
     "deviceconfig": "devices.json",

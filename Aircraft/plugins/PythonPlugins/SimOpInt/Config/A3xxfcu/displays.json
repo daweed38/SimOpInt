@@ -3,9 +3,9 @@
         "confname": "DISPLAYS",
         "library": "ObjDisplays",
         "module": "SegDisplay",
-        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,row1,nbdigit,decdigit,exported,imported",
-        "export": "yes",
-        "import": "no"
+        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,row1,nbdigit,decdigit,output,command",
+        "isoutput": "yes",
+        "iscommand": "no"
     },
     "PROPERTIES": {
         "prop01": "name",
@@ -18,15 +18,15 @@
         "prop08": "row1",
         "prop09": "nbdigit",
         "prop10": "decdigit",
-        "prop11": "exported",
-        "prop12": "imported"
+        "prop11": "output",
+        "prop12": "command"
     },
     "OBJECTS": {
         "SPDDSP": {
             "name": "spddsp",
             "node": "sim/cockpit2/autopilot/airspeed_dial_kts_mach",
-            "nodetype": "float",
-            "nodeformat": "None",
+            "nodetype": "dref",
+            "nodeformat": "base",
             "nodeconds": {
                 "dashes":  {
                     "node": "sim/cockpit2/autopilot/vnav_speed_window_open",
@@ -42,14 +42,14 @@
             "row1": "1",
             "nbdigit": "3",
             "decdigit": "1",
-            "exported": "True",
-            "imported": "False"
+            "output": "True",
+            "command": "False"
         },
         "HDGDSP": {
             "name": "hdgdsp",
             "node": "sim/cockpit2/autopilot/heading_dial_deg_mag_pilot",
-            "nodetype": "float",
-            "nodeformat": "None",
+            "nodetype": "dref",
+            "nodeformat": "base",
             "nodeconds": {
                 "dashes":  {
                     "node": "laminar/A333/autopilot/hdg_window_open",
@@ -61,28 +61,28 @@
             "row1": "1",
             "nbdigit": "3",
             "decdigit": "0",
-            "exported": "True",
-            "imported": "False"
+            "output": "True",
+            "command": "False"
         },
         "ALTDSP": {
             "name": "altdsp",
             "node": "sim/cockpit2/autopilot/altitude_dial_ft",
-            "nodetype": "float",
-            "nodeformat": "None",
+            "nodetype": "dref",
+            "nodeformat": "base",
             "nodeconds": "None",
             "device": "LEDPACK1",
             "port": "B",
             "row1": "4",
             "nbdigit": "5",
             "decdigit": "0",
-            "exported": "True",
-            "imported": "False"
+            "output": "True",
+            "command": "False"
         },
         "VSDSP": {
             "name": "vsdsp",
             "node": "sim/cockpit2/autopilot/vvi_dial_fpm",
-            "nodetype": "float",
-            "nodeformat": "None",
+            "nodetype": "dref",
+            "nodeformat": "base",
             "nodeconds": {
                 "dashes": {
                     "node": "laminar/A333/autopilot/vvi_fpa_window_open",
@@ -98,14 +98,14 @@
             "row1": "4",
             "nbdigit": "5",
             "decdigit": "0",
-            "exported": "True",
-            "imported": "False"
+            "output": "True",
+            "command": "False"
         },
         "FPADSP": {
             "name": "fpadsp",
             "node": "sim/cockpit2/autopilot/fpa",
-            "nodetype": "float",
-            "nodeformat": "None",
+            "nodetype": "dref",
+            "nodeformat": "base",
             "nodeconds": {
                 "dashes": {
                     "node": "laminar/A333/autopilot/vvi_fpa_window_open",
@@ -121,8 +121,8 @@
             "row1": "4",
             "nbdigit": "5",
             "decdigit": "1",
-            "exported": "True",
-            "imported": "False"
+            "output": "True",
+            "command": "False"
         }
     }
 }

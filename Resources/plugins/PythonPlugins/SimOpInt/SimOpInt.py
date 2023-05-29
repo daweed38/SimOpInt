@@ -2,6 +2,7 @@
 import importlib
 
 # FarmerSoft Modules Import
+from SimOpIntI2C import I2CBus
 from SimOpIntTools import SimOpIntTools
 
 ###################################
@@ -38,24 +39,19 @@ class SimOpInt:
         self.globaldebug = False
         self.configdir = configdir
         self.configfile = configfile
-        self.dummy = False
         self.intname = ''
-        self.cliname = ''
-        self.cliaddr = ''
-        self.cliport = ''
-        self.srvname = ''
-        self.srvaddr = ''
-        self.srvport = 0
         
         self.config = {}
         self.modules = {}
         self.devices = {}
         self.objects = {}
 
-        self.expobjs = {}
-        self.impobjs = {}
+        self.outobjs = {}
+        self.cmdobjs = {}
 
         self.tools = SimOpIntTools(debug)
+
+        self.i2cbus = 'dummy'
 
         if self.debug == 3:
             print("######################################################################")
@@ -66,16 +62,11 @@ class SimOpInt:
         self.readConfig()
 
         if self.config:
-            self.intname = self.config['INT']['intname']
-            self.cliname = self.config['NETWORK']['cliname']
-            self.intaddr = self.config['NETWORK']['intaddr']
-            self.intport = self.config['NETWORK']['intport']
-            self.srvname = self.config['NETWORK']['srvname']
-            self.xpladdr = self.config['NETWORK']['xpladdr']
-            self.xplport = self.config['NETWORK']['xplport']
+            self.i2cdriver = self.getConfigOption('INT', 'i2cdriver')
+            self.i2cbusaddr = self.getConfigOption('INT', 'i2cbusaddr')
+            self.i2cbus = I2CBus(self.i2cdriver, self.i2cbusaddr).getBus()
 
-            if int(self.getConfigOption('INT', 'dummydevice')):
-                self.dummy = True
+            self.intname = self.config['INT']['intname']
 
             if self.getConfig():
 
@@ -88,8 +79,8 @@ class SimOpInt:
 
                 if 'OBJECTS' in self.config:
                     self.createObjects()
-                    self.expobjs = self.listExportedObjects()
-                    self.impobjs = self.listImportedObjects()
+                    self.outobjs = self.listOutputObjects()
+                    self.cmdobjs = self.listCommandObjects()
 
                 if self.debug == 3:
                     print("######################################################################")
@@ -108,6 +99,7 @@ class SimOpInt:
     # Destructor
     ###############
     def __del__(self):
+
         if self.debug == 3:
             print("######################################################################")
             print("# Sim Open Interface {} removed".format(self.intname))
@@ -121,24 +113,6 @@ class SimOpInt:
     # return the interface name
     def getName(self):
         return self.intname
-
-    def getCliName(self):
-        return self.cliname
-
-    def getIntAddr(self):
-        return self.intaddr
-
-    def getIntPort(self):
-        return self.intport
-
-    def getSrvName(self):
-        return self.srvname
-
-    def getXplAddr(self):
-        return self.xpladdr
-
-    def getXplPort(self):
-        return self.xplport
 
     def getDebugLevel(self):
         return self.debug
@@ -213,8 +187,8 @@ class SimOpInt:
 
     def createDevice(self, devicename, devicemod, deviceaddr):
         if self.debug == 32:
-            print("Device : {} Device Addr : {} Module : {} Dummy Mode {}".format(devicename, deviceaddr, devicemod, self.dummy))
-        self.devices[devicename] = self.getModule(devicemod)(devicename, deviceaddr, dummy=self.dummy)
+            print("Device : {} Device Addr : {} Module : {}".format(devicename, deviceaddr, devicemod))
+        self.devices[devicename] = self.getModule(devicemod)(self.i2cdriver, self.i2cbus, devicename, deviceaddr)
 
     def createDevices(self):
         if self.debug == 32:
@@ -223,7 +197,7 @@ class SimOpInt:
         devices = self.tools.readJsonFile(self.configdir, 'devices.json')
 
         for devicename, deviceconf in devices.items():
-            self.createDevice(deviceconf['devicename'], deviceconf['devicetype'], deviceconf['deviceaddr'])
+            self.createDevice(deviceconf['devicename'], deviceconf['devicemod'], deviceconf['deviceaddr'])
 
         if self.debug == 32:
             print("\r")
@@ -260,33 +234,33 @@ class SimOpInt:
     def listObjects(self):
         return self.objects
 
-    def listExportedObjects(self):
-        expobjects = {}
+    def listOutputObjects(self):
+        outobjs = {}
         for objtype in self.listObjects():
-            if self.getObjectConfOfType(objtype)['export'] == 'yes':
-                expobjects[objtype] = {}
+            if self.getObjectConfOfType(objtype)['isoutput'] == 'yes':
+                outobjs[objtype] = {}
                 for objname, obj in self.getObjectOfType(objtype).items():
-                    if obj.getExpStatus():
-                        expobjects[objtype][objname] = obj
+                    if obj.getIsOutputStatus():
+                        outobjs[objtype][objname] = obj
 
-        return expobjects
+        return outobjs
 
-    def getExportedObjects(self):
-        return self.expobjs
+    def getOutputObjects(self):
+        return self.outobjs
 
-    def listImportedObjects(self):
-        impobjects = {}
+    def listCommandObjects(self):
+        cmdobjs = {}
         for objtype in self.listObjects():
-            if self.getObjectConfOfType(objtype)['import'] == 'yes':
-                impobjects[objtype] = {}
+            if self.getObjectConfOfType(objtype)['iscommand'] == 'yes':
+                cmdobjs[objtype] = {}
                 for objname, obj in self.getObjectOfType(objtype).items():
-                    if obj.getImpStatus():
-                        impobjects[objtype][objname] = obj
+                    if obj.getIsCommandStatus():
+                        cmdobjs[objtype][objname] = obj
 
-        return impobjects
+        return cmdobjs
 
-    def getImportedObjects(self):
-        return self.impobjs
+    def getCommandObjects(self):
+        return self.cmdobjs
 
     def getObject(self, objecttype, objectname):
         if objecttype in self.objects:
@@ -359,13 +333,13 @@ class SimOpInt:
                     if propvalue == 'None':
                         propvalue = None
 
-                if propname == 'exported':
+                if propname == 'output':
                     if propvalue == 'True':
                         propvalue = True
                     else:
                         propvalue = False
 
-                if propname == 'imported':
+                if propname == 'command':
                     if propvalue == 'True':
                         propvalue = True
                     else:

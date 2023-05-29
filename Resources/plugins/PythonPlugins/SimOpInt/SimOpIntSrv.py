@@ -44,7 +44,7 @@ class SimOpIntSrv:
         self.srvaddr = srvaddr
         self.srvport = int(srvport)
         self.srvsock = None
-        self.selsock = selectors.DefaultSelector()
+        self.selsock = None
         self.headersize = 10
         self.buffersize = 32
         self.signals = {'connected': False, 'loop': False, 'shutdown': False}
@@ -54,9 +54,9 @@ class SimOpIntSrv:
         self.loopsleep = 0.01
 
         self.inData = {}
-        self.inDatamd5 = ''
+        self.inDatamd5 = {}
         self.outData = {}
-        self.outDatamd5 = ''
+        self.outDatamd5 = {}
 
         self.newmsg = True
         self.msglen = 0
@@ -132,6 +132,34 @@ class SimOpIntSrv:
     def setOutData(self, outdata: dict) -> None:
         self.outData = outdata
 
+    # Return Out Data Dictionary for Interface intname
+    def getIntOutData(self, intname: str) -> dict | bool:
+        if intname in self.outData:
+            return self.outData[intname]
+        else:
+            return False
+
+    # Set Out Data Dictionary for Interface intname
+    def setIntOutData(self, intname: str, outdata: dict) -> dict | bool:
+        if intname in self.outData:
+            self.outData[intname] = outdata
+            return outdata
+        else:
+            return False
+
+    def getIntMd5OutData(self, intname: str) -> str | bool:
+        if intname in self.outDatamd5:
+            return self.outDatamd5[intname]
+        else:
+            return False
+
+    def setIntMd5OutData(self, intname: str, md5hash: str) -> str | bool:
+        if intname in self.outDatamd5:
+            self.outDatamd5[intname] = md5hash
+            return md5hash
+        else:
+            return False
+
     #############################################
     # Server Method
     #############################################
@@ -151,6 +179,7 @@ class SimOpIntSrv:
         if self.debug == 12:
             print(f"Opening Server Socket at {datetime.now()} : {self.srvsock}")
 
+        self.selsock = selectors.DefaultSelector()
         self.srvsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.srvsock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
         self.srvsock.bind((self.srvaddr, self.srvport))
@@ -196,8 +225,8 @@ class SimOpIntSrv:
             events = selectors.EVENT_READ | selectors.EVENT_WRITE
             data = types.SimpleNamespace(intname=intname, intaddr=intaddr)
             self.selsock.register(intsock, events, data=data)
-
-            self.setSignal('connected', True)
+            self.outData[intname] = {}
+            self.outDatamd5[intname] = ''
 
         except TimeoutError:
             pass
@@ -211,6 +240,7 @@ class SimOpIntSrv:
     def dataHandle(self, key, mask) -> None:
         sock = key.fileobj
         data = key.data
+        intname = data.intname
 
         if mask & selectors.EVENT_READ:
             if self.debug == 13:
@@ -224,7 +254,7 @@ class SimOpIntSrv:
                     self.msglen = int(indata[:self.headersize])
                     self.remainsize = self.msglen + self.headersize
                     if self.debug == 14:
-                        print(f"New Message at {datetime.now()}. Message Length {self.msglen}")
+                        print(f"New Message at {datetime.now()} from {intname}. Message Length {self.msglen}")
 
                 self.fullmsg += indata
                 self.remainsize -= len(indata)
@@ -241,7 +271,7 @@ class SimOpIntSrv:
                 if self.remainsize == 0 and self.newmsg is False:
                     self.inData = pickle.loads(self.fullmsg[self.headersize:])
                     if self.debug == 15:
-                        print(f"Full Message Received {self.inData}")
+                        print(f"Full Message Received {self.inData} From {intname}")
                     self.newmsg = True
                     self.msglen = 0
                     self.fullmsg = b''
@@ -257,23 +287,27 @@ class SimOpIntSrv:
 
         if mask & selectors.EVENT_WRITE:
             if self.debug == 13:
-                print(f"Selector Write Step")
+                print(f"Selector Write Step for {intname}")
 
             if len(self.outData) > 0:
-                outDatamd5 = hashlib.md5(json.dumps(self.outData, sort_keys=True).encode()).hexdigest()
-                if outDatamd5 != self.outDatamd5:
+                outDatamd5 = hashlib.md5(json.dumps(self.outData[intname], sort_keys=True).encode()).hexdigest()
+                if outDatamd5 != self.outDatamd5[intname]:
                     try:
                         if self.debug == 16:
-                            print(f"Sending Data {self.outData}")
-                        oudata = pickle.dumps(self.outData)
+                            print(f"Sending Data {self.outData[intname]}")
+                        oudata = pickle.dumps(self.outData[intname])
                         oudata_msg = bytes(f'{len(oudata):<{10}}', "utf-8") + oudata
                         sock.sendall(oudata_msg)
-                        self.outDatamd5 = outDatamd5
+                        self.outDatamd5[intname] = outDatamd5
 
                     except OSError as e:
                         if self.debug == 12:
                             print(f"OSError {e}")
                         self.selsock.unregister(sock)
+                        if intname in self.outData:
+                            del self.outData[intname]
+                        if intname in self.outDatamd5:
+                            del self.outDatamd5[intname]
                         sock.close()
 
     def closeClient(self, key):

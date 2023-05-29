@@ -3,9 +3,9 @@
         "confname": "ROTARYENC",
         "library": "ObjEncoders",
         "module": "RotaryEncoder",
-        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,pin1,pin2,swpin,initvalue,minvalue,maxvalue,increment,exported,imported",
-        "export": "no",
-        "import": "yes"
+        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,pin1,pin2,swpin,initvalue,minvalue,maxvalue,increment,output,command",
+        "isoutput": "no",
+        "iscommand": "yes"
     },
     "PROPERTIES": {
         "prop01": "name",
@@ -22,8 +22,8 @@
         "prop12": "minvalue",
         "prop13": "maxvalue",
         "prop14": "increment",
-        "prop15": "exported",
-        "prop16": "imported"
+        "prop15": "output",
+        "prop16": "command"
     },
     "OBJECTS": {
         "SPDENC": {
@@ -44,12 +44,15 @@
             "minvalue": 125,
             "maxvalue": 355,
             "increment": 1,
-            "exported": "False",
-            "imported": "True"
+            "output": "False",
+            "command": "True"
         },
         "HDGENC": {
             "name": "hdgenc",
-            "node": "None",
+            "node": {
+                "incr": "sim/autopilot/heading_up",
+                "decr": "sim/autopilot/heading_down"
+            },
             "nodetype": "None",
             "nodeformat": "None",
             "nodeconds": "None",
@@ -62,12 +65,15 @@
             "minvalue": 0,
             "maxvalue": 359,
             "increment": 1,
-            "exported": "False",
-            "imported": "False"
+            "output": "False",
+            "command": "True"
         },
         "ALTENC": {
             "name": "altenc",
-            "node": "None",
+            "node": {
+                "incr": "sim/autopilot/altitude_up",
+                "decr": "sim/autopilot/altitude_down"
+            },
             "nodetype": "None",
             "nodeformat": "None",
             "nodeconds": "None",
@@ -80,12 +86,15 @@
             "minvalue": 0,
             "maxvalue": 359,
             "increment": 1,
-            "exported": "False",
-            "imported": "False"
+            "output": "False",
+            "command": "True"
         },
         "VSENC": {
             "name": "vsenc",
-            "node": "None",
+            "node": {
+                "incr": "sim/autopilot/vertical_speed_up",
+                "decr": "sim/autopilot/vertical_speed_down"
+            },
             "nodetype": "None",
             "nodeformat": "None",
             "nodeconds": "None",
@@ -98,8 +107,8 @@
             "minvalue": 0,
             "maxvalue": 359,
             "increment": 1,
-            "exported": "False",
-            "imported": "False"
+            "output": "False",
+            "command": "True"
         }
     }
 }

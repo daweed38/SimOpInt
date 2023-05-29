@@ -49,7 +49,7 @@ class SimOpIntCli:
         self.selsock = selectors.DefaultSelector()
         self.headersize = 10
         self.buffersize = 16
-        self.signals = {'connected': False, 'loop': False, 'shutdown': False}
+        self.signals = {'connected': False, 'loop': False, 'shutdown': False, 'newmsg': False}
         self.state = 0
 
         self.waitsleep = 0.5
@@ -234,6 +234,7 @@ class SimOpIntCli:
 
                 if self.remainsize == 0 and self.newmsg is False:
                     self.inData = pickle.loads(self.fullmsg[self.headersize:])
+                    self.setSignal('newmsg', True)
                     if self.debug == 25:
                         print(f"Full Message Received {self.inData}")
                     self.newmsg = True

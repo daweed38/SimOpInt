@@ -21,18 +21,18 @@ class ObjBase:
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str | dict, nodetype: str, nodeformat: str, nodeconds: dict, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+    def __init__(self, name: str, node: str | dict, nodetype: str, nodeformat: str, nodeconds: dict, output: bool = False, command: bool = False, debug: bool = False) -> None:
         # ----- standard properties -----
         self.debug = debug
-        self.objtype = 'Base'
+        self.objtype = 'base'
         self.name = name
         self.node = node
         self.nodetype = nodetype
         self.noderef = None
         self.nodeformat = nodeformat
         self.nodeconds = nodeconds
-        self.exported = exported
-        self.imported = imported
+        self.output = output
+        self.command = command
 
         if self.debug:
             print("######################################################################")
@@ -65,6 +65,17 @@ class ObjBase:
     # status is bool
     def setDebugLevel(self, status: bool) -> None:
         self.debug = status
+
+    # Method getObjType()
+    # Return Object Type
+    def getObjType(self) -> str:
+        return self.objtype
+
+    # Method setObjType(objtype)
+    # Setup or Remove Debug Mode
+    # status is bool
+    def setObjType(self, objtype: str) -> None:
+        self.objtype = objtype
 
     # Method getName()
     # Return Object Name
@@ -154,25 +165,25 @@ class ObjBase:
 
     # Method getExpStatus()
     # Return Object Export Status
-    def getExpStatus(self) -> bool:
-        return self.exported
+    def getIsOutputStatus(self) -> bool:
+        return self.output
 
     # Method getExpStatus(status)
     # Set Object Export Status
     # status is bool
-    def setExpStatus(self, status: bool) -> None:
-        self.exported = status
+    def setIsOutputStatus(self, status: bool) -> None:
+        self.output = status
 
     # Method getImpStatus()
     # Return Object Export Status
-    def getImpStatus(self) -> bool:
-        return self.imported
+    def getIsCommandStatus(self) -> bool:
+        return self.command
 
     # Method setImpStatus(status)
     # Set Object Export Status
     # status is bool
-    def setImpStatus(self, status: bool) -> None:
-        self.imported = status
+    def setIsCommandStatus(self, status: bool) -> None:
+        self.command = status
 
     ########################################
     # Object Status & Value
