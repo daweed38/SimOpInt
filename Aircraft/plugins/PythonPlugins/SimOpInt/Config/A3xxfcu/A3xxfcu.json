@@ -1,8 +1,7 @@
 {
   "INT": {
     "intname": "A3xxfcu",
-    "i2cdriver": "dummy",
-    "i2cbusaddr": "None"
+    "dummydevice": 1
   },
   "NETWORK": {
     "xpladdr": "192.168.0.150",

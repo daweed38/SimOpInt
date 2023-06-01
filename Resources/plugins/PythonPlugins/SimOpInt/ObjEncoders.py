@@ -19,9 +19,9 @@ from DeviceMCP23017 import MCP23017
 class RotaryEncoder(ObjBase):
     # Just the encoder, no switch, no LEDs
 
-    def __init__(self, name: str, node: dict, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: int, pin2: int, swpin: int, initvalue: int, minvalue: int, maxvalue: int, increment: int, output: bool = False, command: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
-        self.objtype = 'encoder'
+    def __init__(self, name: str, node: dict, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: int, pin2: int, swpin: int, initvalue: int, minvalue: int, maxvalue: int, increment: int, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
+        self.objtype = 'Push Button'
         self.device = device
         self.port = port
         self.a_pin = pin1
@@ -78,6 +78,11 @@ class RotaryEncoder(ObjBase):
     # System Methods Override
     ########################################
 
+    # Method getAllNodes()
+    # Return Nodes Dictionary
+    def getAllNodes(self) -> dict:
+        return self.node
+
     # Method getNode(direction)
     # Return Object Node
     def getNode(self, direction: str) -> str:
@@ -86,11 +91,8 @@ class RotaryEncoder(ObjBase):
     # Method setNode(direction, node)
     # Set Object Node to node
     # node is str
-    def setNode(self, direction: str, node: str) -> None:
+    def setNode(self, node: str, direction: str) -> None:
         self.node[direction] = node
-
-    def getAllNodes(self):
-        return self.node
 
     # Method getNodeRef(direction)
     # Return X-Plane Node Reference
@@ -100,11 +102,8 @@ class RotaryEncoder(ObjBase):
     # Method setNodeRef(direction, noderef)
     # Set X-Plane Node Reference to noderef
     # noderef is an X-Plane DataRef Object
-    def setNodeRef(self, direction: str, noderef) -> None:
+    def setNodeRef(self, noderef, direction: str) -> None:
         self.noderef[direction] = noderef
-
-    def getAllNodesRef(self):
-        return self.noderef
 
 
 class EncoderWorker(threading.Thread):
@@ -136,9 +135,6 @@ class EncoderWorker(threading.Thread):
                 self.lastSwitchState = self.switchstate
                 '''
             time.sleep(self.delay)
-
-    def getObjType(self):
-        return self.encoder.getObjType()
 
     # get_delta, get_upEvent, and get_downEvent return events that occurred on
     # the encoder. As a side effect, the corresponding event will be reset.

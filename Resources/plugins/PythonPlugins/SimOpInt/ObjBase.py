@@ -21,18 +21,18 @@ class ObjBase:
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str | dict, nodetype: str, nodeformat: str, nodeconds: dict, output: bool = False, command: bool = False, debug: bool = False) -> None:
+    def __init__(self, name: str, node: str | dict, nodetype: str, nodeformat: str, nodeconds: dict, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
         # ----- standard properties -----
         self.debug = debug
-        self.objtype = 'base'
+        self.objtype = 'Base'
         self.name = name
         self.node = node
         self.nodetype = nodetype
         self.noderef = None
         self.nodeformat = nodeformat
         self.nodeconds = nodeconds
-        self.output = output
-        self.command = command
+        self.output = exported
+        self.command = imported
 
         if self.debug:
             print("######################################################################")
@@ -65,17 +65,6 @@ class ObjBase:
     # status is bool
     def setDebugLevel(self, status: bool) -> None:
         self.debug = status
-
-    # Method getObjType()
-    # Return Object Type
-    def getObjType(self) -> str:
-        return self.objtype
-
-    # Method setObjType(objtype)
-    # Setup or Remove Debug Mode
-    # status is bool
-    def setObjType(self, objtype: str) -> None:
-        self.objtype = objtype
 
     # Method getName()
     # Return Object Name
@@ -163,23 +152,23 @@ class ObjBase:
     def setNodeCondRef(self, nodecond: str, noderefid) -> None:
         self.nodeconds[nodecond]['noderefid'] = noderefid
 
-    # Method getExpStatus()
+    # Method getIsOutputStatus()
     # Return Object Export Status
     def getIsOutputStatus(self) -> bool:
         return self.output
 
-    # Method getExpStatus(status)
+    # Method setIsOutputStatus(status)
     # Set Object Export Status
     # status is bool
     def setIsOutputStatus(self, status: bool) -> None:
         self.output = status
 
-    # Method getImpStatus()
+    # Method getIsCommandStatus()
     # Return Object Export Status
     def getIsCommandStatus(self) -> bool:
         return self.command
 
-    # Method setImpStatus(status)
+    # Method setIsCommandStatus(status)
     # Set Object Export Status
     # status is bool
     def setIsCommandStatus(self, status: bool) -> None:

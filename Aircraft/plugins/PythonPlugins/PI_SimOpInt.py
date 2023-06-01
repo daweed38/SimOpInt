@@ -393,8 +393,14 @@ class PythonInterface:
 
         for objtype, objs in interface.getOutputObjects().items():
             for obj in objs.values():
-                self.createObjectRefId(objtype, obj)
+                if self.debug == 50:
+                    xp.log(f"{obj} {obj.getName()} {obj.getNode()}")
+                    xp.log()
+                if obj.getNode() is not None:
+                    self.createObjectRefId(objtype, obj)
 
+        # Command Object RefId generation removed as they are now processed via UDP Connexion
+        """
         if self.debug == 50:
             xp.log(f"Imported Objects Processing")
             xp.log()
@@ -402,6 +408,7 @@ class PythonInterface:
         for objtype, objs in interface.getCommandObjects().items():
             for obj in objs.values():
                 self.createObjectRefId(objtype, obj)
+        """
 
     ##################################################
     # Plugin Data Method

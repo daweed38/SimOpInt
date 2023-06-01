@@ -2,7 +2,6 @@
 import importlib
 
 # FarmerSoft Modules Import
-from SimOpIntI2C import I2CBus
 from SimOpIntTools import SimOpIntTools
 
 ###################################
@@ -39,7 +38,14 @@ class SimOpInt:
         self.globaldebug = False
         self.configdir = configdir
         self.configfile = configfile
+        self.dummy = False
         self.intname = ''
+        self.cliname = ''
+        self.cliaddr = ''
+        self.cliport = ''
+        self.srvname = ''
+        self.srvaddr = ''
+        self.srvport = 0
         
         self.config = {}
         self.modules = {}
@@ -51,8 +57,6 @@ class SimOpInt:
 
         self.tools = SimOpIntTools(debug)
 
-        self.i2cbus = 'dummy'
-
         if self.debug == 3:
             print("######################################################################")
             print("# Sim Open Interface initialization")
@@ -62,11 +66,10 @@ class SimOpInt:
         self.readConfig()
 
         if self.config:
-            self.i2cdriver = self.getConfigOption('INT', 'i2cdriver')
-            self.i2cbusaddr = self.getConfigOption('INT', 'i2cbusaddr')
-            self.i2cbus = I2CBus(self.i2cdriver, self.i2cbusaddr).getBus()
-
             self.intname = self.config['INT']['intname']
+
+            if int(self.getConfigOption('INT', 'dummydevice')):
+                self.dummy = True
 
             if self.getConfig():
 
@@ -99,7 +102,6 @@ class SimOpInt:
     # Destructor
     ###############
     def __del__(self):
-
         if self.debug == 3:
             print("######################################################################")
             print("# Sim Open Interface {} removed".format(self.intname))
@@ -113,6 +115,9 @@ class SimOpInt:
     # return the interface name
     def getName(self):
         return self.intname
+
+    def getCliName(self):
+        return self.cliname
 
     def getDebugLevel(self):
         return self.debug
@@ -187,8 +192,8 @@ class SimOpInt:
 
     def createDevice(self, devicename, devicemod, deviceaddr):
         if self.debug == 32:
-            print("Device : {} Device Addr : {} Module : {}".format(devicename, deviceaddr, devicemod))
-        self.devices[devicename] = self.getModule(devicemod)(self.i2cdriver, self.i2cbus, devicename, deviceaddr)
+            print("Device : {} Device Addr : {} Module : {} Dummy Mode {}".format(devicename, deviceaddr, devicemod, self.dummy))
+        self.devices[devicename] = self.getModule(devicemod)(devicename, deviceaddr, dummy=self.dummy)
 
     def createDevices(self):
         if self.debug == 32:

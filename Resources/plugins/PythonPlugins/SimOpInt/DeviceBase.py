@@ -39,25 +39,24 @@ class DeviceBase:
     # Constructor
     ########################################
 
-    def __init__(self, i2cdriver, i2cbus, devicename: str, deviceaddr: str, debug: bool = False) -> None:
+    def __init__(self, devicename: str, deviceaddr: str, dummy: bool = False, debug: bool = False) -> None:
 
         self.debug = debug
-        self.i2cdriver = i2cdriver
-        self.i2c = i2cbus
+        self.dummy = dummy
         self.devicetype = 'Base'
         self.devicename = devicename
         self.deviceaddr = int(deviceaddr, 16)
+        self.i2cdevice = False
         self.state = 0
 
-        if self.i2cdriver == 'ftdi':
-            self.i2cdevice = self.i2c.get_port(self.deviceaddr)
-        else:
-            self.i2cdevice = None
+        if self.dummy is not True:
+            from SimOpIntI2C import I2CDevice
+            self.i2cdevice = I2CDevice(self.devicename, self.deviceaddr, self.debug)
 
         if self.debug:
-            print(f"######################################################################")
-            print(f"# Device {self.devicename} Addr {hex(self.deviceaddr)} initialization at {datetime.now()}")
-            print(f"######################################################################")
+            print("######################################################################")
+            print("# Device {} Addr {} initialization at {}".format(self.devicename, hex(self.deviceaddr), datetime.now()))
+            print("######################################################################")
             print("\r")
 
     ########################################
@@ -67,9 +66,9 @@ class DeviceBase:
     def __del__(self) -> None:
 
         if self.debug:
-            print(f"######################################################################")
-            print(f"# Device {self.devicename} removed at {datetime.now()}")
-            print(f"######################################################################")
+            print("######################################################################")
+            print("# Device {} removed at {}".format(self.devicename, datetime.now()))
+            print("######################################################################")
             print("\r")
 
     ########################################
@@ -128,18 +127,18 @@ class DeviceBase:
     def configMCP(self, state: int) -> None:
         if state == 1 and self.state == 0:
             if self.debug:
-                print(f"######################################################################")
-                print(f"# Device {self.devicename} Started at {datetime.now()}")
-                print(f"######################################################################")
+                print("######################################################################")
+                print("# Device {} Started at {}".format(self.devicename, datetime.now()))
+                print("######################################################################")
                 print("\r")
 
             self.state = 1
 
         elif state == 0 and self.state == 1:
             if self.debug:
-                print(f"######################################################################")
-                print(f"# Device {self.devicename} Stopped at {datetime.now()}")
-                print(f"######################################################################")
+                print("######################################################################")
+                print("# Device {} Stopped at {}".format(self.devicename, datetime.now()))
+                print("######################################################################")
                 print("\r")
 
             self.state = 0
@@ -161,7 +160,7 @@ class DeviceBase:
         return self.state
 
     ########################################
-    # Register Methods
+    # Standard Register Methods
     ########################################
 
     # Method listRegister():
@@ -176,16 +175,16 @@ class DeviceBase:
         if register in self.registers:
             registeraddr = self.registers[register]['addr']
             if self.debug:
-                print(f"######################################################################")
-                print(f"# Register {register} Address on Device {self.devicename} is {hex(registeraddr)}")
-                print(f"######################################################################")
+                print("######################################################################")
+                print("# Register {} Address on Device {} is {}".format(register, self.devicename, hex(registeraddr)))
+                print("######################################################################")
                 print("\r")
         else:
             registeraddr = False
             if self.debug:
-                print(f"######################################################################")
-                print(f"# Register {register} not found in registers dict for device {self.devicename}")
-                print(f"######################################################################")
+                print("######################################################################")
+                print("# Register {} not found in registers dict for device {}".format(register, self.devicename))
+                print("######################################################################")
                 print("\r")
 
         return registeraddr
@@ -197,24 +196,25 @@ class DeviceBase:
         if register in self.registers:
             registerinit = self.registers[register]['init']
             if self.debug:
-                print(f"######################################################################")
-                print(f"# Register {register} Init Value on Device {self.devicename} is {hex(registerinit)}")
-                print(f"######################################################################")
+                print("######################################################################")
+                print("# Register {} Init Value on Device {} is {}".format(register, self.devicename, hex(registerinit)))
+                print("######################################################################")
                 print("\r")
         else:
             registerinit = False
             if self.debug:
-                print(f"######################################################################")
-                print(f"# Register {register} not found in registers dict for device {self.devicename}")
-                print(f"######################################################################")
+                print("######################################################################")
+                print("# Register {} not found in registers dict for device {}".format(register, self.devicename))
+                print("######################################################################")
                 print("\r")
 
         return registerinit
 
     # clearAllRegisters()
     # Reset all register declared in
-    # registeraddr dict to their initial state
+    # registeradd dict to their initial state
     def resetDeviceRegisters(self) -> None:
+        reset = True
         if self.debug:
             print("######################################################################")
             print("# Resetting All Buffers")
@@ -222,121 +222,7 @@ class DeviceBase:
             print("\r")
 
         for register in self.registers:
-            initvalue = self.getRegisterInit(register)
-            registeraddr = self.getRegisterAddr(register)
-
             if self.debug:
-                print(f"# Resetting Register {register} at Address {hex(registeraddr)} to {initvalue}")
-
-            self.writeRegister(registeraddr, initvalue)
-
-    ########################################
-    # Device Methods
-    ########################################
-
-    # Method readDevice()
-    # Return one bytes from device
-    def readDevice(self) -> int | None:
-        if self.i2cdriver == 'rpi':
-            data = self.i2c.read_byte(self.deviceaddr)
-        elif self.i2cdriver == 'ftdi':
-            data = int.from_bytes(self.i2cdevice.read(1), 'big')
-        else:
-            data = None
-
-        if self.debug == 3:
-            print(f"######################################################################")
-            print(f"# Reading Device {self.devicename} : {hex(data)}")
-            print(f"######################################################################")
-            print("\r")
-
-        return data
-
-    # Method writeDevice(data)
-    # Write data to device
-    def writeDevice(self, data) -> None:
-        if int(self.debug) == 3:
-            print(f"######################################################################")
-            print(f"# Writing Data {data} to Device {self.devicename}")
-            print(f"######################################################################")
-            print("\r")
-
-        if self.i2cdriver == 'rpi':
-            self.i2c.write_byte(self.deviceaddr, data)
-        elif self.i2cdriver == 'ftdi':
-            self.i2cdevice.write([data])
-        else:
-            pass
-
-    # readRegister(registeraddr)
-    # Return value from Device Register at registeraddr Address
-    def readRegister(self, registeraddr) -> int | None:
-        if self.i2cdriver == 'rpi':
-            data = self.i2c.read_byte_data(self.deviceaddr, registeraddr)
-        elif self.i2cdriver == 'ftdi':
-            data = int.from_bytes(self.i2cdevice.read_from(registeraddr, 1), 'big')
-        else:
-            data = None
-
-        if int(self.debug) == 3:
-            print(f"######################################################################")
-            print(f"# Reading Value from Register at Address {hex(registeraddr)} : {hex(data)}")
-            print(f"######################################################################")
-            print("\r")
-
-        return data
-
-    # writeRegister(registeraddr, registervalue)
-    # Write Value on Device Register at registeraddr Address
-    def writeRegister(self, registeraddr, data) -> None:
-        if int(self.debug) == 3:
-            print(f"######################################################################")
-            print(f"# Writing Value {hex(data)} to Register at Address {hex(registeraddr)}")
-            print(f"######################################################################")
-            print("\r")
-
-        if self.i2cdriver == 'rpi':
-            self.i2c.write_byte_data(self.deviceaddr, registeraddr, data)
-        elif self.i2cdriver == 'ftdi':
-            self.i2cdevice.write_to(registeraddr, [data])
-        else:
-            pass
-
-    # Method readBit(registeraddr, bit)
-    # Return Bit value from Register at registeraddr
-    def readBit(self, registeraddr, bit) -> int:
-        mask = self.maskup[bit]
-        bitvalue = self.readRegister(registeraddr) & mask
-        if int(self.debug) == 3:
-            print(f"######################################################################")
-            print(f"# Reading Bit {bit} Value from Register at Address {hex(registeraddr)} : {bitvalue}")
-            print(f"######################################################################")
-            print("\r")
-
-        if int(bitvalue) > 0:
-            return 1
-        else:
-            return 0
-
-    # Method writeBit(registeraddr, bit, state)
-    # Write 1|0 to Bit on Register at registeraddr
-    def writeBit(self, registeraddr, bit, state) -> None:
-        registerdata = self.readRegister(registeraddr)
-        if state == 1:
-            maskname = 'maskup'
-            operation = 'OR'
-            mask = self.maskup[bit]
-            newregisterdata = registerdata | mask
-        else:
-            maskname = 'maskdown'
-            operation = 'AND'
-            mask = self.maskdown[bit]
-            newregisterdata = registerdata & mask
-
-        if int(self.debug) == 3:
-            print(f"######################################################################")
-            print(f"# Writing Value {state} to Bit {bit} from Register at Address {hex(registeraddr)}")
-            print(f"######################################################################")
-            print("\r")
-
-        self.writeRegister(registeraddr, newregisterdata)
+                print("# Reseting Register {}".format(register))
+            if self.dummy is not True:
+                self.i2cdevice.writeRegister(self.getRegisterAddr(register), self.getRegisterInit(register))
