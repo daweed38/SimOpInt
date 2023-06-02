@@ -19,8 +19,8 @@ from DeviceMCP23017 import MCP23017
 class RotaryEncoder(ObjBase):
     # Just the encoder, no switch, no LEDs
 
-    def __init__(self, name: str, node: dict, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: int, pin2: int, swpin: int, initvalue: int, minvalue: int, maxvalue: int, increment: int, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
+    def __init__(self, name: str, node: dict, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: int, pin2: int, swpin: int, initvalue: int, minvalue: int, maxvalue: int, increment: int, output: bool = False, command: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
         self.objtype = 'Push Button'
         self.device = device
         self.port = port

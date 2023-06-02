@@ -21,7 +21,7 @@ class ObjBase:
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str | dict, nodetype: str, nodeformat: str, nodeconds: dict, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+    def __init__(self, name: str, node: str | dict, nodetype: str, nodeformat: str, nodeconds: dict, output: bool = False, command: bool = False, debug: bool = False) -> None:
         # ----- standard properties -----
         self.debug = debug
         self.objtype = 'Base'
@@ -31,8 +31,8 @@ class ObjBase:
         self.noderef = None
         self.nodeformat = nodeformat
         self.nodeconds = nodeconds
-        self.output = exported
-        self.command = imported
+        self.output = output
+        self.command = command
 
         if self.debug:
             print("######################################################################")
