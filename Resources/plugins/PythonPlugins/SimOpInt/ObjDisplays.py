@@ -39,10 +39,10 @@ class SegDisplay(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: HT16K33, port: str, row1: str, nbdigit: str, decdigit: str, output: bool = False, command: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: HT16K33, port: str, row1: str, nbdigit: str, decdigit: str, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
         # ----- standard properties -----
-        self.objtype = 'segdisplay'
+        self.objtype = '7 Segments Display'
         self.device = device
         self.port = str(port)
         self.row1 = int(row1)
@@ -233,10 +233,10 @@ class Annunciator(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: HT16K33, port: str, row: str, out1: str, nblight: str, activemode: str, initstate: str, output: bool = False, command: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: HT16K33, port: str, row: str, out1: str, nblight: str, activemode: str, initstate: str, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
         # ----- Object properties -----
-        self.objtype = 'annunciator'
+        self.objtype = 'Annunciator'
         self.device = device
         self.port = str(port)
         self.row = int(row)

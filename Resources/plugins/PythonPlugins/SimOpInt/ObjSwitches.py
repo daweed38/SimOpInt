@@ -30,10 +30,10 @@ class Switch(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: str, valuestype: str, output: bool = False, command: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: str, valuestype: str, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
         # ----- Object properties -----
-        self.objtype = 'switch'
+        self.objtype = 'Switch'
         self.device = device
         self.port = str(port)
         self.pin = int(pin)
@@ -115,10 +115,10 @@ class DoubleSwitch(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: str, pin2: str, values: str, valuestype: str, output: bool = False, command: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: str, pin2: str, values: str, valuestype: str, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
         # ----- Object properties -----
-        self.objtype = 'dblswitch'
+        self.objtype = 'Double Switch'
         self.device = device
         self.port = str(port)
         self.pin1 = int(pin1)
@@ -168,9 +168,9 @@ class DoubleSwitch(ObjBase):
         if self.device.readGpioPin(self.port, self.pin1) == 1:
             return self.values[0]
         elif self.device.readGpioPin(self.port, self.pin2) == 1:
-            return self.values[2]
+            return  self.values[2]
         else:
-            return self.values[1]
+            return  self.values[1]
 
     ########################################
     # Object Methods
@@ -201,10 +201,10 @@ class RotarySwitch(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pins: str, values: str, valuestype: str, bincode: str, output: bool = False, command: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pins: str, values: str, valuestype: str, bincode: str, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
         # ----- Object properties -----
-        self.objtype = 'rotswitch'
+        self.objtype = 'Rotary Switch'
         self.device = device
         self.port = str(port)
         self.pins = {}
@@ -305,9 +305,9 @@ class PushButtonSwitch(ObjBase):
     # Constructor
     ########################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: dict, valuestype: str, output: bool = False, command: bool = False, debug: bool = False) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
-        self.objtype = 'pushbtns'
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: str, values: dict, valuestype: str, exported: bool = False, imported: bool = False, debug: bool = False) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, exported, imported, debug)
+        self.objtype = 'Push Button'
         self.device = device
         self.port = str(port)
         self.pin = int(pin)
