@@ -1,0 +1,11 @@
+{
+  "NETWORK": {
+    "srvname": "SimOpIntSrv",
+    "xpladdr": "<ip addr x-plane>",
+    "xplport": 49500
+  },
+  "INTERFACES": {
+    
+    }
+  }
+}
