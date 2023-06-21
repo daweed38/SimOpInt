@@ -125,6 +125,8 @@ class DoubleSwitch(ObjBase):
         self.pin2 = int(pin2)
         self.values = values
         self.valuestype = valuestype
+        self.state = ''
+        self.noderef = {}
 
         if self.debug:
             print("######################################################################")
@@ -164,13 +166,25 @@ class DoubleSwitch(ObjBase):
     # Object Status & Value
     ########################################
 
-    def getSwitchState(self) -> int | str | bool:
+    def getSwitchState(self):
+        return self.state
+
+    def readSwitch(self) -> int | str | bool | None:
         if self.device.readGpioPin(self.port, self.pin1) == 1:
-            return self.values[0]
+            status = self.values[0]
         elif self.device.readGpioPin(self.port, self.pin2) == 1:
-            return self.values[2]
+            status = self.values[2]
         else:
-            return self.values[1]
+            status = self.values[1]
+
+        if self.debug:
+            print(f"Pin 1 {self.device.readGpioPin(self.port, self.pin1)} Pin2 {self.device.readGpioPin(self.port, self.pin2)} Status {status}")
+
+        if status != self.state:
+            self.state = status
+            return self.state
+        else:
+            return None
 
     ########################################
     # Object Methods
@@ -211,8 +225,13 @@ class RotarySwitch(ObjBase):
         self.values = values
         self.valuestype = valuestype
         self.bincode = bincode
+        self.swstate = None
+        self.position = 0
+        self.direction = None
 
         self.createPins(pins)
+
+        # self.getSwitchState()
 
         if self.debug:
             print("######################################################################")
@@ -232,7 +251,38 @@ class RotarySwitch(ObjBase):
             print("\r")
 
     ########################################
-    # System Methods
+    # System Methods Override
+    ########################################
+
+    # Method getAllNodes()
+    # Return Nodes Dictionary
+    def getAllNodes(self) -> dict:
+        return self.node
+
+    # Method getNode(direction)
+    # Return Object Node
+    def getNode(self, direction: str) -> str:
+        return self.node[direction]
+
+    # Method setNode(direction, node)
+    # Set Object Node to node
+    # node is str
+    def setNode(self, node: str, direction: str) -> None:
+        self.node[direction] = node
+
+    # Method getNodeRef(direction)
+    # Return X-Plane Node Reference
+    def getNodeRef(self, direction: str) -> object:
+        return self.noderef[direction]
+
+    # Method setNodeRef(direction, noderef)
+    # Set X-Plane Node Reference to noderef
+    # noderef is an X-Plane DataRef Object
+    def setNodeRef(self, noderef, direction: str) -> None:
+        self.noderef[direction] = noderef
+
+    ########################################
+    # Data Methods
     ########################################
 
     def getTypedData(self, data) -> int | str | bool:
@@ -252,21 +302,94 @@ class RotarySwitch(ObjBase):
     # Object Status & Value
     ########################################
 
-    def getSwitchState(self) -> int | str | bool:
-        pass
+    def getSwitchState(self) -> str | int | tuple | None:
+        for i in range(0, len(self.pins)):
+            port = self.pins[i]['port']
+            pin = self.pins[i]['pin']
+            if self.device.readGpioPin(port, pin) == 1:
+                self.swstate = self.values[i]
+                if self.getNodeType() == 'cmd':
+                    if i > self.position:
+                        self.direction = 'right'
+                        self.position = i
+                    elif i < self.position:
+                        self.direction = 'left'
+                        self.position = i
+                    else:
+                        self.direction = None
+                else:
+                    if self.position != i:
+                        self.swstate = self.values[i]
+                        self.position = i
+                    else:
+                        self.swstate = None
+
+        """
+        if (self.bincode == 1):
+            #print("Reading Rotary Binary Code Switches")
+            if len(self.pinA) > 0:
+                #print("Reading Port A")
+                #print(bin(self.device.getRegister('gpioa')))
+                #print(bin(self.device.getRegister('gpioa') & self.maskA))
+                swportAval = self.device.getRegister('gpioa') & self.maskA
+                if swportBval > 0:
+                    #print("Switch Value != 0 : {} | {}".format(bin(swportAval), self.pinA[0]['pin']))
+                    strmask = int(self.pinA[0]['pin']) - 1
+                    idxval = int(bin(swportAval)[:-strmask], 2)
+                else:
+                    #print("Switch Value = 0 :{}".format(bin(swportAval)))
+                    idxval = 0
+            elif len(self.pinB) > 0:
+                #print("Reading Port B")
+                #print(bin(self.device.getRegister('gpiob')))
+                #print(bin(self.device.getRegister('gpiob') & self.maskB))
+                swportBval = self.device.getRegister('gpiob') & self.maskB
+                if swportBval > 0:
+                    #print("Switch Value != 0 : {} | {}".format(bin(swportBval), self.pinB[0]['pin']))
+                    strmask = int(self.pinB[0]['pin']) - 1
+                    idxval = int(bin(swportBval)[:-strmask], 2)
+                else:
+                    #print("Switch Value = 0 :{}".format(bin(swportBval)))
+                    idxval = 0
+            #print("Index Value : {} Len Value : {}".format(idxval, len(self.values)))
+            #print(self.values[idxval])
+            if (idxval <= (len(self.values) - 1)):
+               self.swstate = self.values[idxval]
+        else:
+            for i in range(0, self.nbpos):
+                port = self.pins[i]['port']
+                pin = int(self.pins[i]['pin'])
+                if self.device.getPin(port, pin) == 1:
+                    self.swstate = self.values[i]
+        #print(self.swstate)
+        """
+
+        if self.getNodeType() == 'cmd':
+            if self.direction is not None:
+                return self.swstate, self.direction
+            else:
+                return None
+        elif self.getNodeType() == 'dref':
+            return self.swstate
+        else:
+            return None
+
+    def getCurrentPosition(self):
+        return self.position
+
+    def getDirection(self):
+        return self.direction
 
     ########################################
     # Object Methods
     ########################################
 
     def createPins(self, pins) -> None:
-        pintab = pins.split(',')
-        for pin in range(len(pintab)):
-            pininfo = pintab[pin].split(':')
-            pinkey = 'pin'+str(pin+1)
-            self.pins[pinkey] = {}
-            self.pins[pinkey]['port'] = pininfo[0]
-            self.pins[pinkey]['input'] = int(pininfo[1])
+        for pin in range(len(pins)):
+            pininfos = pins[pin]
+            self.pins[pin] = {}
+            self.pins[pin]['port'] = pininfos[0]
+            self.pins[pin]['pin'] = int(pininfos[1])
 
     def getPins(self) -> dict:
         return self.pins
@@ -361,16 +484,16 @@ class PushButtonSwitch(ObjBase):
     # Object Status & Value
     ########################################
 
-    def getValue(self) -> int:
+    def getValue(self) -> int | str:
         return self.value
 
-    def setValue(self, value: int) -> None:
+    def setValue(self, value: int | str) -> None:
         self.value = value
 
-    def getStatus(self) -> int:
+    def getStatus(self) -> int | str:
         return self.status
 
-    def setStatus(self, status: int) -> None:
+    def setStatus(self, status: int | str) -> None:
         self.status = status
 
     ########################################
