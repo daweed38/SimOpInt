@@ -1,5 +1,9 @@
+##############################
+# Sim Open Interface Daemon
+##############################
+
 # System Modules Import
-import sys
+# import sys
 import logging
 import threading
 
