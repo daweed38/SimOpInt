@@ -1,0 +1,7 @@
+{
+  "NETWORK": {
+    "srvname": "SimOpIntd",
+    "srvaddr": "127.0.0.1",
+    "srvport": 49500
+  }
+}
