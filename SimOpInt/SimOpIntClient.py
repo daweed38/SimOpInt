@@ -39,7 +39,7 @@ class SimOpIntClient:
     # Constructor
     #############################################
 
-    def __init__(self, cliname:str, srvname: str, srvaddr: str, srvport: str, debug: int = 30) -> None:
+    def __init__(self, cliname: str, srvname: str, srvaddr: str, srvport: str, debug: int = 30) -> None:
         self.debug = debug
         self.cliname = cliname
         self.srvname = srvname
