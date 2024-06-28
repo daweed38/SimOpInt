@@ -11,7 +11,7 @@ import logging
 # Sim Open Interface Import
 
 ##################################################
-# FarmerSoft Open Interface Daemon Class
+# FarmerSoft Open Interface TCP Client Class
 ##################################################
 # SimOpIntd Class
 # FarmerSoft © 2024
@@ -19,7 +19,7 @@ import logging
 ##################################################
 
 
-class SimOpIntSrv:
+class SimOpIntClient:
     """
     This is the main Interface Daemon Class
     """
@@ -87,24 +87,40 @@ class SimOpIntSrv:
         self.logger.info(f'Updating {__name__} logger level to {logging.getLevelName(level)}')
 
     #############################################
-    # Server Method
+    # Client Method
     #############################################
 
     # Get Client Name
     def getCliName(self) -> str:
         return self.cliname
 
+    # Set Client Name
+    def setCliname(self, name: str) -> None:
+        self.cliname = name
+
     # Get Server Name
     def getSrvName(self) -> str:
         return self.srvname
+
+    # Set Server Name
+    def setSrvName(self, name) -> None:
+        self.srvname = name
 
     # Get Server Address
     def getSrvAddr(self) -> str:
         return self.srvaddr
 
+    # Set Server Address
+    def setSrvAddr(self, addr) -> None:
+        self.srvaddr = addr
+
     # Get Server Port
     def getSrvPort(self) -> int:
         return self.srvport
+
+    # Set Server Port
+    def setSrvPort(self, port) -> None:
+        self.srvport = port
 
     # Open Client Socket
     def openCliSocket(self) -> None:
@@ -122,7 +138,7 @@ class SimOpIntSrv:
 
     # Connect Client Socket
     def connectClient(self) -> None:
-        pass
+        self.clisock.connect((self.srvaddr, self.srvport))
 
     #############################################
     # DATA Method

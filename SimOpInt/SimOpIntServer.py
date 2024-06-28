@@ -93,17 +93,33 @@ class SimOpIntServer:
     def getSrvName(self) -> str:
         return self.srvname
 
+    # Set Server Name
+    def setSrvName(self, name) -> None:
+        self.srvname = name
+
     # Get Server Address
     def getSrvAddr(self) -> str:
         return self.srvaddr
+
+    # Set Server Address
+    def setSrvAddr(self, addr) -> None:
+        self.srvaddr = addr
 
     # Get Server Port
     def getSrvPort(self) -> int:
         return self.srvport
 
+    # Set Server Port
+    def setSrvPort(self, port) -> None:
+        self.srvport = port
+
     # Get Server Status
     def getSrvStatus(self) -> int:
-        pass
+        return self.srvstate
+
+    # Get Server Status
+    def setSrvStatus(self, status) -> None:
+        self.srvstate = status
 
     # Open Server Socket
     def openSrvSocket(self) -> None:
@@ -127,16 +143,17 @@ class SimOpIntServer:
             self.srvsock.close()
         self.logger.debug(f'Server Socket Closed ...')
 
-    # Start Server
+    # Start Server Loop
     def startSrvLoop(self) -> None:
         self.running = True
 
-    # Stop Server
+    # Stop Server Loop
     def stopSrvLoop(self) -> None:
         self.running = False
 
+    # Close Server
     def closeServer(self) -> None:
-        self.srvstate = False
+        self.setSrvStatus(False)
 
     #############################################
     # DATA Method
