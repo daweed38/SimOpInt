@@ -4,8 +4,6 @@ import socket
 import selectors
 import time
 import types
-import threading
-import signal
 import logging
 
 # Standard Modules Import
@@ -21,7 +19,7 @@ import logging
 ##################################################
 
 
-class SimOpIntSrv:
+class SimOpIntServer:
     """
     This is the main Interface Daemon Class
     """
@@ -29,6 +27,7 @@ class SimOpIntSrv:
     #############################################
     # Class Description
     #############################################
+
     def __str__(self) -> str:
         return 'This is the main Interface Daemon Server Class'
 
@@ -39,6 +38,7 @@ class SimOpIntSrv:
     #############################################
     # Constructor
     #############################################
+
     def __init__(self, srvname: str, srvaddr: str, srvport: str, debug: int = 30) -> None:
         self.debug = debug
         self.srvname = srvname
@@ -67,6 +67,7 @@ class SimOpIntSrv:
     #############################################
     # Destructor
     #############################################
+
     def __del__(self) -> None:
         pass
 
@@ -87,6 +88,7 @@ class SimOpIntSrv:
     #############################################
     # Server Method
     #############################################
+
     # Get Server Name
     def getSrvName(self) -> str:
         return self.srvname

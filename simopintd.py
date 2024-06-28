@@ -11,7 +11,7 @@ import threading
 
 # Sim Open Interface Import
 from SimOpInt.SimOpIntConfig import SimOpIntConfig
-from SimOpInt.SimOpIntSrv import SimOpIntSrv
+from SimOpInt.SimOpIntServer import SimOpIntServer
 
 configdir = 'Config'
 configfile = 'config.ini'
@@ -31,7 +31,7 @@ srvname = config.getConfigParameter('NETWORK', 'srvname')['srvname']
 srvaddr = config.getConfigParameter('NETWORK', 'srvaddr')['srvaddr']
 srvport = config.getConfigParameter('NETWORK', 'srvport')['srvport']
 
-simopintd = SimOpIntSrv(srvname, srvaddr, srvport, logging.INFO)
+simopintd = SimOpIntServer(srvname, srvaddr, srvport, logging.INFO)
 
 simopintd_thread = threading.Thread(target=simopintd.mainLoop)
 simopintd_thread.start()
