@@ -13,7 +13,7 @@ import logging
 ##################################################
 # FarmerSoft Open Interface Daemon Class
 ##################################################
-# SimOpIntd Class
+# SimOpIntServer Class
 # FarmerSoft © 2024
 # By Daweed
 ##################################################

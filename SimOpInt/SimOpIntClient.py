@@ -13,7 +13,7 @@ import logging
 ##################################################
 # FarmerSoft Open Interface TCP Client Class
 ##################################################
-# SimOpIntd Class
+# SimOpIntClient Class
 # FarmerSoft © 2024
 # By Daweed
 ##################################################
@@ -21,7 +21,7 @@ import logging
 
 class SimOpIntClient:
     """
-    This is the main Interface Daemon Class
+    This is the main Interface Client Class
     """
 
     #############################################
@@ -139,14 +139,53 @@ class SimOpIntClient:
     # Connect Client Socket
     def connectClient(self) -> None:
         self.clisock.connect((self.srvaddr, self.srvport))
+        self.receiveMessage()
 
     #############################################
     # DATA Method
     #############################################
 
     def receiveMessage(self):
-        pass
+        """
+        msg_len = int(self.clisock.recv(self.headersize).decode('utf-8'))
+        self.logger.debug(f'Header Size : {self.headersize} - Message Length : {msg_len} [{type(msg_len)}]')
+        msg_data = self.clisock.recv(msg_len)
+        self.logger.debug(f' Message Received : {msg_data}')
+        """
 
+        if self.newmsg:
+            incom_data = self.clisock.recv(self.headersize)
+            if incom_data:
+                self.newmsg = False
+                self.msgfullsize = int(incom_data.decode('utf-8'))
+                self.remainsize = int(incom_data.decode('utf-8'))
+                self.logger.info(f'New Message ! Full Message Length {self.msgfullsize} [{type(self.msgfullsize)}]. Remaining Size : {self.remainsize} [{type(self.remainsize)}]')
+
+                incom_data = self.clisock.recv(self.buffersize)
+                incom_data_len = len(incom_data)
+                self.fullmsg = incom_data
+                self.remainsize = self.remainsize - incom_data_len
+
+            else:
+                self.selsock.unregister(self.clisock)
+                self.clisock.close()
+
+        else:
+            if self.remainsize > self.buffersize:
+                incom_data = self.clisock.recv(self.buffersize)
+            else:
+                incom_data = self.clisock.recv(self.remainsize)
+            incom_data_len = len(incom_data)
+            self.fullmsg += incom_data
+            self.remainsize = self.remainsize - incom_data_len
+            self.logger.info(f'New Message ! Full Message Length {self.msgfullsize}. Remaining Size : {self.remainsize}')
+            if self.remainsize == 0:
+                self.logger.info(f'New Message Fully Received ! {self.fullmsg.decode('utf-8')}')
+                self.newmsg = True
+                self.remainsize = 0
+                self.msgfullsize = 0
+                self.fullmsg = b''
+                    
     def sendMessage(self):
         pass
 
