@@ -1,4 +1,5 @@
 # System Modules Import
+import pickle
 import sys
 import socket
 import selectors
@@ -187,7 +188,7 @@ class SimOpIntServer:
                 if incom_data:
                     self.newmsg = False
                     self.msgfullsize = int(incom_data.decode('utf-8'))
-                    self.remainsize = int(incom_data.decode('utf-8'))
+                    self.remainsize = self.msgfullsize
                     self.logger.info(f'New Message ! Full Message Length {self.msgfullsize} [{type(self.msgfullsize)}]. Remaining Size : {self.remainsize} [{type(self.remainsize)}]')
 
                     incom_data = clisock.recv(self.buffersize)
@@ -223,6 +224,12 @@ class SimOpIntServer:
                 sent = clisock.send(f'Message Received'.encode('utf-8'))
                 self.newmsg = False
             """
+
+    def decodeMessage(self):
+        pass
+
+    def encodeMessage(self, message):
+        pass
 
     #############################################
     # Loop Method
