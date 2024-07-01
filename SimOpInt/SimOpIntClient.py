@@ -147,13 +147,6 @@ class SimOpIntClient:
     #############################################
 
     def receiveMessage(self):
-        """
-        msg_len = int(self.clisock.recv(self.headersize).decode('utf-8'))
-        self.logger.debug(f'Header Size : {self.headersize} - Message Length : {msg_len} [{type(msg_len)}]')
-        msg_data = self.clisock.recv(msg_len)
-        self.logger.debug(f' Message Received : {msg_data}')
-        """
-
         if self.newmsg:
             incom_data = self.clisock.recv(self.headersize)
             if incom_data:
@@ -187,18 +180,17 @@ class SimOpIntClient:
                 self.msgfullsize = 0
                 self.fullmsg = b''
                     
-    def sendMessage(self):
-        pass
+    def sendMessage(self, data):
+        enc_data = self.encodeMessage(data)
+        self.clisock.send(enc_data)
 
     def encodeMessage(self, data) -> bytes:
-        datalen = len(pickle.dumps(data))
         dataheader = f'{len(pickle.dumps(data)):<{self.headersize}}'.encode('utf-8')
         return dataheader + pickle.dumps(data)
 
     def decodeMessage(self, data):
         message = data[self.headersize:]
-        print(message)
-        # return pickle.loads(message)
+        return pickle.loads(message)
 
     #############################################
     # Loop Method
