@@ -1,0 +1,38 @@
+{
+	"fcu": {
+		"displays": {
+			"speeddsp":250,
+			"headingdsp":345,
+			"altdsp":25000,
+			"vsdsp":2500
+		},
+		"switchlgt": {
+			"locswl": "off",
+			"ap1swl": "off",
+			"ap2swl": "off",
+			"athrswl": "off",
+			"altswl": "off",
+			"apprswl": "off"
+		}
+	},
+	"efis0": {
+		"displays": {
+			"baro0dsp": 1013
+		},
+		"switchlgt": {
+			"fd0swl": "off",
+			"ls0swl": "off",
+			"cstr0swl": "off",
+			"wpt0swl": "off",
+			"vord0swl": "off",
+			"ndb0swl": "off",
+			"arpt0swl": "off"
+		}
+	},
+	"ovhd": {
+		"switchlgt": {
+			"apumstswl": "off",
+			"apustrswl": "off"
+		}
+	}
+}
