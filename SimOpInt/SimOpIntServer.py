@@ -63,7 +63,7 @@ class SimOpIntServer:
             self.logger.setLevel(self.debug)
             self.logger.info(f'Updating {__name__} logger level to {logging.getLevelName(self.debug)}')
 
-        self.logger.info(f'Sim Open Interface Server Class Intialisation')
+        self.logger.debug(f'Sim Open Interface Server Class Intialisation')
 
     #############################################
     # Destructor
@@ -164,15 +164,11 @@ class SimOpIntServer:
         clisock, cliaddr = sock.accept()
         self.logger.debug(f'Connexion {clisock} from {cliaddr}')
 
-        srvname_blen = len(self.srvname.encode('utf-8'))
-        header = f'{srvname_blen:<{self.headersize}}'.encode('utf-8')
-        srvname_msg = header+self.srvname.encode('utf-8')
-        self.logger.info(f'Srv Name : {self.srvname} [bl : {srvname_blen}] | header : {header} | Srv Name Message : {srvname_msg}')
-
-        clisock.send(srvname_msg)
+        msgsrvname = self.encodeMessage(self.srvname)
+        clisock.send(msgsrvname)
 
         clisock.setblocking(False)
-        data = types.SimpleNamespace(cliaddr=cliaddr, handler=self.dataHandler)
+        data = types.SimpleNamespace(cliaddr=cliaddr, handler=self.dataHandler, newmsg=True)
         events = selectors.EVENT_READ | selectors.EVENT_WRITE
         self.selsock.register(clisock, events, data=data)
 
@@ -183,18 +179,13 @@ class SimOpIntServer:
         if mask & selectors.EVENT_READ:
             self.logger.debug(f'Reading Socket {clisock} from {data.cliaddr}')
 
-            if self.newmsg:
+            if data.newmsg:
                 incom_data = clisock.recv(self.headersize)
                 if incom_data:
-                    self.newmsg = False
+                    data.newmsg = False
                     self.msgfullsize = int(incom_data.decode('utf-8'))
                     self.remainsize = self.msgfullsize
-                    self.logger.info(f'New Message ! Full Message Length {self.msgfullsize} [{type(self.msgfullsize)}]. Remaining Size : {self.remainsize} [{type(self.remainsize)}]')
-
-                    incom_data = clisock.recv(self.buffersize)
-                    incom_data_len = len(incom_data)
-                    self.fullmsg = incom_data
-                    self.remainsize = self.remainsize - incom_data_len
+                    self.logger.info(f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
 
                 else:
                     self.selsock.unregister(clisock)
@@ -205,31 +196,31 @@ class SimOpIntServer:
                     incom_data = clisock.recv(self.buffersize)
                 else:
                     incom_data = clisock.recv(self.remainsize)
-                incom_data_len = len(incom_data)
+                received_data_len = len(incom_data)
                 self.fullmsg += incom_data
-                self.remainsize = self.remainsize - incom_data_len
-                self.logger.info(f'New Message ! Full Message Length {self.msgfullsize}. Remaining Size : {self.remainsize}')
+                self.remainsize -= received_data_len
+                self.logger.info(f'Receiving message. Remaining data to be received : {self.remainsize}')
                 if self.remainsize == 0:
-                    self.logger.info(f'New Message Fully Received ! {self.fullmsg.decode('utf-8')}')
-                    self.newmsg = True
+                    self.logger.info(f'Fully message received : {pickle.loads(self.fullmsg)}')
+                    data.newmsg = True
                     self.remainsize = 0
                     self.msgfullsize = 0
                     self.fullmsg = b''
 
         if mask & selectors.EVENT_WRITE:
             self.logger.debug(f'Writing Socket {clisock} to {data.cliaddr}')
-
             """
-            if self.newmsg:
-                sent = clisock.send(f'Message Received'.encode('utf-8'))
-                self.newmsg = False
+            enc_data = self.encodeMessage(data)
+            self.clisock.send(enc_data)
             """
 
-    def decodeMessage(self):
-        pass
+    def encodeMessage(self, data) -> bytes:
+        dataheader = f'{len(pickle.dumps(data)):<{self.headersize}}'.encode('utf-8')
+        return dataheader + pickle.dumps(data)
 
-    def encodeMessage(self, message):
-        pass
+    def decodeMessage(self, data):
+        message = data[self.headersize:]
+        return pickle.loads(message)
 
     #############################################
     # Loop Method

@@ -64,7 +64,7 @@ class SimOpIntClient:
             self.logger.setLevel(self.debug)
             self.logger.info(f'Updating {__name__} logger level to {logging.getLevelName(self.debug)}')
 
-        self.logger.info(f'Sim Open Interface TCP Client Class Intialisation')
+        self.logger.debug(f'Sim Open Interface TCP Client Class Intialisation')
 
     #############################################
     # Destructor
@@ -85,7 +85,7 @@ class SimOpIntClient:
     def setLoggingLevel(self, level) -> None:
         self.logger.setLevel(level)
         self.debug = level
-        self.logger.info(f'Updating {__name__} logger level to {logging.getLevelName(level)}')
+        self.logger.debug(f'Updating {__name__} logger level to {logging.getLevelName(level)}')
 
     #############################################
     # Client Method
@@ -140,47 +140,40 @@ class SimOpIntClient:
     # Connect Client Socket
     def connectClient(self) -> None:
         self.clisock.connect((self.srvaddr, self.srvport))
-        self.receiveMessage()
+        # self.receiveMessage()
 
     #############################################
     # DATA Method
     #############################################
 
     def receiveMessage(self):
-        if self.newmsg:
-            incom_data = self.clisock.recv(self.headersize)
-            if incom_data:
-                self.newmsg = False
-                self.msgfullsize = int(incom_data.decode('utf-8'))
-                self.remainsize = self.msgfullsize
-                self.logger.info(f'New Message ! Full Message Length {self.msgfullsize} [{type(self.msgfullsize)}]. Remaining Size : {self.remainsize} [{type(self.remainsize)}]')
-
-                incom_data = self.clisock.recv(self.buffersize)
-                incom_data_len = len(incom_data)
-                self.fullmsg = incom_data
-                self.remainsize = self.remainsize - incom_data_len
-
+        while True:
+            if self.newmsg:
+                incom_data = self.clisock.recv(self.headersize)
+                if incom_data:
+                    self.newmsg = False
+                    self.msgfullsize = int(incom_data.decode('utf-8'))
+                    self.remainsize = self.msgfullsize
+                    self.logger.info(f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
             else:
-                self.selsock.unregister(self.clisock)
-                self.clisock.close()
+                if self.remainsize > self.buffersize:
+                    incom_data = self.clisock.recv(self.buffersize)
+                else:
+                    incom_data = self.clisock.recv(self.remainsize)
+                received_data_len = len(incom_data)
+                self.fullmsg += incom_data
+                self.remainsize -= received_data_len
+                self.logger.info(f'Receiving Message. Remaining data to be received : {self.remainsize}')
+                if self.remainsize == 0:
+                    self.logger.info(f'Fully message received : {pickle.loads(self.fullmsg)}')
+                    self.newmsg = True
+                    self.remainsize = 0
+                    self.msgfullsize = 0
+                    self.fullmsg = b''
+                    break
 
-        else:
-            if self.remainsize > self.buffersize:
-                incom_data = self.clisock.recv(self.buffersize)
-            else:
-                incom_data = self.clisock.recv(self.remainsize)
-            incom_data_len = len(incom_data)
-            self.fullmsg += incom_data
-            self.remainsize = self.remainsize - incom_data_len
-            self.logger.info(f'New Message ! Full Message Length {self.msgfullsize}. Remaining Size : {self.remainsize}')
-            if self.remainsize == 0:
-                self.logger.info(f'New Message Fully Received ! {self.fullmsg.decode('utf-8')}')
-                self.newmsg = True
-                self.remainsize = 0
-                self.msgfullsize = 0
-                self.fullmsg = b''
-                    
     def sendMessage(self, data):
+        self.logger.info(f'Sending message {data} to {self.srvname}')
         enc_data = self.encodeMessage(data)
         self.clisock.send(enc_data)
 

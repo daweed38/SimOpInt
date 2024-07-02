@@ -34,6 +34,7 @@ srvport = config.getConfigParameter('NETWORK', 'srvport')['srvport']
 simopintd = SimOpIntServer(srvname, srvaddr, srvport, logging.INFO)
 
 simopintd_thread = threading.Thread(target=simopintd.mainLoop)
+
 simopintd_thread.start()
 
 simopintd.startSrvLoop()
