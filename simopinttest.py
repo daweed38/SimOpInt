@@ -11,6 +11,7 @@ import logging
 # SimOpInt Module Import
 from SimOpInt.SimOpIntLogger import SimOpIntLogger
 from SimOpInt.DeviceBase import DeviceBase
+from SimOpInt.SimOpInt import SimOpInt
 
 simopintlogger = SimOpIntLogger('SimOpInt', 'Logs', 'simopint.log')
 logger = simopintlogger.getLogger()
@@ -25,3 +26,5 @@ IOPACK01.writeRegister(0x00, 0xff)
 IOPACK01.readBit(0x00, 1)
 IOPACK01.writeBit(0x00, 1, 1)
 """
+
+INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)

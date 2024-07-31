@@ -56,24 +56,26 @@ class SimOpInt:
             if 'DEVICES' in self.config.getConfig():
                 devicesconfig = self.config.getConfigSection('DEVICES')
                 if devicesconfig :
-                    self.logger.debug(f'Loading devices from configuration {devicesconfig} {type(devicesconfig)} {bool(devicesconfig)}')
+                    # self.logger.debug(f'Loading devices from configuration {devicesconfig} {type(devicesconfig)} {bool(devicesconfig)}')
                     self.loadDevices()
                 else:
-                    self.logger.warning(f'No devices found to load ...')
+                    self.logger.warning(f'No devices configuration found to load ...')
 
+            """
             if 'MODULES' in self.config.getConfig():
                 modulesconfig = self.config.getConfigSection('MODULES')
                 if modulesconfig:
                     self.logger.debug(f'Loading Modules from Configuration {modulesconfig} {type(modulesconfig)} {bool(modulesconfig)}')
                 else:
-                    self.logger.warning(f'No modules found to load ...')
+                    self.logger.warning(f'No modules configuration found to load ...')
 
             if 'OBJECTS' in self.config.getConfig():
                 objectsconfig = self.config.getConfigSection('OBJECTS')
                 if objectsconfig:
                     self.logger.debug(f'Loading Objects from Configuration {objectsconfig} {type(objectsconfig)} {bool(objectsconfig)}')
                 else:
-                    self.logger.warning(f'No objects found to load ...')
+                    self.logger.warning(f'No objects configuration found to load ...')
+            """
 
             self.logger.debug(f'Sim Open Interface {self.getName()} initialized ...')
         else:
@@ -151,7 +153,16 @@ class SimOpInt:
 
     # Load Devices Defines in configuration file
     def loadDevices(self) -> None:
-        pass
+        intconfigdir = f'Config/Interfaces/{self.getName()}'
+        deviceconfigfile = self.config.getConfigSection('DEVICES')['configfile']
+        devicesconfig = SimOpIntConfig(intconfigdir, deviceconfigfile, 'JSON')
+        self.logger.debug(f'Interface Configuration Directory : {intconfigdir} | Device Configuration File : {deviceconfigfile} => {devicesconfig.getConfig()['DEVICES']}')
+        for device in devicesconfig.getConfig()['DEVICES']:
+            self.logger.debug(
+                f'Loading {devicesconfig.getConfig()['DEVICES'][device]['devicename']} with following parameters : '
+                f'Device Address {devicesconfig.getConfig()['DEVICES'][device]['deviceaddr']} '
+                f'Device Type {devicesconfig.getConfig()['DEVICES'][device]['devicetype']}'
+            )
 
     ###################################
     # Modules Methods
