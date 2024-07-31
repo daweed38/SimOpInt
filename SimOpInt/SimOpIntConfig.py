@@ -1,7 +1,7 @@
 ##################################################
 # FarmerSoft Open Interface Configuration Class
 ##################################################
-# SimOpIntConfig Class
+# SimOpIntConfig Class REV 5.0
 # FarmerSoft © 2024
 # By Daweed
 ##################################################

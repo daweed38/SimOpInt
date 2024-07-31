@@ -1,14 +1,13 @@
 ##################################################
 # FarmerSoft Sim Open Interface Device Class
 ##################################################
-# Base Device Class REV 2.0
-# FarmerSoft © 2023
+# Base Device Class REV 5.0
+# FarmerSoft © 2024
 # By Daweed
 ##################################################
 
 # Standard Modules Import
 import logging
-import platform
 
 # SimOpInt Import
 from SimOpInt.SimOpIntI2C import I2CBus
@@ -45,10 +44,6 @@ class DeviceBase(I2CBus):
     # Constructor
     ###################################
 
-    ###################################
-    # Constructor
-    ###################################
-
     def __init__(self, devicename: str, deviceaddr: str, debug: int = 30) -> None:
         super().__init__()
 
@@ -66,7 +61,7 @@ class DeviceBase(I2CBus):
         else:
             self.dummy = False
 
-        self.logger.debug(f'Device {self.devicename}  [Device Addr : {hex(self.deviceaddr)}] initialized. (Dummy Device : {self.dummy})')
+        self.logger.debug(f'Device {self.devicename}  [Device Addr : {hex(self.deviceaddr)} / Device Type : {self.devicetype}] initialized. (Dummy Device : {self.dummy})')
 
     ###################################
     # Destructor

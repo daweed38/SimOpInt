@@ -1,7 +1,7 @@
 ##################################################
 # FarmerSoft Open Interface TCP Client Class
 ##################################################
-# SimOpIntClient Class
+# SimOpIntClient Class REV 5.0
 # FarmerSoft © 2024
 # By Daweed
 ##################################################

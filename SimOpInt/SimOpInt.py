@@ -1,7 +1,7 @@
 ##################################################
 # FarmerSoft Open Interface Class
 ##################################################
-# SimOpInt Class
+# SimOpInt Class REV 5.0
 # FarmerSoft © 2024
 # By Daweed
 ##################################################
@@ -55,7 +55,7 @@ class SimOpInt:
 
             if 'DEVICES' in self.config.getConfig():
                 devicesconfig = self.config.getConfigSection('DEVICES')
-                if devicesconfig :
+                if devicesconfig:
                     # self.logger.debug(f'Loading devices from configuration {devicesconfig} {type(devicesconfig)} {bool(devicesconfig)}')
                     self.loadDevices()
                 else:

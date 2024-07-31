@@ -1,7 +1,7 @@
 ##################################################
 # FarmerSoft Sim Open Interface I2C Class
 ##################################################
-# I2C Class (I2C Bus Devices)
+# I2C Class (I2C Bus Devices) REV 5.0
 # FarmerSoft © 2024
 # By Daweed
 ##################################################
