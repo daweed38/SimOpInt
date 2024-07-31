@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 255.12 146.6125"
+   x="0px"
+   y="0px"
+   version="1.1"
+   id="svg3"
+   sodipodi:docname="noun-switch-4035198.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs3" />
+  <sodipodi:namedview
+     id="namedview3"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="4.1980245"
+     inkscape:cx="127.56"
+     inkscape:cy="73.248738"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3" />
+  <title
+     id="title1">GameAsset 74</title>
+  <g
+     data-name="Layer 2"
+     id="g2">
+    <g
+       data-name="Layer 1"
+       id="g1">
+      <path
+         d="M24.81,117.29h205.5a24.84,24.84,0,0,0,24.81-24.81V24.81A24.84,24.84,0,0,0,230.31,0H24.81A24.84,24.84,0,0,0,0,24.81V92.48A24.84,24.84,0,0,0,24.81,117.29ZM40.15,5.45h175A.86.86,0,0,0,215,6V111.31a.89.89,0,0,0,.18.53h-175a1.16,1.16,0,0,0,.14-.53V6A1.15,1.15,0,0,0,40.15,5.45ZM249.67,24.81V92.48a19.39,19.39,0,0,1-19.36,19.36H216.7a1,1,0,0,0,.18-.53V6a.93.93,0,0,0-.18-.52h13.61A19.38,19.38,0,0,1,249.67,24.81Zm-244.22,0A19.38,19.38,0,0,1,24.81,5.45H38.08A1.14,1.14,0,0,0,38,6V111.31a1.15,1.15,0,0,0,.13.53H24.81A19.38,19.38,0,0,1,5.45,92.48Zm6.31,11.47a10.3,10.3,0,1,1,10.3,10.29A10.3,10.3,0,0,1,11.76,36.28Zm10.3,37.49a5,5,0,1,1,5-5A5,5,0,0,1,22.06,73.77ZM12.9,82.93a5,5,0,1,1,5-5A5,5,0,0,1,12.9,82.93ZM27.05,87.1a5,5,0,1,1-5-5A5,5,0,0,1,27.05,87.1Zm4.17-14.16a5,5,0,1,1-5,5A5,5,0,0,1,31.22,72.94Zm176.94,33H47V11.34h161.2ZM243.45,81a10.3,10.3,0,1,1-10.29-10.3A10.29,10.29,0,0,1,243.45,81ZM228.16,30.19a5,5,0,1,1,5,5A5,5,0,0,1,228.16,30.19Zm5,23.31a5,5,0,1,1,5-5A5,5,0,0,1,233.16,53.5ZM219,39.35a5,5,0,1,1,5,5A5,5,0,0,1,219,39.35Zm18.32,0a5,5,0,1,1,5,5A5,5,0,0,1,237.32,39.35Z"
+         id="path1" />
+    </g>
+  </g>
+</svg>
