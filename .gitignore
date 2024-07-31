@@ -233,5 +233,7 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # FarmerSoft Ignored Directory
+.idea
 Logs/*
 Templates/
+
