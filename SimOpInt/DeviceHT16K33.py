@@ -1,7 +1,7 @@
 ##################################################
 # FarmerSoft Sim Open Interface MCP23017 Device Class
 ##################################################
-# MCP23017 Device Class REV 5.0
+# HT16K33 Device Class REV 5.0
 # FarmerSoft © 2024
 # By Daweed
 ##################################################
@@ -83,8 +83,8 @@ class HT16K33(DeviceBase):
     ###################################
 
     # configMCP(state) (Override from DeviceBase)
-    # Enable or Disable the device
     # state is int
+    # Enable or Disable the device
     def configMCP(self, state: int) -> None:
         if state == 1 and self.state == 0:
             self.logger.debug(f'Device {self.devicename} Started at {datetime.now()}')
@@ -131,3 +131,126 @@ class HT16K33(DeviceBase):
     ###################################
     # HT16K33 Device Management Methods
     ###################################
+
+    # getRowRegister(port, row)
+    # port is str and row is int
+    # Return register address regarding common & port
+    def getRowRegisterAddr(self, port: str, row: int) -> int | bool:
+        if port.lower() in ['a', 'b']:
+            register = 'row' + port.lower() + str(row)
+            registeraddr = self.getRegisterAddr(register)
+            return registeraddr
+        else:
+            return False
+
+    # readInterruptRegister()
+    # return Interruption Register value
+    def readInterruptRegister(self) -> int | bool:
+        registeraddr = self.getRegisterAddr('inter')
+        if registeraddr is not False:
+            if not self.dummy:
+                registervalue = self.readRegister(registeraddr)
+                self.logger.debug(f'Reading Interrupt Register at Address {hex(registeraddr)} : {registervalue}')
+                return registervalue
+            else:
+                self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
+                return False
+        else:
+            self.logger.error(f'Register inter not found in self.registers')
+            return False
+
+    # setBrightness(brightness)
+    # brightness is int
+    # Adjust the Outputs brightness in range 1 -> 15
+    def setBrightness(self, brightness: int) -> None:
+        birghtness_cmd = self.brightness_cmd_base | brightness
+
+        if not self.dummy:
+            self.logger.debug(f'Updating Displays Brightness to {brightness}')
+            self.writeDevice(birghtness_cmd)
+
+    # setBlinkRate(blinkrate)
+    # blinkrate is str
+    # Set output blinking frequency
+    def setBlinkRate(self, blinkrate: str) -> None:
+        if self.debug:
+            print("######################################################################")
+            print("# Updating Blink Rate Frequency : {}".format(blinkrate))
+            print("######################################################################")
+            print("\r")
+
+        if blinkrate in self.blinkrate:
+            blinkrate_cmd = self.system_cmd_base | 1 | self.blinkrate[blinkrate]
+            if not self.dummy:
+                self.i2cdevice.writeDevice(blinkrate_cmd)
+
+    # getScanRow(row, port)
+    # row is int and port is str
+    # Return Value from row register on port
+    def getRow(self, row: int, port: str) -> int | bool:
+        registeraddr = self.getRowRegisterAddr(port.lower(), row)
+        if registeraddr is not False:
+            if self.debug:
+                print("######################################################################")
+                print("# Reading Row {} On Port {}".format(row, port.lower()))
+                print("# Row Register Address : {}".format(hex(registeraddr)))
+                print("######################################################################")
+                print("\r")
+            if not self.dummy:
+                return self.i2cdevice.readRegister(registeraddr)
+            else:
+                return False
+        else:
+            return False
+
+    # setRow(row, port, data)
+    # row is int , port is str and data is int
+    # Update the Row register Value on Port port
+    def setRow(self, row: int, port: str, data: int) -> None:
+        registeraddr = self.getRowRegisterAddr(port.lower(), row)
+        if registeraddr is not False:
+            if self.debug:
+                print("######################################################################")
+                print("# Updating Row {} on Port {} to value {}".format(row, port.lower(), hex(data)))
+                print("# Row Register Address : {}".format(hex(registeraddr)))
+                print("######################################################################")
+                print("\r")
+
+            if not self.dummy:
+                self.i2cdevice.writeRegister(registeraddr, data)
+
+    # getOut(row, port, out)
+    # row is int, port is str and out is int
+    # Read Output in Row on Port
+    def getOut(self, row: int, port: str, out: int) -> int | bool:
+        registeraddr = self.getRowRegisterAddr(port.lower(), row)
+        if registeraddr is not False:
+            if self.debug:
+                print("######################################################################")
+                print("# Reading Output {} In Row {} On Port {}".format(out, row, port.lower()))
+                print("# Row Register Address : {}".format(hex(registeraddr)))
+                print("######################################################################")
+                print("\r")
+
+            if not self.dummy:
+                return self.i2cdevice.readBit(registeraddr, out)
+            else:
+                return False
+        else:
+            return False
+
+    # setOut(row, port, out, state)
+    # row is int, port is str, out is int and state is int
+    # Update Output in Row on Port
+    def setOut(self, row: int, port: str, out: int, state: int) -> None:
+        registeraddr = self.getRowRegisterAddr(port.lower(), row)
+        if registeraddr is not False:
+            if self.debug:
+                print("######################################################################")
+                print("# Updating Output {} In Row {} On Port {} to State {}".format(out, row, port.lower(), state))
+                print("# Row Register Address : {}".format(hex(registeraddr)))
+                print("######################################################################")
+                print("\r")
+
+            if not self.dummy:
+                self.i2cdevice.writeBit(registeraddr, out, state)
