@@ -46,3 +46,6 @@ IOPACK01.getPortDirection('B')
 IOPACK01.getPinDirection('A', 1)
 IOPACK01.setPinDirection('A', 1, 'output')
 IOPACK01.getPortDirection('A')
+
+IOPACK01.getRegisterInit('iodira')
+IOPACK01.getRegisterInit('iodirb')
