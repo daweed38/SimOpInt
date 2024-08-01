@@ -132,9 +132,9 @@ class MCP23017(DeviceBase):
                 else:
                     self.writeBit(registeraddr, 8, 0)
                     self.registers = self.registers_bank0
+                self.bankmode = bankmode
             else:
-                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
-            self.bankmode = bankmode
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus. BankMode not change !')
         else:
             self.logger.error(f'Register iocona not found in self.registers')
 
