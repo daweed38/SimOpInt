@@ -10,9 +10,9 @@ import logging
 
 # SimOpInt Module Import
 from SimOpInt.SimOpIntLogger import SimOpIntLogger
-from SimOpInt.DeviceBase import DeviceBase
+# from SimOpInt.DeviceBase import DeviceBase
 from SimOpInt.DeviceMCP23017 import MCP23017
-from SimOpInt.SimOpInt import SimOpInt
+# from SimOpInt.SimOpInt import SimOpInt
 
 simopintlogger = SimOpIntLogger('SimOpInt', 'Logs', 'simopint.log')
 logger = simopintlogger.getLogger()

@@ -12,6 +12,7 @@ import logging
 # SimOpInt Import
 from SimOpInt.DeviceBase import DeviceBase
 
+
 class MCP23017(DeviceBase):
 
     ###################################
@@ -114,6 +115,7 @@ class MCP23017(DeviceBase):
     # Method getBankMode()
     # Return Actual MCP23017 Bank Mode (int)
     def getBankMode(self) -> int:
+        self.logger.debug(f'Bank Mode : {self.bankmode}')
         return self.bankmode
 
     # Method setBankMode(bankmode)
@@ -121,7 +123,7 @@ class MCP23017(DeviceBase):
     # Setup the MCP23017 in bankmode
     def setBankMode(self, bankmode: int) -> None:
         registeraddr = self.getRegisterAddr('iocona')
-        if registeraddr is not False:
+        if registeraddr:
             self.logger.debug(f'Setting Device {self.getName()} in Bank Mode {bankmode}')
             if not self.dummy:
                 if bankmode == 1:
@@ -133,8 +135,84 @@ class MCP23017(DeviceBase):
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
             self.bankmode = bankmode
+        else:
+            self.logger.error(f'Register iocona not found in self.registers')
 
     # ----- GPIO Direction -----
+
+    # Method getPortDirection(port)
+    # port is str
+    # Return data from direction configuration for GPIO Port
+    def getPortDirection(self, port: str) -> int | bool:
+        registeraddr = self.getRegisterAddr('iodir' + port.lower())
+        if registeraddr:
+            if not self.dummy:
+                portdir = self.i2c.readRegister(registeraddr)
+                self.logger.debug(f'Reading Direction for Port {port.upper()} : {portdir}')
+                return portdir
+            else:
+                self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
+                return False
+        else:
+            self.logger.error(f'Register {'iodir' + port.lower()} not found in self.registers')
+            return False
+
+    # Method setPortDirection(port, direction)
+    # port is str (A|B) and direction is str (input|output)
+    # Setup direction for GPIO Port
+    def setPortDirection(self, port: str, direction: str) -> None:
+        registeraddr = self.getRegisterAddr('iodir' + port.lower())
+        if registeraddr is not False:
+            if direction == 'input':
+                registervalue = 0x00
+            else:
+                registervalue = 0xff
+
+            if not self.dummy:
+                self.logger.debug(f'Setting Direction for Port {port.upper()} to {direction}')
+                self.i2c.writeRegister(registeraddr, registervalue)
+            else:
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
+        else:
+            self.logger.error(f'Register {'iodir' + port.lower()} not found in self.registers')
+
+    # Method getPinDirection(port, pin)
+    # port is str (A|B) and pin is int
+    # Return direction for pin on GPIO port
+    def getPinDirection(self, port: str, pin: int) -> int | bool:
+        registeraddr = self.getRegisterAddr('iodir' + port.lower())
+        if registeraddr:
+            if not self.dummy:
+                pindirection = self.i2c.readBit(registeraddr, pin)
+                self.logger.debug(f'Reading Pin {pin} Direction on Port {port.upper()} : {pindirection}')
+                return pindirection
+            else:
+                self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
+                return False
+        else:
+            self.logger.error(f'Register {'iodir' + port.lower()} not found in self.registers')
+            return False
+
+    # Method setPinDirection(port, pin, direction)
+    # port is str (A|B) and pin is int and direction is str (input|output)
+    # Setup direction for pin on GPIO port
+    def setPinDirection(self, port: str, pin: int, direction: str) -> None:
+        registeraddr = self.getRegisterAddr('iodir' + port.lower())
+        if registeraddr:
+            self.logger.debug(f'Setting Pin {pin} Direction on Port {port.upper()} to {direction}')
+
+            if direction == 'input':
+                pindir = 1
+            else:
+                pindir = 0
+
+            if not self.dummy:
+                self.logger.debug(f'Setting Direction for Pin {pin} on Port {port.upper()} to {direction}')
+                self.i2c.writeBit(registeraddr, pin, pindir)
+            else:
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
+        else:
+            self.logger.error(f'Register {'iodir' + port.lower()} not found in self.registers')
 
     # ----- GPIO Polarity -----
 
