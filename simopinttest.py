@@ -36,3 +36,5 @@ INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)
 
 # Test MCP23017 Initialisation
 IOPACK01 = MCP23017('IOPACK01', '0x20', logging.DEBUG)
+IOPACK01.getPortDirection('A')
+IOPACK01.getPortDirection('B')

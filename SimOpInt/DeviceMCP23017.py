@@ -145,7 +145,8 @@ class MCP23017(DeviceBase):
     # Return data from direction configuration for GPIO Port
     def getPortDirection(self, port: str) -> int | bool:
         registeraddr = self.getRegisterAddr(f'iodir{port.lower()}')
-        if registeraddr:
+        self.logger.debug(f'Register Addr iodir{port.lower()} : {registeraddr}')
+        if registeraddr is not False:
             if not self.dummy:
                 portdirection = self.i2c.readRegister(registeraddr)
                 self.logger.debug(f'Reading Direction for Port {port.upper()} : {portdirection}')
@@ -181,7 +182,7 @@ class MCP23017(DeviceBase):
     # Return direction for pin on GPIO port
     def getPinDirection(self, port: str, pin: int) -> int | bool:
         registeraddr = self.getRegisterAddr('iodir' + port.lower())
-        if registeraddr:
+        if registeraddr is not False:
             if not self.dummy:
                 pindirection = self.i2c.readBit(registeraddr, pin)
                 self.logger.debug(f'Reading Pin {pin} Direction on Port {port.upper()} : {pindirection}')
@@ -198,7 +199,7 @@ class MCP23017(DeviceBase):
     # Setup direction for pin on GPIO port
     def setPinDirection(self, port: str, pin: int, direction: str) -> None:
         registeraddr = self.getRegisterAddr('iodir' + port.lower())
-        if registeraddr:
+        if registeraddr is not False:
             self.logger.debug(f'Setting Pin {pin} Direction on Port {port.upper()} to {direction}')
 
             if direction == 'input':
