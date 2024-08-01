@@ -107,6 +107,24 @@ class MCP23017(DeviceBase):
     ###################################
 
     ###################################
+    # Standard Register Methods
+    ###################################
+
+    # clearAllRegisters() (override DeviceBase)
+    # Reset all register declared in
+    # registers dict to their initial state
+    def resetDeviceRegisters(self) -> None:
+        self.logger.debug(f'Resetting all buffers to their initial state ...')
+        if not self.dummy:
+            for registername in self.registers:
+                if self.debug:
+                    self.logger.debug(f'Resetting register {registername}')
+                    self.writeRegister(self.getRegisterAddr(registername), self.getRegisterInit(registername))
+            self.setBankMode(0)
+        else:
+            self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
+
+    ###################################
     # MCP23017 Device Management Methods
     ###################################
 
