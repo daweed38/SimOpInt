@@ -164,43 +164,41 @@ class HT16K33(DeviceBase):
     # Adjust the Outputs brightness in range 1 -> 15
     def setBrightness(self, brightness: int) -> None:
         birghtness_cmd = self.brightness_cmd_base | brightness
-
         if not self.dummy:
             self.logger.debug(f'Updating Displays Brightness to {brightness}')
             self.writeDevice(birghtness_cmd)
+        else:
+            self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
 
     # setBlinkRate(blinkrate)
     # blinkrate is str
     # Set output blinking frequency
     def setBlinkRate(self, blinkrate: str) -> None:
-        if self.debug:
-            print("######################################################################")
-            print("# Updating Blink Rate Frequency : {}".format(blinkrate))
-            print("######################################################################")
-            print("\r")
-
+        blinkrate_cmd = self.system_cmd_base | 1 | self.blinkrate[blinkrate]
         if blinkrate in self.blinkrate:
-            blinkrate_cmd = self.system_cmd_base | 1 | self.blinkrate[blinkrate]
             if not self.dummy:
-                self.i2cdevice.writeDevice(blinkrate_cmd)
+                self.logger.debug(f'Updating blink Rate frequency to {blinkrate}')
+                self.writeDevice(blinkrate_cmd)
+            else:
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
+        else:
+            self.logger.debug(f'Blinkrate not recognized')
 
-    # getScanRow(row, port)
+    # getRow(row, port)
     # row is int and port is str
     # Return Value from row register on port
     def getRow(self, row: int, port: str) -> int | bool:
         registeraddr = self.getRowRegisterAddr(port.lower(), row)
         if registeraddr is not False:
-            if self.debug:
-                print("######################################################################")
-                print("# Reading Row {} On Port {}".format(row, port.lower()))
-                print("# Row Register Address : {}".format(hex(registeraddr)))
-                print("######################################################################")
-                print("\r")
             if not self.dummy:
-                return self.i2cdevice.readRegister(registeraddr)
+                rowdata = self.readRegister(registeraddr)
+                self.logger.debug(f'Reading Row {row} On Port {port.lower()}. Row Register Address : {hex(registeraddr)} : {rowdata}')
+                return rowdata
             else:
+                self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
                 return False
         else:
+            self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
             return False
 
     # setRow(row, port, data)
@@ -209,15 +207,13 @@ class HT16K33(DeviceBase):
     def setRow(self, row: int, port: str, data: int) -> None:
         registeraddr = self.getRowRegisterAddr(port.lower(), row)
         if registeraddr is not False:
-            if self.debug:
-                print("######################################################################")
-                print("# Updating Row {} on Port {} to value {}".format(row, port.lower(), hex(data)))
-                print("# Row Register Address : {}".format(hex(registeraddr)))
-                print("######################################################################")
-                print("\r")
-
             if not self.dummy:
-                self.i2cdevice.writeRegister(registeraddr, data)
+                self.logger.debug(f'Updating Row {row} on Port {port.lower()} to value {hex(data)}. Row Register Address : {hex(registeraddr)}')
+                self.writeRegister(registeraddr, data)
+            else:
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
+        else:
+            self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
 
     # getOut(row, port, out)
     # row is int, port is str and out is int
@@ -225,18 +221,15 @@ class HT16K33(DeviceBase):
     def getOut(self, row: int, port: str, out: int) -> int | bool:
         registeraddr = self.getRowRegisterAddr(port.lower(), row)
         if registeraddr is not False:
-            if self.debug:
-                print("######################################################################")
-                print("# Reading Output {} In Row {} On Port {}".format(out, row, port.lower()))
-                print("# Row Register Address : {}".format(hex(registeraddr)))
-                print("######################################################################")
-                print("\r")
-
             if not self.dummy:
-                return self.i2cdevice.readBit(registeraddr, out)
+                outputdata = self.readBit(registeraddr, out)
+                self.logger.debug(f'Reading Output {out} In Row {row} On Port {port.lower()}. Row Register Address : {hex(registeraddr)} : {outputdata}')
+                return outputdata
             else:
+                self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
                 return False
         else:
+            self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
             return False
 
     # setOut(row, port, out, state)
@@ -245,12 +238,10 @@ class HT16K33(DeviceBase):
     def setOut(self, row: int, port: str, out: int, state: int) -> None:
         registeraddr = self.getRowRegisterAddr(port.lower(), row)
         if registeraddr is not False:
-            if self.debug:
-                print("######################################################################")
-                print("# Updating Output {} In Row {} On Port {} to State {}".format(out, row, port.lower(), state))
-                print("# Row Register Address : {}".format(hex(registeraddr)))
-                print("######################################################################")
-                print("\r")
-
             if not self.dummy:
-                self.i2cdevice.writeBit(registeraddr, out, state)
+                self.logger.debug(f'Updating Output {out} In Row {row} On Port {port.lower()} to State {state}. Row Register Address : {hex(registeraddr)}')
+                self.writeBit(registeraddr, out, state)
+            else:
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
+        else:
+            self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
