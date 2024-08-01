@@ -127,10 +127,10 @@ class MCP23017(DeviceBase):
             self.logger.debug(f'Setting Device {self.getName()} in Bank Mode {bankmode}')
             if not self.dummy:
                 if bankmode == 1:
-                    self.i2c.writeBit(registeraddr, 8, 1)
+                    self.writeBit(registeraddr, 8, 1)
                     self.registers = self.registers_bank1
                 else:
-                    self.i2c.writeBit(registeraddr, 8, 0)
+                    self.writeBit(registeraddr, 8, 0)
                     self.registers = self.registers_bank0
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
@@ -148,7 +148,7 @@ class MCP23017(DeviceBase):
         self.logger.debug(f'Register Addr iodir{port.lower()} : {registeraddr}')
         if registeraddr is not False:
             if not self.dummy:
-                portdirection = self.i2c.readRegister(registeraddr)
+                portdirection = self.readRegister(registeraddr)
                 self.logger.debug(f'Reading Direction for Port {port.upper()} : {portdirection}')
                 return portdirection
             else:
@@ -171,7 +171,7 @@ class MCP23017(DeviceBase):
 
             if not self.dummy:
                 self.logger.debug(f'Setting Direction for Port {port.upper()} to {direction}')
-                self.i2c.writeRegister(registeraddr, registervalue)
+                self.writeRegister(registeraddr, registervalue)
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
         else:
@@ -184,7 +184,7 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('iodir' + port.lower())
         if registeraddr is not False:
             if not self.dummy:
-                pindirection = self.i2c.readBit(registeraddr, pin)
+                pindirection = self.readBit(registeraddr, pin)
                 self.logger.debug(f'Reading Pin {pin} Direction on Port {port.upper()} : {pindirection}')
                 return pindirection
             else:
@@ -209,7 +209,7 @@ class MCP23017(DeviceBase):
 
             if not self.dummy:
                 self.logger.debug(f'Setting Direction for Pin {pin} on Port {port.upper()} to {direction}')
-                self.i2c.writeBit(registeraddr, pin, pindir)
+                self.writeBit(registeraddr, pin, pindir)
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
         else:
