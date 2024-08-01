@@ -8,6 +8,7 @@
 
 # Standard Modules Import
 import logging
+from datetime import datetime
 
 # SimOpInt Import
 from SimOpInt.DeviceBase import DeviceBase
@@ -80,6 +81,48 @@ class HT16K33(DeviceBase):
     ###################################
     # System Methods
     ###################################
+
+    # configMCP(state) (Override from DeviceBase)
+    # Enable or Disable the device
+    # state is int
+    def configMCP(self, state: int) -> None:
+        if state == 1 and self.state == 0:
+            self.logger.debug(f'Device {self.devicename} Started at {datetime.now()}')
+
+            # Turning On System Oscillator
+            if not self.dummy:
+                self.writeDevice(self.system_cmd_base | 1)
+            self.state = 1
+
+        elif state == 0 and self.state == 1:
+            self.logger.debug(f'Device {self.devicename} Stopped at {datetime.now()}')
+
+            # Turning Off System Oscillator
+            if not self.dummy:
+                self.writeDevice(self.system_cmd_base)
+            self.state = 0
+
+        self.resetDeviceRegisters()
+
+    # start() (Override from DeviceBase)
+    # Start the device's intervening oscillator
+    def start(self) -> int:
+        if self.state != 1:
+            self.configMCP(1)
+            if not self.dummy:
+                # Setting Display Status to On
+                self.writeDevice(self.display_cmd_base | 1)
+        return self.state
+
+    # stop() (Override from DeviceBase)
+    # Stop the device's internal oscillator
+    def stop(self) -> int:
+        if self.state != 0:
+            self.configMCP(0)
+            if not self.dummy:
+                # Setting Display Status to Off
+                self.writeDevice(self.display_cmd_base)
+        return self.state
 
     ###################################
     # Standard Register Methods
