@@ -49,3 +49,9 @@ IOPACK01.getPortDirection('A')
 
 IOPACK01.getRegisterInit('iodira')
 IOPACK01.getRegisterInit('iodirb')
+
+IOPACK01.resetDeviceRegisters()
+IOPACK01.getPortDirection('A')
+IOPACK01.getPortDirection('B')
+
+
