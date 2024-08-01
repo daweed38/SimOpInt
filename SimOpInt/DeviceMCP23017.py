@@ -147,9 +147,9 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr(f'iodir{port.lower()}')
         if registeraddr:
             if not self.dummy:
-                portdir = self.i2c.readRegister(registeraddr)
-                self.logger.debug(f'Reading Direction for Port {port.upper()} : {portdir}')
-                return portdir
+                portdirection = self.i2c.readRegister(registeraddr)
+                self.logger.debug(f'Reading Direction for Port {port.upper()} : {portdirection}')
+                return portdirection
             else:
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
                 return False
