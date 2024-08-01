@@ -144,7 +144,7 @@ class MCP23017(DeviceBase):
     # port is str
     # Return data from direction configuration for GPIO Port
     def getPortDirection(self, port: str) -> int | bool:
-        registeraddr = self.getRegisterAddr('iodir' + port.lower())
+        registeraddr = self.getRegisterAddr(f'iodir{port.lower()}')
         if registeraddr:
             if not self.dummy:
                 portdir = self.i2c.readRegister(registeraddr)
@@ -154,7 +154,7 @@ class MCP23017(DeviceBase):
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
                 return False
         else:
-            self.logger.error(f'Register {'iodir' + port.lower()} not found in self.registers')
+            self.logger.error(f'Register iodir{port.lower()} not found in self.registers')
             return False
 
     # Method setPortDirection(port, direction)
@@ -174,7 +174,7 @@ class MCP23017(DeviceBase):
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
         else:
-            self.logger.error(f'Register {'iodir' + port.lower()} not found in self.registers')
+            self.logger.error(f'Register iodir{port.lower()} not found in self.registers')
 
     # Method getPinDirection(port, pin)
     # port is str (A|B) and pin is int
@@ -190,7 +190,7 @@ class MCP23017(DeviceBase):
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
                 return False
         else:
-            self.logger.error(f'Register {'iodir' + port.lower()} not found in self.registers')
+            self.logger.error(f'Register iodir{port.lower()} not found in self.registers')
             return False
 
     # Method setPinDirection(port, pin, direction)
@@ -212,7 +212,7 @@ class MCP23017(DeviceBase):
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
         else:
-            self.logger.error(f'Register {'iodir' + port.lower()} not found in self.registers')
+            self.logger.error(f'Register iodir{port.lower()} not found in self.registers')
 
     # ----- GPIO Polarity -----
 
