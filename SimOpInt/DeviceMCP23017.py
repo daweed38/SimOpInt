@@ -414,7 +414,7 @@ class MCP23017(DeviceBase):
             if not self.dummy:
                 interruptcapture = self.readRegister(registeraddr)
                 self.logger.debug(f'Reading GPIO Interrupt Configuration for Port {port.upper()} : {bin(interruptcapture)}')
-                return
+                return interruptcapture
             else:
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
                 return False
