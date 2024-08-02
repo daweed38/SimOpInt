@@ -39,6 +39,11 @@ INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)
 """
 
 
+def interrupt_callback(channel):
+   intflag = IOPACK01.getPortInterruptFlag('A')
+   intcapture = IOPACK01.getPortInterruptCapture('A')
+   print(f'Interrupt Occured {bin(intcapture)} Flag {intflag}')
+
 INTA0_GPIO = 16
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(INTA0_GPIO, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -52,10 +57,14 @@ IOPACK01.getPortInterruptConfig('A')
 IOPACK01.getPortCompareMode('A')
 IOPACK01.getIntActiveConfig('A')
 IOPACK01.setIntActiveConfig('A', 1)
+IOPACK01.setPortInterruptConfig('A', 0xff)
+
+GPIO.add_event_detect(INTA0_GPIO, GPIO.RISING, callback=interrupt_callback, bouncetime=100)
 
 try:
     while True:
-        print(f'GPIO INPUT : {GPIO.input(INTA0_GPIO)}')
+        #print(f'GPIO INPUT : {GPIO.input(INTA0_GPIO)}')
         time.sleep(0.01)
 except KeyboardInterrupt:
     GPIO.cleanup()
+
