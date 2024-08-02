@@ -7,6 +7,10 @@
 
 # Standard Modules Import
 import logging
+import platform
+import RPi.GPIO as GPIO
+
+import time
 
 # SimOpInt Module Import
 from SimOpInt.SimOpIntLogger import SimOpIntLogger
@@ -35,6 +39,10 @@ INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)
 """
 
 
+INTA0_GPIO = 16
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(INTA0_GPIO, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
 # Test MCP23017 Initialisation
 IOPACK01 = MCP23017('IOPACK01', '0x20', logging.DEBUG)
 IOPACK01.resetDeviceRegisters()
@@ -43,3 +51,11 @@ IOPACK01.getPortDirection('A')
 IOPACK01.getPortInterruptConfig('A')
 IOPACK01.getPortCompareMode('A')
 IOPACK01.getIntActiveConfig('A')
+IOPACK01.setIntActiveConfig('A', 1)
+
+try:
+    while True:
+        print(f'GPIO INPUT : {GPIO.input(INTA0_GPIO)}')
+        time.sleep(0.01)
+except KeyboardInterrupt:
+    GPIO.cleanup()
