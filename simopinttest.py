@@ -34,24 +34,10 @@ IOPACK01.writeBit(0x00, 1, 1)
 INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)
 """
 
+
 # Test MCP23017 Initialisation
 IOPACK01 = MCP23017('IOPACK01', '0x20', logging.DEBUG)
-IOPACK01.getPortDirection('A')
-IOPACK01.getPortDirection('B')
 IOPACK01.setBankMode(1)
 IOPACK01.getPortDirection('A')
-IOPACK01.getPortDirection('B')
-IOPACK01.setPortDirection('b', 'output')
-IOPACK01.getPortDirection('B')
-IOPACK01.getPinDirection('A', 1)
-IOPACK01.setPinDirection('A', 1, 'output')
-IOPACK01.getPortDirection('A')
-
-IOPACK01.getRegisterInit('iodira')
-IOPACK01.getRegisterInit('iodirb')
-
-IOPACK01.resetDeviceRegisters()
-IOPACK01.getPortDirection('A')
-IOPACK01.getPortDirection('B')
-
-
+IOPACK01.getPortInterruptConfig('A')
+IOPACK01.getPortCompareMode('A')
