@@ -42,7 +42,7 @@ INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)
 def interrupt_callback(channel):
    intflag = IOPACK01.getPortInterruptFlag('A')
    intcapture = IOPACK01.getPortInterruptCapture('A')
-   print(f'Interrupt Occured {bin(intcapture)} Flag {intflag}')
+   print(f'Interrupt Occurred {bin(intcapture)} Flag {intflag}')
 
 INTA0_GPIO = 16
 GPIO.setmode(GPIO.BCM)
