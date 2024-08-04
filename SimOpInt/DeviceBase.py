@@ -117,10 +117,6 @@ class DeviceBase(I2CBus):
     def isDummy(self) -> bool:
         return self.dummy
 
-    ###################################
-    # Configuration
-    ###################################
-
     # configMCP(state)
     # state is int
     # Enable or Disable the device
@@ -195,7 +191,7 @@ class DeviceBase(I2CBus):
             self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
 
     ###################################
-    # I2C Bus Operation Methods
+    # I2C Device Base Management Methods
     ###################################
 
     # Method readDevice()
