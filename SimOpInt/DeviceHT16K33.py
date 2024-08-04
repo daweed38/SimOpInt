@@ -1,13 +1,14 @@
 ##################################################
 # FarmerSoft Sim Open Interface MCP23017 Device Class
 ##################################################
-# MCP23017 Device Class REV 5.0
+# HT16K33 Device Class REV 5.0
 # FarmerSoft © 2024
 # By Daweed
 ##################################################
 
 # Standard Modules Import
 import logging
+from datetime import datetime
 
 # SimOpInt Import
 from SimOpInt.DeviceBase import DeviceBase
@@ -81,6 +82,48 @@ class HT16K33(DeviceBase):
     # System Methods
     ###################################
 
+    # configMCP(state) (Override from DeviceBase)
+    # state is int
+    # Enable or Disable the device
+    def configMCP(self, state: int) -> None:
+        if state == 1 and self.state == 0:
+            self.logger.debug(f'Device {self.devicename} Started at {datetime.now()}')
+
+            # Turning On System Oscillator
+            if not self.dummy:
+                self.writeDevice(self.system_cmd_base | 1)
+            self.state = 1
+
+        elif state == 0 and self.state == 1:
+            self.logger.debug(f'Device {self.devicename} Stopped at {datetime.now()}')
+
+            # Turning Off System Oscillator
+            if not self.dummy:
+                self.writeDevice(self.system_cmd_base)
+            self.state = 0
+
+        self.resetDeviceRegisters()
+
+    # start() (Override from DeviceBase)
+    # Start the device's intervening oscillator
+    def start(self) -> int:
+        if self.state != 1:
+            self.configMCP(1)
+            if not self.dummy:
+                # Setting Display Status to On
+                self.writeDevice(self.display_cmd_base | 1)
+        return self.state
+
+    # stop() (Override from DeviceBase)
+    # Stop the device's internal oscillator
+    def stop(self) -> int:
+        if self.state != 0:
+            self.configMCP(0)
+            if not self.dummy:
+                # Setting Display Status to Off
+                self.writeDevice(self.display_cmd_base)
+        return self.state
+
     ###################################
     # Standard Register Methods
     ###################################
@@ -88,3 +131,117 @@ class HT16K33(DeviceBase):
     ###################################
     # HT16K33 Device Management Methods
     ###################################
+
+    # getRowRegister(port, row)
+    # port is str and row is int
+    # Return register address regarding common & port
+    def getRowRegisterAddr(self, port: str, row: int) -> int | bool:
+        if port.lower() in ['a', 'b']:
+            register = 'row' + port.lower() + str(row)
+            registeraddr = self.getRegisterAddr(register)
+            return registeraddr
+        else:
+            return False
+
+    # readInterruptRegister()
+    # return Interruption Register value
+    def readInterruptRegister(self) -> int | bool:
+        registeraddr = self.getRegisterAddr('inter')
+        if registeraddr is not False:
+            if not self.dummy:
+                registervalue = self.readRegister(registeraddr)
+                self.logger.debug(f'Reading Interrupt Register at Address {hex(registeraddr)} : {registervalue}')
+                return registervalue
+            else:
+                self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
+                return False
+        else:
+            self.logger.error(f'Register inter not found in self.registers')
+            return False
+
+    # setBrightness(brightness)
+    # brightness is int
+    # Adjust the Outputs brightness in range 1 -> 15
+    def setBrightness(self, brightness: int) -> None:
+        birghtness_cmd = self.brightness_cmd_base | brightness
+        if not self.dummy:
+            self.logger.debug(f'Updating Displays Brightness to {brightness}')
+            self.writeDevice(birghtness_cmd)
+        else:
+            self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
+
+    # setBlinkRate(blinkrate)
+    # blinkrate is str
+    # Set output blinking frequency
+    def setBlinkRate(self, blinkrate: str) -> None:
+        blinkrate_cmd = self.display_cmd_base | 1 | self.blinkrate[blinkrate]
+        if blinkrate in self.blinkrate:
+            if not self.dummy:
+                self.logger.debug(f'Updating blink Rate frequency to {blinkrate}')
+                self.writeDevice(blinkrate_cmd)
+            else:
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
+        else:
+            self.logger.debug(f'Blinkrate not recognized')
+
+    # getRow(row, port)
+    # row is int and port is str
+    # Return Value from row register on port
+    def getRow(self, row: int, port: str) -> int | bool:
+        registeraddr = self.getRowRegisterAddr(port.lower(), row)
+        if registeraddr is not False:
+            if not self.dummy:
+                rowdata = self.readRegister(registeraddr)
+                self.logger.debug(f'Reading Row {row} On Port {port.lower()}. Row Register Address : {hex(registeraddr)} : {rowdata}')
+                return rowdata
+            else:
+                self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
+                return False
+        else:
+            self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
+            return False
+
+    # setRow(row, port, data)
+    # row is int , port is str and data is int
+    # Update the Row register Value on Port port
+    def setRow(self, row: int, port: str, data: int) -> None:
+        registeraddr = self.getRowRegisterAddr(port.lower(), row)
+        if registeraddr is not False:
+            if not self.dummy:
+                self.logger.debug(f'Updating Row {row} on Port {port.lower()} to value {hex(data)}. Row Register Address : {hex(registeraddr)}')
+                self.writeRegister(registeraddr, data)
+            else:
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
+        else:
+            self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
+
+    # getOut(row, port, out)
+    # row is int, port is str and out is int
+    # Read Output in Row on Port
+    def getOut(self, row: int, port: str, out: int) -> int | bool:
+        registeraddr = self.getRowRegisterAddr(port.lower(), row)
+        if registeraddr is not False:
+            if not self.dummy:
+                outputdata = self.readBit(registeraddr, out)
+                self.logger.debug(f'Reading Output {out} In Row {row} On Port {port.lower()}. Row Register Address : {hex(registeraddr)} : {outputdata}')
+                return outputdata
+            else:
+                self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
+                return False
+        else:
+            self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
+            return False
+
+    # setOut(row, port, out, state)
+    # row is int, port is str, out is int and state is int
+    # Update Output in Row on Port
+    def setOut(self, row: int, port: str, out: int, state: int) -> None:
+        registeraddr = self.getRowRegisterAddr(port.lower(), row)
+        if registeraddr is not False:
+            if not self.dummy:
+                self.logger.debug(f'Updating Output {out} In Row {row} On Port {port.lower()} to State {state}. Row Register Address : {hex(registeraddr)}')
+                self.writeBit(registeraddr, out, state)
+            else:
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
+        else:
+            self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
