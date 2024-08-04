@@ -152,9 +152,39 @@ class MCP23017(DeviceBase):
                     self.registers = self.registers_bank0
                 self.bankmode = bankmode
             else:
-                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus. BankMode not change !')
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus. BankMode not changed !')
         else:
             self.logger.error(f'Register iocona not found in self.registers')
+
+    # Method getIntActiveConfig(port)
+    # port is str
+    # Return Actual Interrupt Active Configuration
+    def getIntActiveConfig(self, port: str) -> int:
+        register = f'iocon{port.lower()}'
+        registeraddr = self.getRegisterAddr(register)
+        if registeraddr:
+            if not self.dummy:
+                intactiveconfig = self.readBit(registeraddr, 2)
+                self.logger.debug(f'Interruption Active Configuration on port {port.upper()} is {intactiveconfig}')
+                return intactiveconfig
+            else:
+                self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
+                return False
+        else:
+            self.logger.error(f'Register {register} not found in self.registers')
+            return False
+
+    def setIntActiveConfig(self, port: str, intactiveconfig: int):
+        register = f'iocon{port.lower()}'
+        registeraddr = self.getRegisterAddr(register)
+        if registeraddr:
+            if not self.dummy:
+                self.logger.debug(f'Setting Interruption Active Configuration on port {port.upper()} to {intactiveconfig}')
+                self.writeBit(registeraddr, 2, intactiveconfig)
+            else:
+                self.logger.debug(f'Dummy Device! Cannot write on I2C Bus. Interruption Active Configuration not changed !')
+        else:
+            self.logger.error(f'Register {register} not found in self.registers')
 
     # ----- GPIO Direction -----
 
@@ -165,9 +195,9 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr(f'iodir{port.lower()}')
         if registeraddr is not False:
             if not self.dummy:
-                portdirection = self.readRegister(registeraddr)
-                self.logger.debug(f'Reading Direction for Port {port.upper()} : {portdirection}')
-                return portdirection
+                portiodirconfig = self.readRegister(registeraddr)
+                self.logger.debug(f'Reading Port {port.upper()} GPIO Direction configuration: {bin(portiodirconfig)}')
+                return portiodirconfig
             else:
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
                 return False
@@ -178,16 +208,16 @@ class MCP23017(DeviceBase):
     # Method setPortDirection(port, direction)
     # port is str (A|B) and direction is str (input|output)
     # Setup direction for GPIO Port
-    def setPortDirection(self, port: str, direction: str) -> None:
+    def setPortDirection(self, port: str, portiodirconfig: str) -> None:
         registeraddr = self.getRegisterAddr('iodir' + port.lower())
         if registeraddr is not False:
-            if direction == 'input':
+            if portiodirconfig == 'input':
                 registervalue = 0x00
             else:
                 registervalue = 0xff
 
             if not self.dummy:
-                self.logger.debug(f'Setting Direction for Port {port.upper()} to {direction}')
+                self.logger.debug(f'Setting Port {port.upper()} to GPIO Direction configuration {bin(portiodirconfig)}')
                 self.writeRegister(registeraddr, registervalue)
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
@@ -211,20 +241,20 @@ class MCP23017(DeviceBase):
             self.logger.error(f'Register iodir{port.lower()} not found in self.registers')
             return False
 
-    # Method setPinDirection(port, pin, direction)
+    # Method setPinDirection(port, pin, piniodirconfig)
     # port is str (A|B) and pin is int and direction is str (input|output)
     # Setup direction for pin on GPIO port
-    def setPinDirection(self, port: str, pin: int, direction: str) -> None:
+    def setPinDirection(self, port: str, pin: int, piniodirconfig: str) -> None:
         registeraddr = self.getRegisterAddr('iodir' + port.lower())
         if registeraddr is not False:
-            if direction == 'input':
-                pindir = 1
+            if piniodirconfig == 'input':
+                piniodir = 1
             else:
-                pindir = 0
+                piniodir = 0
 
             if not self.dummy:
-                self.logger.debug(f'Setting Direction for Pin {pin} on Port {port.upper()} to {direction}')
-                self.writeBit(registeraddr, pin, pindir)
+                self.logger.debug(f'Setting Pin {pin} Direction on Port {port.upper()} to {piniodirconfig}')
+                self.writeBit(registeraddr, pin, piniodir)
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
         else:
@@ -240,7 +270,7 @@ class MCP23017(DeviceBase):
         if registeraddr is not False:
             if not self.dummy:
                 portpolarity = self.readRegister(registeraddr)
-                self.logger.debug(f'Reading Input Polarity for Port {port.upper()} : {portpolarity}')
+                self.logger.debug(f'Reading Input Polarity for Port {port.upper()} : {bin(portpolarity)}')
                 return portpolarity
             else:
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
@@ -256,7 +286,7 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('iopol' + port.lower())
         if registeraddr is not False:
             if not self.dummy:
-                self.logger.debug(f'Setting Input Polarity for Port {port.upper()} to {polarity}')
+                self.logger.debug(f'Setting Input Polarity for Port {port.upper()} to {bin(polarity)}')
                 self.writeRegister(registeraddr, polarity)
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
@@ -273,7 +303,7 @@ class MCP23017(DeviceBase):
         if registeraddr is not False:
             if not self.dummy:
                 interruptconfig = self.readRegister(registeraddr)
-                self.logger.debug(f'Reading GPIO Interrupt Configuration for Port {port.upper()} : {interruptconfig}')
+                self.logger.debug(f'Reading GPIO Interrupt Configuration for Port {port.upper()} : {bin(interruptconfig)}')
                 return interruptconfig
             else:
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
@@ -289,7 +319,7 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('gpinten' + port.lower())
         if registeraddr is not False:
             if not self.dummy:
-                self.logger.debug(f'Setting GPIO Interrupt Configuration for Port {port.upper()} to {interruptconf}')
+                self.logger.debug(f'Setting GPIO Interrupt Configuration for Port {port.upper()} to {bin(interruptconf)}')
                 self.writeRegister(registeraddr, interruptconf)
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
@@ -304,7 +334,7 @@ class MCP23017(DeviceBase):
         if registeraddr is not False:
             if not self.dummy:
                 comparedefval = self.readRegister(registeraddr)
-                self.logger.debug(f'Reading GPIO Default Compare Value for Port {port.upper()} : {comparedefval}')
+                self.logger.debug(f'Reading GPIO Default Compare Value for Port {port.upper()} : {bin(comparedefval)}')
                 return comparedefval
             else:
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
@@ -320,7 +350,7 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('defval' + port.lower())
         if registeraddr is not False:
             if not self.dummy:
-                self.logger.debug(f'Setting GPIO Default Compare Value for Port {port.upper()} to {comparedefval}')
+                self.logger.debug(f'Setting GPIO Default Compare Value for Port {port.upper()} to {bin(comparedefval)}')
                 self.writeRegister(registeraddr, comparedefval)
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
@@ -335,7 +365,7 @@ class MCP23017(DeviceBase):
         if registeraddr is not False:
             if not self.dummy:
                 comparemodeconfig = self.readRegister(registeraddr)
-                self.logger.debug(f'Reading GPIO Compare Mode for Port {port.upper()} : {comparemodeconfig}')
+                self.logger.debug(f'Reading GPIO Compare Mode for Port {port.upper()} : {bin(comparemodeconfig)}')
                 return comparemodeconfig
             else:
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
@@ -351,7 +381,7 @@ class MCP23017(DeviceBase):
         registeraddr = self.getRegisterAddr('intcon' + port.lower())
         if registeraddr is not False:
             if not self.dummy:
-                self.logger.debug(f'Setting GPIO Default Mode for Port {port.upper()} to {comparemodeconfig}')
+                self.logger.debug(f'Setting GPIO Default Mode for Port {port.upper()} to {bin(comparemodeconfig)}')
                 self.writeRegister(registeraddr, comparemodeconfig)
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')
@@ -366,7 +396,7 @@ class MCP23017(DeviceBase):
         if registeraddr is not False:
             if not self.dummy:
                 interruptflagconfig = self.readRegister(registeraddr)
-                self.logger.debug(f'Reading GPIO Interrupt Configuration for Port {port.upper()} : {interruptflagconfig}')
+                self.logger.debug(f'Reading GPIO Interrupt Configuration for Port {port.upper()} : {bin(interruptflagconfig)}')
                 return interruptflagconfig
             else:
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
@@ -383,8 +413,8 @@ class MCP23017(DeviceBase):
         if registeraddr is not False:
             if not self.dummy:
                 interruptcapture = self.readRegister(registeraddr)
-                self.logger.debug(f'Reading GPIO Interrupt Configuration for Port {port.upper()} : {interruptcapture}')
-                return
+                self.logger.debug(f'Reading GPIO Interrupt Configuration for Port {port.upper()} : {bin(interruptcapture)}')
+                return interruptcapture
             else:
                 self.logger.debug(f'Dummy Device! Cannot read on I2C Bus')
                 return False
