@@ -160,9 +160,9 @@ class SimOpInt:
         self.logger.debug(f'Interface Configuration Directory : {intconfigdir} | Device Configuration File : {deviceconfigfile} => {devicesconfig.getConfig()["DEVICES"]}')
         for device in devicesconfig.getConfig()['DEVICES']:
             self.logger.debug(
-                f'Loading {devicesconfig.getConfig()['"DEVICES'][device]['devicename']} with following parameters : '
-                f'Device Address {devicesconfig.getConfig()['DEVICES'][device]['deviceaddr']} '
-                f'Device Type {devicesconfig.getConfig()['DEVICES'][device]['devicetype']}'
+                f'Loading {devicesconfig.getConfig()["DEVICES"][device]["devicename"]} with following parameters : '
+                f'Device Address {devicesconfig.getConfig()["DEVICES"][device]["deviceaddr"]} '
+                f'Device Type {devicesconfig.getConfig()["DEVICES"][device]["devicetype"]}'
             )
 
     ###################################
