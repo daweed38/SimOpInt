@@ -174,7 +174,7 @@ class HT16K33(DeviceBase):
     # blinkrate is str
     # Set output blinking frequency
     def setBlinkRate(self, blinkrate: str) -> None:
-        blinkrate_cmd = self.system_cmd_base | 1 | self.blinkrate[blinkrate]
+        blinkrate_cmd = self.display_cmd_base | 1 | self.blinkrate[blinkrate]
         if blinkrate in self.blinkrate:
             if not self.dummy:
                 self.logger.debug(f'Updating blink Rate frequency to {blinkrate}')
