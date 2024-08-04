@@ -12,7 +12,7 @@ import logging
 from SimOpInt.SimOpIntLogger import SimOpIntLogger
 # from SimOpInt.DeviceBase import DeviceBase
 from SimOpInt.DeviceMCP23017 import MCP23017
-# from SimOpInt.SimOpInt import SimOpInt
+from SimOpInt.SimOpInt import SimOpInt
 
 simopintlogger = SimOpIntLogger('SimOpInt', 'Logs', 'simopint.log')
 logger = simopintlogger.getLogger()
@@ -29,10 +29,10 @@ IOPACK01.readBit(0x00, 1)
 IOPACK01.writeBit(0x00, 1, 1)
 """
 
-# Test Interface Initialisation
 """
-INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)
-"""
-
 # Test MCP23017 Initialisation
 IOPACK01 = MCP23017('IOPACK01', '0x20', logging.DEBUG)
+"""
+
+# Test Interface Initialisation
+INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)
