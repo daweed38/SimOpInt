@@ -156,7 +156,8 @@ class SimOpInt:
         intconfigdir = f'Config/Interfaces/{self.getName()}'
         deviceconfigfile = self.config.getConfigSection('DEVICES')['configfile']
         devicesconfig = SimOpIntConfig(intconfigdir, deviceconfigfile, 'JSON')
-        self.logger.debug(f'Interface Configuration Directory : {intconfigdir} | Device Configuration File : {deviceconfigfile} => {devicesconfig.getConfig()['DEVICES']}')
+        devicedict = devicesconfig.getConfig()['DEVICES']
+        self.logger.debug(f'Interface Configuration Directory : {intconfigdir} | Device Configuration File : {deviceconfigfile} => {devicedict}')
         for device in devicesconfig.getConfig()['DEVICES']:
             self.logger.debug(
                 f'Loading {devicesconfig.getConfig()['DEVICES'][device]['devicename']} with following parameters : '
