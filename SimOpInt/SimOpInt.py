@@ -49,27 +49,44 @@ class SimOpInt:
         self.objects = {}
 
         self.config = SimOpIntConfig(self.configdir, self.configfilename, self.configfiletype)
+        self.logger.debug(f'Interface Config : {self.config.getConfig()}')
+
         if self.config:
             self.intname = self.config.getConfigParameter('INTERFACE', 'intname')
             self.intaddr = self.config.getConfigParameter('NETWORK', 'intaddr')
             self.intport = self.config.getConfigParameter('NETWORK', 'intport')
 
+            if 'MODULES' in self.config.getConfig():
+                modulesconfig = self.config.getConfigSection('MODULES')
+
+                if modulesconfig:
+                    self.logger.debug(f'Loading Modules from Configuration {modulesconfig}')
+                    modules = [key for key, value in modulesconfig.items() if key not in ['CONF']]
+                    for modulesection in modules:
+                        if len(modulesconfig[modulesection]) > 0:
+                            for modulename, moduledata in modulesconfig[modulesection].items():
+                                self.logger.debug(f'Loading Module Name {modulename} : Module {moduledata['module']} => Class {moduledata['class']}')
+                                self.loadModule(modulename, f'SimOpInt.{moduledata['module']}', moduledata['class'])
+                    self.logger.debug(f'Loaded Modules : {self.listLoadedModules()}')
+                else:
+                    self.logger.warning(f'No modules configuration found to load ...')
+
             if 'DEVICES' in self.config.getConfig():
-                devicesconfig = self.config.getConfigSection('DEVICES')
+                deviceconfigdir = f'{self.configdir}/{self.intname}'
+                devicesconfigfile = self.config.getConfigSection("DEVICES")["CONF"]["configfile"]
+                devicesconfig = SimOpIntConfig(deviceconfigdir, devicesconfigfile, 'JSON')
+
                 if devicesconfig:
-                    # self.logger.debug(f'Loading devices from configuration {devicesconfig} {type(devicesconfig)} {bool(devicesconfig)}')
-                    self.loadDeviceModules()
+                    self.logger.debug(f'Device Config File {devicesconfigfile} : {devicesconfig.getConfig()}')
+                    for devicename, deviceconfig in devicesconfig.getConfig().items():
+                        self.logger.debug(f'Creating Device {devicename} : {deviceconfig}')
+                        self.devices[devicename] = deviceconfig
+                    self.createDevices()
+                    self.logger.debug(f'Loaded Devices : {self.getDevices()}')
                 else:
                     self.logger.warning(f'No devices configuration found to load ...')
 
             """
-            if 'MODULES' in self.config.getConfig():
-                modulesconfig = self.config.getConfigSection('MODULES')
-                if modulesconfig:
-                    self.logger.debug(f'Loading Modules from Configuration {modulesconfig} {type(modulesconfig)} {bool(modulesconfig)}')
-                else:
-                    self.logger.warning(f'No modules configuration found to load ...')
-
             if 'OBJECTS' in self.config.getConfig():
                 objectsconfig = self.config.getConfigSection('OBJECTS')
                 if objectsconfig:
@@ -197,21 +214,19 @@ class SimOpInt:
     # Create Devices from configuration file and store them into self.devices
     def createDevices(self):
         pass
+
     # loadDeviceModules()
     # Load Devices Defines in configuration file
     def loadDeviceModules(self) -> None:
         self.logger.debug(f'Loading Devices Modules .... ')
-        intconfigdir = f'Config/Interfaces/{self.getName()}'
-        deviceconfigfile = self.config.getConfigParameter("DEVICES", "configfile")
-        self.logger.debug(f'Device configuration file : {deviceconfigfile}')
-        devicesconfig = SimOpIntConfig(intconfigdir, deviceconfigfile, 'JSON')
-        self.logger.debug(f'Devices Config : {devicesconfig.getConfig()}')
+        """
         devicemodconf = devicesconfig.getConfigSection('MODULES')
         for devicemod, modconf in devicemodconf.items():
             mod = "SimOpInt." + modconf['modules']
             cls = modconf['class']
             self.logger.debug(f'Device Module {devicemod} : Module => {mod} / Class => {cls}')
             self.loadModule(devicemod, mod, cls)
+        """
 
     ###################################
     # Objects Methods

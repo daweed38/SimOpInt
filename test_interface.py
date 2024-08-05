@@ -19,6 +19,3 @@ logger.setLevel(logging.DEBUG)
 
 # Test Interface Initialisation
 INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)
-print(INT1.listLoadedModules())
-module = INT1.getModule('MCP23017')
-print(module)

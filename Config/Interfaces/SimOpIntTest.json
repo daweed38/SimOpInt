@@ -7,12 +7,32 @@
     "intport": 49500
   },
   "DEVICES": {
-    "configfile": "devices.json"
+    "CONF": {
+      "configname": "devices",
+      "configfile": "devices.json"
+    }
   },
   "MODULES": {
+    "CONF": {
+      "configname": "modules"
+    },
+    "DEVICESMODULES": {
+      "MCP23017": {
+        "module": "DeviceMCP23017",
+        "class": "MCP23017"
+      },
+      "HT16K33": {
+        "module": "DeviceHT16K33",
+        "class": "HT16K33"
+      }
+    },
+    "OBJECTSMODULES": {
 
+    }
   },
   "OBJECTS": {
-
+    "CONF": {
+      "configname": "objects"
+    }
   }
 }
