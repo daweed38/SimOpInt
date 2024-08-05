@@ -2,26 +2,36 @@
   "CONF": {
     "name": "devices"
   },
+  "MODULES": {
+    "MCP23017": {
+      "modules": "DeviceMCP23017",
+      "class": "MCP23017"
+    },
+    "HT16K33":{
+      "modules": "DeviceHT16K33",
+      "class": "HT16K33"
+    }
+  },
   "DEVICES": {
     "IOPACK01" : {
       "devicename": "IOPACK01",
-      "devicetype": "MCP23017",
-      "deviceaddr": "0x20"
+      "deviceaddr": "0x20",
+      "devicetype": "MCP23017"
     },
     "IOPACK02": {
       "devicename": "IOPACK02",
-      "devicetype": "MCP23017",
-      "deviceaddr": "0x21"
+      "deviceaddr": "0x21",
+      "devicetype": "MCP23017"
     },
     "IOPACK03": {
       "devicename": "IOPACK03",
-      "devicetype": "MCP23017",
-      "deviceaddr": "0x22"
+      "deviceaddr": "0x22",
+      "devicetype": "MCP23017"
     },
     "IOPACK04": {
       "devicename": "IOPACK04",
-      "devicetype": "MCP23017",
-      "deviceaddr": "0x23"
+      "deviceaddr": "0x23",
+      "devicetype": "MCP23017"
     }
   }
 }
