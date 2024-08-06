@@ -18,7 +18,5 @@ logger = simopintlogger.getLogger()
 logger.setLevel(logging.DEBUG)
 
 # Test Interface Initialisation
-INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON')
-print(INT1.getDevice('IOPACK01'))
+INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)
 IOPACK01 = INT1.getDeviceObj('IOPACK01')
-print(IOPACK01)
