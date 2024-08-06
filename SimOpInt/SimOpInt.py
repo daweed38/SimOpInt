@@ -65,8 +65,9 @@ class SimOpInt:
                     for modulesection in modules:
                         if len(modulesconfig[modulesection]) > 0:
                             for modulename, moduledata in modulesconfig[modulesection].items():
-                                self.logger.debug(f'Loading Module Name {modulename} : Module {moduledata['module']} => Class {moduledata['class']}')
-                                self.loadModule(modulename, f'SimOpInt.{moduledata['module']}', moduledata['class'])
+                                self.logger.debug(f'Loading Module Name {modulename} : Module {moduledata["module"]} => Class {moduledata["class"]}')
+                                module = f'SimOpInt.{moduledata["module"]}'
+                                self.loadModule(modulename, module, moduledata['class'])
                     self.logger.debug(f'Loaded Modules : {self.listLoadedModules()}')
                 else:
                     self.logger.warning(f'No modules configuration found to load ...')
@@ -218,7 +219,7 @@ class SimOpInt:
     def createDevice(self, devicename, deviceaddr, devicetype):
         devicemod = self.getModule(devicetype)
         self.devices[devicename]['deviceobj'] = devicemod(devicename, deviceaddr, self.debug)
-        self.logger.debug(f'Creating Device {devicename} with following parameter : Address : {deviceaddr} Module : {devicetype} [{devicemod}] Object: {self.devices[devicename]['deviceobj']}')
+        self.logger.debug(f'Creating Device {devicename} with following parameter : Address : {deviceaddr} Module : {devicetype} [{devicemod}] Object: {self.devices[devicename]["deviceobj"]}')
 
     # createDevices()
     # Create Devices from configuration file and store them into self.devices
