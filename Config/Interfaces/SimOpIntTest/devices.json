@@ -1,27 +1,27 @@
 {
-  "CONF": {
-    "name": "devices"
+  "IOPACK01" : {
+    "devicename": "IOPACK01",
+    "deviceaddr": "0x20",
+    "devicetype": "MCP23017"
   },
-  "DEVICES": {
-    "IOPACK01" : {
-      "devicename": "IOPACK01",
-      "devicetype": "MCP23017",
-      "deviceaddr": "0x20"
-    },
-    "IOPACK02": {
-      "devicename": "IOPACK02",
-      "devicetype": "MCP23017",
-      "deviceaddr": "0x21"
-    },
-    "IOPACK03": {
-      "devicename": "IOPACK03",
-      "devicetype": "MCP23017",
-      "deviceaddr": "0x22"
-    },
-    "IOPACK04": {
-      "devicename": "IOPACK04",
-      "devicetype": "MCP23017",
-      "deviceaddr": "0x23"
-    }
+  "IOPACK02": {
+    "devicename": "IOPACK02",
+    "deviceaddr": "0x21",
+    "devicetype": "MCP23017"
+  },
+  "IOPACK03": {
+    "devicename": "IOPACK03",
+    "deviceaddr": "0x22",
+    "devicetype": "MCP23017"
+  },
+  "IOPACK04": {
+    "devicename": "IOPACK04",
+    "deviceaddr": "0x23",
+    "devicetype": "MCP23017"
+  },
+  "LEDPACK01": {
+    "devicename": "LEDPACK01",
+    "deviceaddr": "0x70",
+    "devicetype": "HT16K33"
   }
 }

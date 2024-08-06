@@ -20,7 +20,7 @@ class MCP23017(DeviceBase):
     ###################################
 
     def __str__(self) -> str:
-        return f'This is the Sim Open Interface I2C Device Base Class'
+        return f'This is the Sim Open Interface I2C Device MCP23017 Class'
 
     ###################################
     # Properties
@@ -217,7 +217,7 @@ class MCP23017(DeviceBase):
                 registervalue = 0xff
 
             if not self.dummy:
-                self.logger.debug(f'Setting Port {port.upper()} to GPIO Direction configuration {bin(portiodirconfig)}')
+                self.logger.debug(f'Setting GPIO Direction configuration Port {port.upper()} as {portiodirconfig}')
                 self.writeRegister(registeraddr, registervalue)
             else:
                 self.logger.debug(f'Dummy Device! Cannot write on I2C Bus')

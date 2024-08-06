@@ -79,7 +79,6 @@ class SimOpIntConfig:
     # Return config section from self.config (dict)
     def getConfigSection(self, section: str) -> dict:
         return self.configdict[section]
-        # return {section: self.configdict[section]}
 
     # getConfigParameter(section, parameter)
     # section is str
@@ -87,7 +86,6 @@ class SimOpIntConfig:
     # Return config parameter from self.config (dict | int | str)
     def getConfigParameter(self, section: str, parameter: str) -> dict | int | str:
         return self.configdict[section][parameter]
-        # return {parameter: self.configdict[section][parameter]}
 
     ###################################
     # INI Files Methods
@@ -141,17 +139,3 @@ class SimOpIntConfig:
     # JSON Configuration File Writer
     def writeJsonConfigFile(self) -> None:
         pass
-
-    """
-    def writeJsonConfigFile(self, configdir: str, configfile: str, data: dict) -> None:
-        if os.path.exists(configdir):
-            self.logger.debug(f'Directory {configdir} exist ...')
-            if os.path.exists(f'{configdir}/{configfile}'):
-                self.logger.error(f'Interface configuration file {configfile} already exist in {configdir} directory ...')
-            else:
-                self.logger.error(f'Creating Interface configuration file {configfile} in {configdir} directory  ...')
-                with open(f'{configdir}/{configfile}.json', 'w') as intfile:
-                    json.dump(data, intfile)
-        else:
-            self.logger.debug(f' {configdir} directory does not exist ...')
-    """
