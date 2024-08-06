@@ -21,7 +21,7 @@ from SimOpInt.SimOpIntClient import SimOpIntClient
 
 testdict = {'command': {'name': {'args': {'arg1': True, 'arg2': False}}}}
 
-jsondata = open('Config/data.json')
+jsondata = open('Config/Client/data.json')
 jsondict = dict(json.load(jsondata))
 jsondata.close()
 
