@@ -66,7 +66,8 @@ class SimOpInt:
                         if len(modulesconfig[modulesection]) > 0:
                             for modulename, moduledata in modulesconfig[modulesection].items():
                                 self.logger.debug(f'Loading Module Name {modulename} : Module {moduledata["module"]} => Class {moduledata["class"]}')
-                                self.loadModule(modulename, f'SimOpInt.{moduledata['module']}', moduledata['class'])
+                                module = f'SimOpInt.{moduledata['module']}'
+                                self.loadModule(modulename, module, moduledata['class'])
                     self.logger.debug(f'Loaded Modules : {self.listLoadedModules()}')
                 else:
                     self.logger.warning(f'No modules configuration found to load ...')
