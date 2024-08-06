@@ -79,7 +79,7 @@ class SimOpInt:
                 if devicesconfig:
                     self.logger.debug(f'Device Config File {devicesconfigfile} : {devicesconfig.getConfig()}')
                     for devicename, deviceconfig in devicesconfig.getConfig().items():
-                        self.logger.debug(f'Creating Device {devicename} : {deviceconfig}')
+                        self.logger.debug(f'Loading Device {devicename} : {deviceconfig}')
                         self.devices[devicename] = deviceconfig
                     self.createDevices()
                     self.logger.debug(f'Loaded Devices : {self.getDevices()}')
@@ -193,10 +193,18 @@ class SimOpInt:
     ###################################
 
     # getDevice(devicename)
-    # Return Device object from self.devices
+    # Return device <devicename> from self.devices
     def getDevice(self, devicename):
         if devicename in self.devices:
-            return self.devices["devicename"]
+            return self.devices[devicename]
+        else:
+            return False
+
+    # getDeviceObj(devicename)
+    # Return devices <devicename> object from self.devices
+    def getDeviceObj(self, devicename):
+        if devicename in self.devices:
+            return self.devices[devicename]['deviceobj']
         else:
             return False
 
@@ -207,31 +215,18 @@ class SimOpInt:
 
     # createDevice(devicename, deviceaddr, devicemodule [, debug ])
     # Create Device object and store it into self.devices
-    def createDevice(self, devicename, deviceaddr, devicemodule, debug: int = 30):
-        self.logger.debug(f'Creating Device {devicename} and store into self.devices[{devicename}]')
+    def createDevice(self, devicename, deviceaddr, devicetype):
+        devicemod = self.getModule(devicetype)
+        self.devices[devicename]['deviceobj'] = devicemod(devicename, deviceaddr, self.debug)
+        self.logger.debug(f'Creating Device {devicename} with following parameter : Address : {deviceaddr} Module : {devicetype} [{devicemod}] Object: {self.devices[devicename]['deviceobj']}')
 
     # createDevices()
     # Create Devices from configuration file and store them into self.devices
     def createDevices(self):
-        pass
-
-    # loadDeviceModules()
-    # Load Devices Defines in configuration file
-    def loadDeviceModules(self) -> None:
-        self.logger.debug(f'Loading Devices Modules .... ')
-        """
-        devicemodconf = devicesconfig.getConfigSection('MODULES')
-        for devicemod, modconf in devicemodconf.items():
-            mod = "SimOpInt." + modconf['modules']
-            cls = modconf['class']
-            self.logger.debug(f'Device Module {devicemod} : Module => {mod} / Class => {cls}')
-            self.loadModule(devicemod, mod, cls)
-        """
+        self.logger.debug(f'Create All devices defined in self.devices')
+        for device, deviceconf in self.devices.items():
+            self.createDevice(deviceconf['devicename'], deviceconf['deviceaddr'], deviceconf['devicetype'])
 
     ###################################
     # Objects Methods
     ###################################
-
-    # Load Devices Defines in configuration file
-    def loadObjectModules(self) -> None:
-        pass

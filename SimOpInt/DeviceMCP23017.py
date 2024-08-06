@@ -20,7 +20,7 @@ class MCP23017(DeviceBase):
     ###################################
 
     def __str__(self) -> str:
-        return f'This is the Sim Open Interface I2C Device Base Class'
+        return f'This is the Sim Open Interface I2C Device MCP23017 Class'
 
     ###################################
     # Properties
