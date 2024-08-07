@@ -61,20 +61,22 @@ class SimOpInt:
 
                 if modulesconfig:
                     self.logger.debug(f'Loading Modules from Configuration {modulesconfig}')
-                    modules = [key for key, value in modulesconfig.items() if key not in ['CONF']]
-                    for modulesection in modules:
-                        if len(modulesconfig[modulesection]) > 0:
-                            for modulename, moduledata in modulesconfig[modulesection].items():
+                    # modules = [key for key, value in modulesconfig.items() if key not in ['CONF']]
+                    for modulesection, modulesconfig in modulesconfig.items():
+                        if len(modulesconfig) > 0:
+                            self.logger.debug(f'Module Section : {modulesection} : {modulesconfig}')
+                            for modulename, moduledata in modulesconfig.items():
                                 self.logger.debug(f'Loading Module Name {modulename} : Module {moduledata["module"]} => Class {moduledata["class"]}')
                                 module = f'SimOpInt.{moduledata["module"]}'
                                 self.loadModule(modulename, module, moduledata['class'])
+
                     self.logger.debug(f'Loaded Modules : {self.listLoadedModules()}')
                 else:
                     self.logger.warning(f'No modules configuration found to load ...')
 
             if 'DEVICES' in self.config.getConfig():
                 deviceconfigdir = f'{self.configdir}/{self.intname}'
-                devicesconfigfile = self.config.getConfigSection("DEVICES")["CONF"]["configfile"]
+                devicesconfigfile = self.config.getConfigSection("DEVICES")["configfile"]
                 devicesconfig = SimOpIntConfig(deviceconfigdir, devicesconfigfile, 'JSON')
 
                 if devicesconfig:
@@ -87,14 +89,23 @@ class SimOpInt:
                 else:
                     self.logger.warning(f'No devices configuration found to load ...')
 
-            """
             if 'OBJECTS' in self.config.getConfig():
                 objectsconfig = self.config.getConfigSection('OBJECTS')
                 if objectsconfig:
                     self.logger.debug(f'Loading Objects from Configuration {objectsconfig} {type(objectsconfig)} {bool(objectsconfig)}')
+                    for objtype, objtypeconfig in objectsconfig.items():
+                        objectsconfigdir = f'{self.configdir}/{self.intname}'
+                        objectsconfig = SimOpIntConfig(objectsconfigdir, objtypeconfig['configfile'], 'JSON')
+
+                        if objectsconfig:
+                            objectsgeneralconf = objectsconfig.getConfigSection('CONF')
+                            objectspropsconf = objectsconfig.getConfigSection('PROPERTIES')
+                            objectsdefinition = objectsconfig.getConfigSection('OBJECTS')
+                            self.logger.debug(f'Objects General Configuration {objectsgeneralconf}')
+                            self.logger.debug(f'Objects Properties Configuration {objectspropsconf}')
+                            self.logger.debug(f'Objects definition Section {objectsdefinition}')
                 else:
                     self.logger.warning(f'No objects configuration found to load ...')
-            """
 
             self.logger.debug(f'Sim Open Interface {self.getName()} initialized ...')
         else:
