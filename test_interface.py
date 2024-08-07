@@ -7,7 +7,6 @@
 
 # Standard Modules Import
 import logging
-import time
 
 # SimOpInt Module Import
 from SimOpInt.SimOpIntLogger import SimOpIntLogger
@@ -18,7 +17,7 @@ logger = simopintlogger.getLogger()
 logger.setLevel(logging.INFO)
 
 # Test Interface Initialisation
-INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON', logging.DEBUG)
+INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON')
 
 logger.info(f'{INT1.listLoadedModules()}')
 logger.info(f'{INT1.listLoadedDevices()}')
@@ -27,3 +26,21 @@ logger.info(f'{INT1.listLoadedObjects()}')
 RMP0ACTIVFREQ = INT1.getObject('DISPLAYS', 'RMP0ACTIVFREQ')
 
 logger.info(f'{RMP0ACTIVFREQ.getName()}')
+
+RMP0ACTIVFREQ.getDebugLevel()
+RMP0ACTIVFREQ.setDebugLevel(logging.DEBUG)
+RMP0ACTIVFREQ.getStatus()
+RMP0ACTIVFREQ.setStatus('ON')
+RMP0ACTIVFREQ.getStatus()
+RMP0ACTIVFREQ.setStatus('OFF')
+RMP0ACTIVFREQ.getStatus()
+
+logger.info(f'Display Device : {type(RMP0ACTIVFREQ.getDevice())}')
+logger.info(f'Number of digit of Display {RMP0ACTIVFREQ.getName()} : {RMP0ACTIVFREQ.getDisplayNbDigit()}')
+logger.info(f'First Row {RMP0ACTIVFREQ.getDisplayFirstRow()} / First Row Type [{type(RMP0ACTIVFREQ.getDisplayFirstRow())}]')
+logger.info(f'First Digit Register of Display {RMP0ACTIVFREQ.getName()} : {hex(RMP0ACTIVFREQ.getDigitRegister(RMP0ACTIVFREQ.getDisplayFirstRow()))}')
+logger.info(f'Digit(s) Register of Display {RMP0ACTIVFREQ.getName()} : {RMP0ACTIVFREQ.listDigitsRegisters()}')
+logger.info(f'Decimal Digit : {RMP0ACTIVFREQ.getDisplayDeciDigit()}')
+
+RMP0ACTIVFREQ.writeDigit(3, '6', False)
+RMP0ACTIVFREQ.writeDigit(3, '6', True)

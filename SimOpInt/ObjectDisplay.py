@@ -53,6 +53,8 @@ class SegDisplay(ObjectBase):
         self.status = 'OFF'
         self.debug = debug
 
+        self.value = ' '
+
         self.logger = logging.getLogger(__name__)
         if self.logger.getEffectiveLevel() != self.debug:
             self.logger.setLevel(self.debug)
@@ -67,6 +69,18 @@ class SegDisplay(ObjectBase):
     ###################################
     # System Methods
     ###################################
+
+    # Method getDebugLevel()
+    # Return object debug level
+    def getDebugLevel(self) -> int:
+        return self.debug
+
+    # Method settDevice(debuglevel)
+    # debuglevel is int
+    # Set object debug level
+    def setDebugLevel(self, debuglevel: int) -> None:
+        self.debug = debuglevel
+        self.logger.setLevel(self.debug)
 
     # Method getDevice()
     # Return Display device object
@@ -123,6 +137,17 @@ class SegDisplay(ObjectBase):
     def setDisplayDeciDigit(self, decdigit: int) -> None:
         self.decdigit = decdigit
 
+    # Method getValue()
+    # Return Display Value
+    def getValue(self) -> str:
+        return self.value
+
+    # Method setValue(value)
+    # value is str
+    # Set Display Value to value
+    def setValue(self, value: str) -> None:
+        self.value = value
+
     # Method getStatus()
     # Return Display Status
     def getStatus(self) -> str:
@@ -132,8 +157,99 @@ class SegDisplay(ObjectBase):
     # status is str
     # Set Display Status
     def setStatus(self, status: str) -> None:
-        self.status = status
+        if status == 'OFF':
+            value = ''
+            for i in range(1, int(self.nbdigit) + 1):
+                value = value + ' '
+
+            self.logger.debug(f'Writing value "{value}" on Display {self.getName()}')
+            # self.writeDisplay(value, False)
+            self.status = 'OFF'
+
+        elif status == 'ON':
+            self.logger.debug(f'Writing value "{self.value}" on Display {self.getName()}')
+            # self.writeDisplay(self.value, False)
+            self.status = 'ON'
+
+        else:
+            self.logger.error(f'Status {status} not recognized')
 
     ########################################
     # 7 Segments Display Object Methods
     ########################################
+
+    # Method getDigitRegister(digit)
+    # Return Digit Register Address
+    # digit is int. self.row1 is digit number 0
+    def getDigitRegister(self, digit: int) -> int | bool:
+        row = self.row1 + digit
+        registeraddr = self.device.getRowRegisterAddr(self.port, row)
+        return registeraddr
+
+    # Method listDigitsRegisters()
+    # Return Digit(s) Register List
+    def listDigitsRegisters(self) -> dict:
+        digitregisterlist = {}
+        for i in range(0, self.nbdigit):
+            digitregisterlist[i] = hex(self.getDigitRegister(i))
+        return digitregisterlist
+
+    # Method writeDigit(digit, digitval, decimal)
+    # Write digitval on digit
+    # If decimal is True and digit is the decdigit
+    # then decimal point is display on digit
+    # digit is int, value is str, decimal is bool
+    def writeDigit(self, digit: int, value: str, decimal: bool) -> None:
+        digitval = value
+        row = int(self.row1) + (digit - 1)
+        if digitval in self.digitvalues:
+
+            if decimal and digit == self.decdigit:
+                value = self.digitvalues[digitval] | 0b10000000
+            else:
+                value = self.digitvalues[digitval]
+
+            self.logger.debug(f'Writing value {digitval} on Digit {digit} defined as Row {row} on Port {self.port}. Register Address {hex(self.getDigitRegister(row))} Register value {hex(value)}')
+
+            self.device.setRow(self.port, row, value)
+
+        else:
+            self.logger.error(f'Value {digitval} not found in digitvalue dict')
+
+    """
+    # Method writeDisplay(value)
+    # Display value on display
+    # If decimal is True, then decimal point
+    # will be display on the decdigit
+    # value is int, float or str, decimal is bool
+    def writeDisplay(self, value: int | float | str, decimal: bool) -> None:
+        if decimal:
+            dispmode = 'Float'
+            # formatstr = '{:0>'+str(self.nbdigit+1)+'}'
+            # datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit]
+            formatstr = '{:0' + str(self.nbdigit) + '.' + str(self.nbdigit - self.decdigit) + 'f}'
+            datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit]
+        else:
+            if isinstance(value, str):
+                dispmode = 'String'
+                datadigit = value.zfill(self.nbdigit)[:self.nbdigit]
+            else:
+                dispmode = 'Integer'
+                datadigit = str(int(round(value))).zfill(self.nbdigit)
+
+        if self.debug:
+            print("######################################################################")
+            print("# Nb Digit : {} DecDigit {}".format(self.nbdigit, self.decdigit))
+            print("# Value Before Processing : {}".format(value))
+            print("# Value Rounded : {}".format(datadigit))
+            print("# Mode {} Writing value {} on Display {} Mode Decimal {}".format(dispmode, datadigit, self.name, decimal))
+            print("######################################################################")
+            print("\r")
+
+        digitnum = 1
+
+        for digitval in datadigit:
+            self.writeDigit(digitnum, digitval, decimal)
+            digitnum += 1
+    
+    """

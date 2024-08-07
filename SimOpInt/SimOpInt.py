@@ -266,6 +266,11 @@ class SimOpInt:
                     propname = objectsconfig.getConfigParameter('PROPERTIES', prop)
                     propvalue = objconfig[propname]
 
+                    if propname == 'device':
+                        propvalue = self.getDevice(propvalue)
+                    else:
+                        propvalue = objconfig[propname]
+
                     args.append(propvalue)
 
                 self.createObject(objcategory, objname, objmodule, args)
