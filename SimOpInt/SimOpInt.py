@@ -84,7 +84,6 @@ class SimOpInt:
                 self.createObjects()
                 self.logger.debug(f'Loaded Objects : {self.listLoadedObjects()}')
 
-
             self.logger.debug(f'--- Sim Open Interface {self.getName()} initialized ---')
         else:
             self.logger.debug(f'Sim Open Interface initialisation error ...')
@@ -276,7 +275,7 @@ class SimOpInt:
     # createObjects()
     # Create all objects define in configuration
     def createObjects(self) -> None:
-        self.logger.debug(f'Objects configuration : {self.config.getConfigSection('OBJECTS')}')
-        for objcategory in self.config.getConfigSection('OBJECTS'):
+        objectsconfig = self.config.getConfigSection('OBJECTS')
+        self.logger.debug(f'Objects configuration : {objectsconfig}')
+        for objcategory in objectsconfig:
             self.createObjectsCategory(objcategory)
-
