@@ -1,9 +1,9 @@
 {
     "CONF": {
         "confname": "DISPLAYS",
-        "library": "ObjectDisplay",
-        "module": "SegDisplay",
-        "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,row1,nbdigit,decdigit,output,command",
+        "module": "ObjectDisplay",
+        "class": "SegDisplay",
+        "propertieslist": "name,node,nodetype,nodeformat,nodeconds,device,port,row1,nbdigit,decdigit,output,command",
         "isoutput": "yes",
         "iscommand": "no"
     },
