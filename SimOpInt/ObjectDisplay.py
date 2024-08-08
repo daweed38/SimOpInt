@@ -140,7 +140,7 @@ class SegDisplay(ObjectBase):
 
     # Method getValue()
     # Return Display Value
-    def getValue(self) -> str:
+    def getValue(self) -> dict:
         return self.value
 
     # Method setValue(value)
@@ -159,18 +159,19 @@ class SegDisplay(ObjectBase):
     # Set Display Status
     def setStatus(self, status: str) -> None:
         if status == 'OFF':
+            self.status = 'OFF'
             offvalue = ''
             for i in range(1, int(self.nbdigit) + 1):
                 offvalue = offvalue + ' '
 
             self.logger.debug(f'Writing value "{offvalue}" on Display {self.getName()}')
             self.writeDisplay(offvalue, False)
-            self.status = 'OFF'
 
         elif status == 'ON':
+            self.status = 'ON'
             self.logger.debug(f'Writing value "{self.value}" on Display {self.getName()}')
             self.writeDisplay(self.value['value'], self.value['decimal'])
-            self.status = 'ON'
+
 
         else:
             self.logger.error(f'Status {status} not recognized')
@@ -250,4 +251,5 @@ class SegDisplay(ObjectBase):
             self.writeDigit(digitnum, digitval, decimal)
             digitnum += 1
 
-        self.value = {'value': value, 'decimal': decimal}
+        if self.getStatus() == 'ON':
+            self.value = {'value': value, 'decimal': decimal}
