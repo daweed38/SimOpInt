@@ -46,6 +46,8 @@ logger.info(f'First Digit Register of Display {RMP0ACTIVFREQ.getName()} : {hex(R
 logger.info(f'Digit(s) Register of Display {RMP0ACTIVFREQ.getName()} : {RMP0ACTIVFREQ.listDigitsRegisters()}')
 logger.info(f'Decimal Digit : {RMP0ACTIVFREQ.getDisplayDeciDigit()}')
 
+RMP0ACTIVFREQ.setStatus('ON')
+
 RMP0ACTIVFREQ.writeDisplay(125.45, True)
 time.sleep(5)
 RMP0ACTIVFREQ.setStatus('OFF')
