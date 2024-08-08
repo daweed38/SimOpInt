@@ -54,7 +54,11 @@ class SegDisplay(ObjectBase):
         self.status = 'OFF'
         self.debug = debug
 
-        self.value = {'value': '', 'decimal': False}
+        value = ''
+        for i in range(1, int(self.nbdigit) + 1):
+            value = value + ' '
+
+        self.value = {'value': value, 'decimal': False}
 
         self.logger = logging.getLogger(__name__)
         if self.logger.getEffectiveLevel() != self.debug:
@@ -159,19 +163,18 @@ class SegDisplay(ObjectBase):
     # Set Display Status
     def setStatus(self, status: str) -> None:
         if status == 'OFF':
-            self.status = 'OFF'
             offvalue = ''
             for i in range(1, int(self.nbdigit) + 1):
                 offvalue = offvalue + ' '
 
             self.logger.debug(f'Writing value "{offvalue}" on Display {self.getName()}')
             self.writeDisplay(offvalue, False)
+            self.status = 'OFF'
 
         elif status == 'ON':
             self.status = 'ON'
-            self.logger.debug(f'Writing value "{self.value}" on Display {self.getName()}')
+            self.logger.debug(f'Writing value "{self.value['value']}" (decimal : {self.value['decimal']}) on Display {self.getName()}')
             self.writeDisplay(self.value['value'], self.value['decimal'])
-
 
         else:
             self.logger.error(f'Status {status} not recognized')
@@ -224,32 +227,35 @@ class SegDisplay(ObjectBase):
     # will be display on the decdigit
     # value is int, float or str, decimal is bool
     def writeDisplay(self, value: int | float | str, decimal: bool) -> None:
-        if isinstance(value, str):
-            if decimal:
-                dispmode = 'Float String'
-                formatstr = '{:0' + str(self.nbdigit) + '.' + str(self.nbdigit - self.decdigit) + 'f}'
-                datadigit = formatstr.format(round(float(value), self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit].zfill(self.nbdigit)
-            else:
-                dispmode = 'Integer String'
-                datadigit = value.zfill(self.nbdigit)[:self.nbdigit]
-        else:
-            if decimal:
-                dispmode = 'Float'
-                formatstr = '{:0' + str(self.nbdigit) + '.' + str(self.nbdigit - self.decdigit) + 'f}'
-                datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit].zfill(self.nbdigit)
-            else:
-                dispmode = 'Integer'
-                datadigit = datadigit = str(int(round(value))).zfill(self.nbdigit)
-
-        self.logger.debug(f'Nb Digit : {self.nbdigit} DecDigit {self.decdigit}')
-        self.logger.debug(f'Value Before Processing : {value} Value Rounded : {datadigit}')
-        self.logger.debug(f'Mode {dispmode} Writing value {datadigit} on Display {self.name} Mode Decimal {decimal}')
-
-        digitnum = 1
-
-        for digitval in datadigit:
-            self.writeDigit(digitnum, digitval, decimal)
-            digitnum += 1
-
         if self.getStatus() == 'ON':
-            self.value = {'value': value, 'decimal': decimal}
+            if isinstance(value, str):
+                if decimal:
+                    dispmode = 'Float String'
+                    formatstr = '{:0' + str(self.nbdigit) + '.' + str(self.nbdigit - self.decdigit) + 'f}'
+                    datadigit = formatstr.format(round(float(value), self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit].zfill(self.nbdigit)
+                else:
+                    dispmode = 'Integer String'
+                    datadigit = value.zfill(self.nbdigit)[:self.nbdigit]
+            else:
+                if decimal:
+                    dispmode = 'Float'
+                    formatstr = '{:0' + str(self.nbdigit) + '.' + str(self.nbdigit - self.decdigit) + 'f}'
+                    datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit].zfill(self.nbdigit)
+                else:
+                    dispmode = 'Integer'
+                    datadigit = datadigit = str(int(round(value))).zfill(self.nbdigit)
+
+            self.logger.debug(f'Nb Digit : {self.nbdigit} DecDigit {self.decdigit}')
+            self.logger.debug(f'Value Before Processing : {value} Value Rounded : {datadigit}')
+            self.logger.debug(f'Mode {dispmode} Writing value {datadigit} on Display {self.name} Mode Decimal {decimal}')
+
+            digitnum = 1
+
+            for digitval in datadigit:
+                self.writeDigit(digitnum, digitval, decimal)
+                digitnum += 1
+
+                self.value = {'value': value, 'decimal': decimal}
+
+        else:
+            self.logger.warning(f'Display is OFF.')

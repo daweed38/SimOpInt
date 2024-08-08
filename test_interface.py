@@ -31,6 +31,7 @@ RMP0ACTIVFREQ = INT1.getObject('DISPLAYS', 'RMP0ACTIVFREQ')
 
 logger.info(f'{RMP0ACTIVFREQ.getName()}')
 
+"""
 RMP0ACTIVFREQ.getDebugLevel()
 RMP0ACTIVFREQ.setDebugLevel(logging.DEBUG)
 RMP0ACTIVFREQ.getStatus()
@@ -45,21 +46,22 @@ logger.info(f'First Row {RMP0ACTIVFREQ.getDisplayFirstRow()} / First Row Type [{
 logger.info(f'First Digit Register of Display {RMP0ACTIVFREQ.getName()} : {hex(RMP0ACTIVFREQ.getDigitRegister(RMP0ACTIVFREQ.getDisplayFirstRow()))}')
 logger.info(f'Digit(s) Register of Display {RMP0ACTIVFREQ.getName()} : {RMP0ACTIVFREQ.listDigitsRegisters()}')
 logger.info(f'Decimal Digit : {RMP0ACTIVFREQ.getDisplayDeciDigit()}')
+"""
 
+RMP0ACTIVFREQ.getDebugLevel()
+RMP0ACTIVFREQ.setDebugLevel(logging.DEBUG)
 RMP0ACTIVFREQ.setStatus('ON')
-
 RMP0ACTIVFREQ.writeDisplay(125.45, True)
-time.sleep(5)
+# time.sleep(2)
 RMP0ACTIVFREQ.setStatus('OFF')
-time.sleep(5)
+# time.sleep(2)
 RMP0ACTIVFREQ.setStatus('ON')
-time.sleep(5)
+# time.sleep(2)
 RMP0ACTIVFREQ.writeDisplay(121.47, True)
-time.sleep(5)
+# time.sleep(2)
 RMP0ACTIVFREQ.setStatus('OFF')
-time.sleep(5)
+# time.sleep(2)
 RMP0ACTIVFREQ.writeDisplay(126.355, True)
-time.sleep(5)
-
+# time.sleep(2)
 
 LEDPACK01.stop()
