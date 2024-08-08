@@ -54,7 +54,7 @@ class SegDisplay(ObjectBase):
         self.status = 'OFF'
         self.debug = debug
 
-        self.value = ' '
+        self.value = {'value': '', 'decimal': False}
 
         self.logger = logging.getLogger(__name__)
         if self.logger.getEffectiveLevel() != self.debug:
@@ -159,17 +159,17 @@ class SegDisplay(ObjectBase):
     # Set Display Status
     def setStatus(self, status: str) -> None:
         if status == 'OFF':
-            value = ''
+            offvalue = ''
             for i in range(1, int(self.nbdigit) + 1):
-                value = value + ' '
+                offvalue = offvalue + ' '
 
-            self.logger.debug(f'Writing value "{value}" on Display {self.getName()}')
-            # self.writeDisplay(value, False)
+            self.logger.debug(f'Writing value "{offvalue}" on Display {self.getName()}')
+            self.writeDisplay(offvalue, False)
             self.status = 'OFF'
 
         elif status == 'ON':
             self.logger.debug(f'Writing value "{self.value}" on Display {self.getName()}')
-            # self.writeDisplay(self.value, False)
+            self.writeDisplay(self.value['value'], self.value['decimal'])
             self.status = 'ON'
 
         else:
@@ -249,3 +249,5 @@ class SegDisplay(ObjectBase):
         for digitval in datadigit:
             self.writeDigit(digitnum, digitval, decimal)
             digitnum += 1
+
+        self.value = {'value': value, 'decimal': decimal}
