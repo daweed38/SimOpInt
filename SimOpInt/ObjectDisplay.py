@@ -52,13 +52,9 @@ class SegDisplay(ObjectBase):
         self.nbdigit = nbdigit
         self.decdigit = decdigit
         self.status = 'OFF'
+        self.offvalue = self.genOffValue()
+        self.value = {'value': self.getOffValue(), 'decimal': False}
         self.debug = debug
-
-        value = ''
-        for i in range(1, int(self.nbdigit) + 1):
-            value = value + ' '
-
-        self.value = {'value': value, 'decimal': False}
 
         self.logger = logging.getLogger(__name__)
         if self.logger.getEffectiveLevel() != self.debug:
@@ -144,14 +140,44 @@ class SegDisplay(ObjectBase):
 
     # Method getValue()
     # Return Display Value
-    def getValue(self) -> dict:
-        return self.value
+    def getValue(self) -> str:
+        return self.value['value']
 
     # Method setValue(value)
     # value is str
     # Set Display Value to value
     def setValue(self, value: str) -> None:
-        self.value = value
+        self.value['value'] = value
+
+    # Method getValue()
+    # Return Display Value
+    def isDecimal(self) ->bool:
+        return self.value['decimal']
+
+    # Method setValue(value)
+    # value is str
+    # Set Display Value to value
+    def setDecimal(self, decimal: bool) -> None:
+        self.value['decimal'] = decimal
+
+    # Method getOffValue()
+    # Return Display Value
+    def getOffValue(self) -> str:
+        return self.offvalue
+
+    # Method setOffValue(value)
+    # value is str
+    # Set Display Value to value
+    def setOffValue(self, offvalue: str) -> None:
+        self.offvalue = offvalue
+
+    # Method genOffValue()
+    # Generate the OFF Display value
+    def genOffValue(self) -> str:
+        value = ''
+        for i in range(1, int(self.nbdigit) + 1):
+            value = value + ' '
+        return value
 
     # Method getStatus()
     # Return Display Status
@@ -163,17 +189,16 @@ class SegDisplay(ObjectBase):
     # Set Display Status
     def setStatus(self, status: str) -> None:
         if status == 'OFF':
-            offvalue = ''
-            for i in range(1, int(self.nbdigit) + 1):
-                offvalue = offvalue + ' '
-
-            self.logger.debug(f'Writing value "{offvalue}" on Display {self.getName()}')
-            self.writeDisplay(offvalue, False)
+            oldvalue = self.getValue()
+            olddecimal = self.isDecimal()
+            self.writeDisplay(self.getOffValue(), False)
+            self.setValue(oldvalue)
+            self.setDecimal(olddecimal)
             self.status = 'OFF'
 
         elif status == 'ON':
             self.status = 'ON'
-            self.logger.debug(f'Writing value "{self.value["value"]}" (decimal : {self.value["decimal"]}) on Display {self.getName()}')
+            self.writeDisplay(self.getValue(), self.isDecimal())
 
         else:
             self.logger.error(f'Status {status} not recognized')
