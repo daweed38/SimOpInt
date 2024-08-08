@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QFram
     QMenu, QMenuBar, QPushButton, QSizePolicy,
     QSpacerItem, QStatusBar, QTreeWidget, QTreeWidgetItem,
     QVBoxLayout, QWidget)
-import simopintui_rc
+import SimOpIntUi.simopintui_rc
 
 class Ui_MainWindowGui(object):
     def setupUi(self, MainWindowGui):

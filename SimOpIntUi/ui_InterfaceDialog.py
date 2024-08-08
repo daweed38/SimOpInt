@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
     QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
-import simopintui_rc
+import SimOpIntUi.simopintui_rc
 
 class Ui_InterfaceDialog(object):
     def setupUi(self, InterfaceDialog):

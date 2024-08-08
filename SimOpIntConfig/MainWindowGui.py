@@ -64,7 +64,7 @@ class MainWindowGui(QMainWindow, Ui_MainWindowGui):
 
         # Interfaces List Management
         self.interfacesList.currentIndexChanged.connect(self.loadSelectedInterface)
-        self.configBranch = SimOpIntConfig('Config', 'branches.json', 'JSON')
+        self.configBranch = SimOpIntConfig('Config/Gui', 'branches.json', 'JSON')
         self.loadObjectBranch()
 
         # Interface Connexion Button
