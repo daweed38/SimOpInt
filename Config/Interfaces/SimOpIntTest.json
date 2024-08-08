@@ -6,16 +6,7 @@
     "intaddr": "192.168.0.65",
     "intport": 49500
   },
-  "DEVICES": {
-    "CONF": {
-      "configname": "devices",
-      "configfile": "devices.json"
-    }
-  },
   "MODULES": {
-    "CONF": {
-      "configname": "modules"
-    },
     "DEVICESMODULES": {
       "MCP23017": {
         "module": "DeviceMCP23017",
@@ -27,12 +18,18 @@
       }
     },
     "OBJECTSMODULES": {
-
+      "SegDisplay": {
+        "module": "ObjectDisplay",
+        "class": "SegDisplay"
+      }
     }
   },
+  "DEVICES": {
+    "configfile": "devices.json"
+  },
   "OBJECTS": {
-    "CONF": {
-      "configname": "objects"
+    "DISPLAYS": {
+      "configfile": "displays.json"
     }
   }
 }

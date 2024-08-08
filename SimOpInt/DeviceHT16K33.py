@@ -36,22 +36,22 @@ class HT16K33(DeviceBase):
     }
 
     registers = {
-        'rowa1': {'addr': 0x00, 'init': 0x00},
-        'rowa2': {'addr': 0x02, 'init': 0x00},
-        'rowa3': {'addr': 0x04, 'init': 0x00},
-        'rowa4': {'addr': 0x06, 'init': 0x00},
-        'rowa5': {'addr': 0x08, 'init': 0x00},
-        'rowa6': {'addr': 0x0a, 'init': 0x00},
-        'rowa7': {'addr': 0x0c, 'init': 0x00},
-        'rowa8': {'addr': 0x0e, 'init': 0x00},
-        'rowb1': {'addr': 0x01, 'init': 0x00},
-        'rowb2': {'addr': 0x03, 'init': 0x00},
-        'rowb3': {'addr': 0x05, 'init': 0x00},
-        'rowb4': {'addr': 0x07, 'init': 0x00},
-        'rowb5': {'addr': 0x09, 'init': 0x00},
-        'rowb6': {'addr': 0x0b, 'init': 0x00},
-        'rowb7': {'addr': 0x0d, 'init': 0x00},
-        'rowb8': {'addr': 0x0f, 'init': 0x00},
+        'rowa0': {'addr': 0x00, 'init': 0x00},
+        'rowa1': {'addr': 0x02, 'init': 0x00},
+        'rowa2': {'addr': 0x04, 'init': 0x00},
+        'rowa3': {'addr': 0x06, 'init': 0x00},
+        'rowa4': {'addr': 0x08, 'init': 0x00},
+        'rowa5': {'addr': 0x0a, 'init': 0x00},
+        'rowa6': {'addr': 0x0c, 'init': 0x00},
+        'rowa7': {'addr': 0x0e, 'init': 0x00},
+        'rowb0': {'addr': 0x01, 'init': 0x00},
+        'rowb1': {'addr': 0x03, 'init': 0x00},
+        'rowb2': {'addr': 0x05, 'init': 0x00},
+        'rowb3': {'addr': 0x07, 'init': 0x00},
+        'rowb4': {'addr': 0x09, 'init': 0x00},
+        'rowb5': {'addr': 0x0b, 'init': 0x00},
+        'rowb6': {'addr': 0x0d, 'init': 0x00},
+        'rowb7': {'addr': 0x0f, 'init': 0x00},
         'inter': {'addr': 0x60, 'init': 0x00}
     }
 
@@ -133,7 +133,8 @@ class HT16K33(DeviceBase):
     ###################################
 
     # getRowRegister(port, row)
-    # port is str and row is int
+    # port is str
+    # row is int. first row is 0. last row is 7
     # Return register address regarding common & port
     def getRowRegisterAddr(self, port: str, row: int) -> int | bool:
         if port.lower() in ['a', 'b']:
@@ -184,10 +185,11 @@ class HT16K33(DeviceBase):
         else:
             self.logger.debug(f'Blinkrate not recognized')
 
-    # getRow(row, port)
-    # row is int and port is str
+    # getRow(port, row)
+    # port is str
+    # row is int. first row is 0. last row is 7
     # Return Value from row register on port
-    def getRow(self, row: int, port: str) -> int | bool:
+    def getRow(self, port: str, row: int) -> int | bool:
         registeraddr = self.getRowRegisterAddr(port.lower(), row)
         if registeraddr is not False:
             if not self.dummy:
@@ -201,10 +203,12 @@ class HT16K33(DeviceBase):
             self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
             return False
 
-    # setRow(row, port, data)
-    # row is int , port is str and data is int
+    # setRow(port, row, data)
+    # port is str.
+    # row is int. first row is 0. last row is 7
+    # data is int
     # Update the Row register Value on Port port
-    def setRow(self, row: int, port: str, data: int) -> None:
+    def setRow(self, port: str, row: int, data: int) -> None:
         registeraddr = self.getRowRegisterAddr(port.lower(), row)
         if registeraddr is not False:
             if not self.dummy:
@@ -215,10 +219,12 @@ class HT16K33(DeviceBase):
         else:
             self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
 
-    # getOut(row, port, out)
-    # row is int, port is str and out is int
+    # getOut(port, row, out)
+    # port is str.
+    # row is int. first row is 0. last row is 7
+    # out is int
     # Read Output in Row on Port
-    def getOut(self, row: int, port: str, out: int) -> int | bool:
+    def getOut(self, port: str, row: int, out: int) -> int | bool:
         registeraddr = self.getRowRegisterAddr(port.lower(), row)
         if registeraddr is not False:
             if not self.dummy:
@@ -232,10 +238,13 @@ class HT16K33(DeviceBase):
             self.logger.error(f'Register row{port.lower()}{row} not found in self.registers')
             return False
 
-    # setOut(row, port, out, state)
-    # row is int, port is str, out is int and state is int
+    # setOut(port, row, out, state)
+    # port is str.
+    # row is int. first row is 0. last row is 7
+    # out is int
+    # state is int
     # Update Output in Row on Port
-    def setOut(self, row: int, port: str, out: int, state: int) -> None:
+    def setOut(self, port: str, row: int, out: int, state: int) -> None:
         registeraddr = self.getRowRegisterAddr(port.lower(), row)
         if registeraddr is not False:
             if not self.dummy:

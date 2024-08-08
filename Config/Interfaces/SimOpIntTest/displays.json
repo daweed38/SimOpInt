@@ -1,0 +1,54 @@
+{
+    "CONF": {
+        "confname": "DISPLAYS",
+        "module": "ObjectDisplay",
+        "class": "SegDisplay",
+        "propertieslist": "name,node,nodetype,nodeformat,nodeconds,device,port,row1,nbdigit,decdigit,output,command",
+        "isoutput": "yes",
+        "iscommand": "no"
+    },
+    "PROPERTIES": {
+        "prop01": "name",
+        "prop02": "node",
+        "prop03": "nodetype",
+        "prop04": "nodeformat",
+        "prop05": "nodeconds",
+        "prop06": "device",
+        "prop07": "port",
+        "prop08": "row1",
+        "prop09": "nbdigit",
+        "prop10": "decdigit",
+        "prop11": "output",
+        "prop12": "command"
+    },
+    "OBJECTS": {
+        "RMP0ACTIVFREQ": {
+            "name": "rmp0activfreq",
+            "node": "",
+            "nodetype": "",
+            "nodeformat": "",
+            "nodeconds": {},
+            "device": "LEDPACK01",
+            "port": "A",
+            "row1": 0,
+            "nbdigit": 6,
+            "decdigit": 3,
+            "output": "True",
+            "command": "False"
+        },
+        "RMP0STBYFREQ": {
+            "name": "rmp0stbyfreq",
+            "node": "",
+            "nodetype": "",
+            "nodeformat": "",
+            "nodeconds": {},
+            "device": "LEDPACK01",
+            "port": "B",
+            "row1": 0,
+            "nbdigit": 6,
+            "decdigit": 3,
+            "output": "True",
+            "command": "False"
+        }
+    }
+}
