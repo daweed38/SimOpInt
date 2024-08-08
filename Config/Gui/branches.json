@@ -1,0 +1,37 @@
+{
+  "DEVICES": {
+    "name": "Devices",
+    "icon": "device.png",
+    "enabled": 1
+  },
+  "SEGDISPLAYS": {
+    "name": "SegDisplays",
+    "icon": "segdisplay.png",
+    "enabled": 1
+  },
+  "ENCODERS": {
+    "name": "Encoders",
+    "icon": "encoder.png",
+    "enabled": 1
+  },
+  "INDICATORS": {
+    "name": "Indicators",
+    "icon": "indicator.png",
+    "enabled": 1
+  },
+  "SWITCHES": {
+    "name": "Switches",
+    "icon": "switch.png",
+    "enabled": 1
+  },
+  "TOOGLESWICHTES": {
+    "name": "Toogle Switches",
+    "icon": "toogleswitch.png",
+    "enabled": 1
+  },
+  "UNDEFINED": {
+    "name": "Undefined",
+    "icon": "unknowned.png",
+    "enabled": 1
+  }
+}
