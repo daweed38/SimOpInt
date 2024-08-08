@@ -240,7 +240,15 @@ class SegDisplay(ObjectBase):
                 dispmode = 'Integer'
                 datadigit = datadigit = str(int(round(value))).zfill(self.nbdigit)
 
-        self.logger.debug(f'Value : {value} [{type(value)}] Decimal {decimal} => Dispmode {dispmode} / datadigit {datadigit} [{type(datadigit)}]')
+        self.logger.debug(f'Nb Digit : {self.nbdigit} DecDigit {self.decdigit}')
+        self.logger.debug(f'Value Before Processing : {value} Value Rounded : {datadigit}')
+        self.logger.debug(f'Mode {dispmode} Writing value {datadigit} on Display {self.name} Mode Decimal {decimal}')
+
+        digitnum = 1
+
+        for digitval in datadigit:
+            self.writeDigit(digitnum, digitval, decimal)
+            digitnum += 1
 
         """
         if decimal:
