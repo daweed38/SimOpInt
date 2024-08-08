@@ -228,6 +228,7 @@ class SegDisplay(ObjectBase):
             # formatstr = '{:0>'+str(self.nbdigit+1)+'}'
             # datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit]
             formatstr = '{:0' + str(self.nbdigit) + '.' + str(self.nbdigit - self.decdigit) + 'f}'
+            self.logger.debug(f'{formatstr}')
             datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit]
         else:
             if isinstance(value, str):

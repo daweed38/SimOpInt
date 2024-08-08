@@ -46,12 +46,15 @@ logger.info(f'First Digit Register of Display {RMP0ACTIVFREQ.getName()} : {hex(R
 logger.info(f'Digit(s) Register of Display {RMP0ACTIVFREQ.getName()} : {RMP0ACTIVFREQ.listDigitsRegisters()}')
 logger.info(f'Decimal Digit : {RMP0ACTIVFREQ.getDisplayDeciDigit()}')
 
+"""
 RMP0ACTIVFREQ.writeDigit(3, '6', False)
 time.sleep(2)
 RMP0ACTIVFREQ.writeDigit(3, '6', True)
 time.sleep(2)
 RMP0ACTIVFREQ.writeDisplay(123456, False)
 time.sleep(2)
-RMP0ACTIVFREQ.writeDisplay(123.456, True)
+"""
+
+RMP0ACTIVFREQ.writeDisplay(123.45, True)
 time.sleep(2)
 LEDPACK01.stop()
