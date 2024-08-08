@@ -223,23 +223,25 @@ class SegDisplay(ObjectBase):
     # will be display on the decdigit
     # value is int, float or str, decimal is bool
     def writeDisplay(self, value: int | float | str, decimal: bool) -> None:
-        """
         if isinstance(value, str):
-            dispmode = 'String'
             if decimal:
-                datadigit = 'String Decimal process needed'
+                dispmode = 'Float String'
+                formatstr = '{:0' + str(self.nbdigit) + '.' + str(self.nbdigit - self.decdigit) + 'f}'
+                datadigit = formatstr.format(round(float(value), self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit].zfill(self.nbdigit)
             else:
+                dispmode = 'Integer String'
                 datadigit = value.zfill(self.nbdigit)[:self.nbdigit]
         else:
             if decimal:
                 dispmode = 'Float'
                 formatstr = '{:0' + str(self.nbdigit) + '.' + str(self.nbdigit - self.decdigit) + 'f}'
-                datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit]
+                datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit].zfill(self.nbdigit)
             else:
                 dispmode = 'Integer'
-                datadigit = str(int(round(value))).zfill(self.nbdigit)
+                datadigit = datadigit = str(int(round(value))).zfill(self.nbdigit)
 
         self.logger.debug(f'Value : {value} [{type(value)}] Decimal {decimal} => Dispmode {dispmode} / datadigit {datadigit} [{type(datadigit)}]')
+
         """
         if decimal:
             dispmode = 'Float'
@@ -255,7 +257,7 @@ class SegDisplay(ObjectBase):
             else:
                 dispmode = 'Integer'
                 datadigit = str(int(round(value))).zfill(self.nbdigit)
-
+        
         self.logger.debug(f'Nb Digit : {self.nbdigit} DecDigit {self.decdigit}')
         self.logger.debug(f'Value Before Processing : {value} Value Rounded : {datadigit}')
         self.logger.debug(f'Mode {dispmode} Writing value {datadigit} on Display {self.name} Mode Decimal {decimal}')
@@ -265,3 +267,4 @@ class SegDisplay(ObjectBase):
         for digitval in datadigit:
             self.writeDigit(digitnum, digitval, decimal)
             digitnum += 1
+        """
