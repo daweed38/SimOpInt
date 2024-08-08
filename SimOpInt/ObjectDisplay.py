@@ -1,17 +1,18 @@
-##################################################
-# FarmerSoft Sim Open Interface Object Class
-##################################################
-# SegDisplay Class (7 Segments Displays) REV 5.0
-# FarmerSoft © 2024
-# By Daweed
-##################################################
-
 # Standard Modules Import
 import logging
 
 # SimOpInt Import
 from SimOpInt.ObjectBase import ObjectBase
 from SimOpInt.DeviceHT16K33 import HT16K33
+
+
+##################################################
+# FarmerSoft Sim Open Interface Object Class
+##################################################
+# SegDisplay Classes REV 5.0
+# FarmerSoft © 2024
+# By Daweed
+##################################################
 
 
 class SegDisplay(ObjectBase):
@@ -151,7 +152,7 @@ class SegDisplay(ObjectBase):
 
     # Method getValue()
     # Return Display Value
-    def isDecimal(self) ->bool:
+    def isDecimal(self) -> bool:
         return self.value['decimal']
 
     # Method setValue(value)
@@ -283,3 +284,113 @@ class SegDisplay(ObjectBase):
 
         else:
             self.logger.warning(f'Display is OFF.')
+
+
+##################################################
+# FarmerSoft Sim Open Interface Object Class
+##################################################
+# Annunciator Class (Annunciator Displays) REV 5.0
+# FarmerSoft © 2024
+# By Daweed
+##################################################
+
+
+class Annunciator(ObjectBase):
+
+    ###################################
+    # Class Description
+    ###################################
+
+    def __str__(self) -> str:
+        return f'This is the Sim Open Interface Object Annunciator Display Class'
+
+    ###################################
+    # Properties
+    ###################################
+
+    ###################################
+    # Constructor
+    ###################################
+
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: HT16K33, port: str, row: int, out1: int, nblight: int, activemode: int, initstate: str, output: bool = False, command: bool = False, debug: int = 30) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
+
+        # ----- Object properties -----
+        self.objtype = 'Annunciator'
+        self.name = name
+        self.device = device
+        self.port = port
+        self.row = row
+        self.out1 = out1
+        self.nblight = nblight
+        self.activemode = activemode
+        self.status = True
+        self.value = initstate
+        self.debug = debug
+
+        self.logger = logging.getLogger(__name__)
+        if self.logger.getEffectiveLevel() != self.debug:
+            self.logger.setLevel(self.debug)
+
+    ###################################
+    # Destructor
+    ###################################
+
+    def __del__(self) -> None:
+        pass
+
+    ###################################
+    # System Methods
+    ###################################
+
+    # Method getStatus()
+    # Return Object Status
+    def getStatus(self) -> bool:
+        return self.status
+
+    # Method setStatus(status)
+    # status is bool
+    # Set Object Status to status
+    def setStatus(self, status: bool) -> None:
+        self.status = status
+
+    # Method getValue()
+    # Return Object Current Value
+    def getValue(self) -> str:
+        return self.value
+
+    # Method setValue(value)
+    # value is str
+    # Set Object Value to value
+    def setValue(self, value: str) -> None:
+        self.value = value
+
+    ###################################
+    # Annunciator Display Object Methods
+    ###################################
+
+    # Method getLightState()
+    # Return the Switch Light State
+    def getLightState(self) -> str:
+        return self.value
+
+    # Method setLightState(state)
+    # Set the Switch Light in the state 'state'
+    # state  = 'ON' or 'OFF'
+    def setLightState(self, state: str) -> None:
+        if self.status:
+            self.logger.debug(f'Updating Annunciator Group {self.name} to {state}')
+
+            for out in range(self.nblight):
+                if self.activemode == 1:
+                    if state == 'ON':
+                        self.device.setOut(self.port, self.row, self.out1 + out, 1)
+                    elif state == 'OFF':
+                        self.device.setOut(self.port, self.row, self.out1 + out, 0)
+                else:
+                    if state == 'ON':
+                        self.device.setOut(self.port, self.row, self.out1 + out, 0)
+                    elif state == 'OFF':
+                        self.device.setOut(self.port, self.row, self.out1 + out, 1)
+
+            self.value = state
