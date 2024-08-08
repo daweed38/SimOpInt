@@ -55,5 +55,6 @@ RMP0ACTIVFREQ.setStatus('ON')
 RMP0ACTIVFREQ.writeDisplay(125.45, True)
 time.sleep(2)
 RMP0ACTIVFREQ.setStatus('OFF')
+RMP0ACTIVFREQ.setStatus('ON')
 
 LEDPACK01.stop()

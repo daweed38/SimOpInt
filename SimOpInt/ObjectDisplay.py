@@ -174,7 +174,6 @@ class SegDisplay(ObjectBase):
         elif status == 'ON':
             self.status = 'ON'
             self.logger.debug(f'Writing value "{self.value["value"]}" (decimal : {self.value["decimal"]}) on Display {self.getName()}')
-            self.writeDisplay(self.value['value'], self.value['decimal'])
 
         else:
             self.logger.error(f'Status {status} not recognized')
@@ -243,7 +242,7 @@ class SegDisplay(ObjectBase):
                     datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit].zfill(self.nbdigit)
                 else:
                     dispmode = 'Integer'
-                    datadigit = datadigit = str(int(round(value))).zfill(self.nbdigit)
+                    datadigit = str(int(round(value))).zfill(self.nbdigit)
 
             self.logger.debug(f'Nb Digit : {self.nbdigit} DecDigit {self.decdigit}')
             self.logger.debug(f'Value Before Processing : {value} Value Rounded : {datadigit}')
