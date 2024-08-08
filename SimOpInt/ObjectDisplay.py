@@ -223,13 +223,31 @@ class SegDisplay(ObjectBase):
     # will be display on the decdigit
     # value is int, float or str, decimal is bool
     def writeDisplay(self, value: int | float | str, decimal: bool) -> None:
+        """
+        if isinstance(value, str):
+            dispmode = 'String'
+            if decimal:
+                datadigit = 'String Decimal process needed'
+            else:
+                datadigit = value.zfill(self.nbdigit)[:self.nbdigit]
+        else:
+            if decimal:
+                dispmode = 'Float'
+                formatstr = '{:0' + str(self.nbdigit) + '.' + str(self.nbdigit - self.decdigit) + 'f}'
+                datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit]
+            else:
+                dispmode = 'Integer'
+                datadigit = str(int(round(value))).zfill(self.nbdigit)
+
+        self.logger.debug(f'Value : {value} [{type(value)}] Decimal {decimal} => Dispmode {dispmode} / datadigit {datadigit} [{type(datadigit)}]')
+        """
         if decimal:
             dispmode = 'Float'
             # formatstr = '{:0>'+str(self.nbdigit+1)+'}'
             # datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit]
             formatstr = '{:0' + str(self.nbdigit) + '.' + str(self.nbdigit - self.decdigit) + 'f}'
             self.logger.debug(f'{formatstr}')
-            datadigit = formatstr.format(round(value, self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit]
+            datadigit = formatstr.format(round(float(value), self.nbdigit - self.decdigit)).replace('.', '')[:self.nbdigit]
         else:
             if isinstance(value, str):
                 dispmode = 'String'
