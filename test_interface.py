@@ -7,6 +7,7 @@
 
 # Standard Modules Import
 import logging
+import time
 
 # SimOpInt Module Import
 from SimOpInt.SimOpIntLogger import SimOpIntLogger
@@ -18,6 +19,9 @@ logger.setLevel(logging.INFO)
 
 # Test Interface Initialisation
 INT1 = SimOpInt('Config/Interfaces', 'SimOpIntTest.json', 'JSON')
+
+LEDPACK01 = INT1.getDevice('LEDPACK01')
+LEDPACK01.start()
 
 logger.info(f'{INT1.listLoadedModules()}')
 logger.info(f'{INT1.listLoadedDevices()}')
@@ -43,4 +47,8 @@ logger.info(f'Digit(s) Register of Display {RMP0ACTIVFREQ.getName()} : {RMP0ACTI
 logger.info(f'Decimal Digit : {RMP0ACTIVFREQ.getDisplayDeciDigit()}')
 
 RMP0ACTIVFREQ.writeDigit(3, '6', False)
+time.sleep(2)
 RMP0ACTIVFREQ.writeDigit(3, '6', True)
+time.sleep(2)
+
+LEDPACK01.stop()
