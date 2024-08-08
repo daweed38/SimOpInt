@@ -173,7 +173,7 @@ class SegDisplay(ObjectBase):
 
         elif status == 'ON':
             self.status = 'ON'
-            self.logger.debug(f'Writing value "{self.value['value']}" (decimal : {self.value['decimal']}) on Display {self.getName()}')
+            self.logger.debug(f'Writing value "{self.value["value"]}" (decimal : {self.value["decimal"]}) on Display {self.getName()}')
             self.writeDisplay(self.value['value'], self.value['decimal'])
 
         else:
