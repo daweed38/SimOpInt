@@ -50,5 +50,6 @@ RMP0ACTIVFREQ.writeDigit(3, '6', False)
 time.sleep(2)
 RMP0ACTIVFREQ.writeDigit(3, '6', True)
 time.sleep(2)
-
+RMP0ACTIVFREQ.writeDisplay('123456', False)
+time.sleep(2)
 LEDPACK01.stop()

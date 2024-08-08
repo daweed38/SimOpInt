@@ -45,6 +45,7 @@ class SegDisplay(ObjectBase):
         super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
 
         self.objtype = '7 Segments Display'
+        self.name = name
         self.device = device
         self.port = port
         self.row1 = row1
@@ -216,7 +217,6 @@ class SegDisplay(ObjectBase):
         else:
             self.logger.error(f'Value {digitval} not found in digitvalue dict')
 
-    """
     # Method writeDisplay(value)
     # Display value on display
     # If decimal is True, then decimal point
@@ -237,19 +237,12 @@ class SegDisplay(ObjectBase):
                 dispmode = 'Integer'
                 datadigit = str(int(round(value))).zfill(self.nbdigit)
 
-        if self.debug:
-            print("######################################################################")
-            print("# Nb Digit : {} DecDigit {}".format(self.nbdigit, self.decdigit))
-            print("# Value Before Processing : {}".format(value))
-            print("# Value Rounded : {}".format(datadigit))
-            print("# Mode {} Writing value {} on Display {} Mode Decimal {}".format(dispmode, datadigit, self.name, decimal))
-            print("######################################################################")
-            print("\r")
+        self.logger.debug(f'Nb Digit : {self.nbdigit} DecDigit {self.decdigit}')
+        self.logger.debug(f'Value Before Processing : {value} Value Rounded : {datadigit}')
+        self.logger.debug(f'Mode {dispmode} Writing value {datadigit} on Display {self.name} Mode Decimal {decimal}')
 
         digitnum = 1
 
         for digitval in datadigit:
             self.writeDigit(digitnum, digitval, decimal)
             digitnum += 1
-    
-    """
