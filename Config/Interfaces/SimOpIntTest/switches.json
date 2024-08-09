@@ -1,0 +1,28 @@
+{
+  "CONF": {
+    "confname": "SWITCHES",
+    "library": "ObjSwitches",
+    "class": "Annunciator",
+    "properylist": "name,node,nodetype,nodeformat,nodeconds,device,port,row,out1,nblight,activemode,initstate,output,command",
+    "isoutput": "no",
+    "iscommand": "yes"
+  },
+  "PROPERTIES": {
+    "prop01": "name",
+    "prop02": "node",
+    "prop03": "nodetype",
+    "prop04": "nodeformat",
+    "prop05": "nodeconds",
+    "prop06": "device",
+    "prop07": "port",
+    "prop08": "row",
+    "prop09": "out1",
+    "prop10": "nblight",
+    "prop11": "activemode",
+    "prop12": "initstate",
+    "prop13": "output",
+    "prop14": "command"
+  },
+  "OBJECTS": {
+  }
+}

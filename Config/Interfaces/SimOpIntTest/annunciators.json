@@ -104,8 +104,8 @@
             "output": "True",
             "command": "False"
         },
-        "RMP0HF3SWL": {
-            "name": "rmp0hf3swl",
+        "RMP0AMSWL": {
+            "name": "rmp0amswl",
             "node": "",
             "nodetype": "dref",
             "nodeformat": "base",
@@ -200,8 +200,8 @@
             "output": "True",
             "command": "False"
         },
-        "RMP0ADSSWL": {
-            "name": "rmp0adsswl",
+        "RMP0ADFSWL": {
+            "name": "rmp0adfswl",
             "node": "",
             "nodetype": "dref",
             "nodeformat": "base",
