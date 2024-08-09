@@ -27,7 +27,7 @@ class ObjectBase:
     # Constructor
     ###################################
 
-    def __init__(self, name: str, node: str | dict, nodetype: str, nodeformat: str, nodeconds: dict, export: bool = False, command: bool = False, debug: int = 30) -> None:
+    def __init__(self, name: str, node: str | dict, nodetype: str, nodeformat: str, nodeconds: dict, output: bool = False, command: bool = False, debug: int = 30) -> None:
         # ----- standard properties -----
         self.objtype = 'Base'
         self.objname = name
@@ -36,7 +36,7 @@ class ObjectBase:
         self.noderef = None
         self.nodeformat = nodeformat
         self.nodeconds = nodeconds
-        self.export = export
+        self.output = output
         self.command = command
         self.debug = debug
 
@@ -137,23 +137,23 @@ class ObjectBase:
         self.nodeconds[nodecond]['noderefid'] = noderefid
 
     # Method getIsOutputStatus()
-    # Return Object Export Status
+    # Return Object output Status
     def getIsOutputStatus(self) -> bool:
-        return self.export
+        return self.output
 
-    # Method setIsOutputStatus(exportstatus)
+    # Method setIsOutputStatus(outputstatus)
     # status is bool
-    # Set Object Export Status
-    def setIsOutputStatus(self, exportstatus: bool) -> None:
-        self.export = exportstatus
+    # Set Object output Status
+    def setIsOutputStatus(self, outputstatus: bool) -> None:
+        self.output = outputstatus
 
     # Method getIsCommandStatus()
-    # Return Object Export Status
+    # Return Object output Status
     def getIsCommandStatus(self) -> bool:
         return self.command
 
     # Method setIsCommandStatus(cmdstatus)
     # status is bool
-    # Set Object Export Status
+    # Set Object output Status
     def setIsCommandStatus(self, cmdstatus: bool) -> None:
         self.command = cmdstatus

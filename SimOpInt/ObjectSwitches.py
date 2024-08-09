@@ -31,8 +31,8 @@ class BaseSwitch(ObjectBase):
     # Constructor
     ###################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, values: dict, valuestype: str, export: bool = False, command: bool = False, debug: int = 30) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, export, command, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, values: list, valuestype: str, output: bool = False, command: bool = False, debug: int = 30) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, output, command, debug)
 
         self.values = values
         self.valuestype = valuestype
@@ -49,11 +49,11 @@ class BaseSwitch(ObjectBase):
     ###################################
 
     def getTypedData(self, data) -> int | str | bool:
-        if self.valuestype == 'string':
+        if self.getValueType() == 'string':
             return str(data)
-        elif self.valuestype == 'int':
+        elif self.getValueType() == 'int':
             return int(data)
-        elif self.valuestype == 'bool':
+        elif self.getValueType() == 'bool':
             return bool(data)
         else:
             return data
@@ -92,8 +92,8 @@ class Switch(BaseSwitch):
     # Constructor
     ###################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: int, values: dict, valuestype: str, export: bool = False, command: bool = False, debug: int = 30) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, values, valuestype, export, command, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: int, values: list, valuestype: str, output: bool = False, command: bool = False, debug: int = 30) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, values, valuestype, output, command, debug)
 
         self.objtype = 'Switch'
         self.device = device
@@ -146,8 +146,8 @@ class DoubleSwitch(BaseSwitch):
     # Constructor
     ###################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: int, values: dict, valuestype: str, export: bool = False, command: bool = False, debug: int = 30) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, values, valuestype, export, command, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: int, values: list, valuestype: str, output: bool = False, command: bool = False, debug: int = 30) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, values, valuestype, output, command, debug)
 
     ###################################
     # Destructor
@@ -191,8 +191,8 @@ class RotarySwitch(BaseSwitch):
     # Constructor
     ###################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: int, values: dict, valuestype: str, export: bool = False, command: bool = False, debug: int = 30) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, values, valuestype, export, command, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: int, values: list, valuestype: str, output: bool = False, command: bool = False, debug: int = 30) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, values, valuestype, output, command, debug)
 
     ###################################
     # Destructor
@@ -236,8 +236,8 @@ class PushButtonSwitch(BaseSwitch):
     # Constructor
     ###################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: int, values: dict, valuestype: str, export: bool = False, command: bool = False, debug: int = 30) -> None:
-        super().__init__(name, node, nodetype, nodeformat, nodeconds, values, valuestype, export, command, debug)
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: int, values: list, valuestype: str, output: bool = False, command: bool = False, debug: int = 30) -> None:
+        super().__init__(name, node, nodetype, nodeformat, nodeconds, values, valuestype, output, command, debug)
 
     ###################################
     # Destructor
