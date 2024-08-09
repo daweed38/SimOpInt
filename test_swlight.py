@@ -28,11 +28,11 @@ logger.info(f'{INT1.listLoadedDevices()}')
 logger.info(f'{INT1.listLoadedObjects()}')
 
 RMP0VHF1SWL = INT1.getObject('SWLIGHTS', 'RMP0VHF1SWL')
+RMP0NAVSWL = INT1.getObject('SWLIGHTS', 'RMP0NAVSWL')
 """
 RMP0VHF1SWL.getDebugLevel()
 RMP0VHF1SWL.setDebugLevel(logging.DEBUG)
 """
-LEDPACK01.setDebugLevel(logging.DEBUG)
 
 logger.info(f'RMP0VHF1SWL Status : {RMP0VHF1SWL.getLightState()}')
 RMP0VHF1SWL.setLightState('ON')
@@ -40,5 +40,9 @@ time.sleep(2)
 logger.info(f'RMP0VHF1SWL Status : {RMP0VHF1SWL.getLightState()}')
 RMP0VHF1SWL.setLightState('OFF')
 logger.info(f'RMP0VHF1SWL Status : {RMP0VHF1SWL.getLightState()}')
-
+logger.info(f'RMP0NAVSWL Status : {RMP0NAVSWL.getLightState()}')
+RMP0NAVSWL.setLightState('ON')
+time.sleep(2)
+logger.info(f'RMP0VHF1SWL Status : {RMP0VHF1SWL.getLightState()}')
+RMP0NAVSWL.setLightState('OFF')
 LEDPACK01.stop()
