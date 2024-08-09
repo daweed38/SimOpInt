@@ -39,7 +39,6 @@ RMP0VHF1SWL.setLightState('ON')
 time.sleep(2)
 logger.info(f'RMP0VHF1SWL Status : {RMP0VHF1SWL.getLightState()}')
 RMP0VHF1SWL.setLightState('OFF')
-time.sleep(2)
 logger.info(f'RMP0VHF1SWL Status : {RMP0VHF1SWL.getLightState()}')
 
 LEDPACK01.stop()
