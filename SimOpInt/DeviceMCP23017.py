@@ -80,18 +80,20 @@ class MCP23017(DeviceBase):
     # Constructor
     ###################################
 
-    def __init__(self, devicename: str, deviceaddr: str, debug: int = 30) -> None:
+    def __init__(self, devicename: str, deviceaddr: str, deviceintgpio: dict, debug: int = 30) -> None:
         super().__init__(devicename, deviceaddr)
-
-        self.debug = debug
-        self.logger = logging.getLogger(__name__)
-        if self.logger.getEffectiveLevel() != self.debug:
-            self.logger.setLevel(self.debug)
 
         self.devicetype = 'MCP23017'
         self.bankmode = 0
         self.registers = self.registers_bank0
         self.pullup = 0
+        self.intgpioa = deviceintgpio['pin1']
+        self.intgpiob = deviceintgpio['pin2']
+
+        self.debug = debug
+        self.logger = logging.getLogger(__name__)
+        if self.logger.getEffectiveLevel() != self.debug:
+            self.logger.setLevel(self.debug)
 
         self.logger.debug(f'Device {self.devicename}  [Device Addr : {hex(self.deviceaddr)} / Device Type : {self.devicetype}] initialized. (Dummy Device : {self.dummy})')
 

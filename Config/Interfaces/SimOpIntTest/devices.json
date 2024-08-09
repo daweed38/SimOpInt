@@ -2,26 +2,43 @@
   "IOPACK01" : {
     "devicename": "IOPACK01",
     "deviceaddr": "0x20",
-    "devicemodule": "MCP23017"
+    "devicemodule": "MCP23017",
+    "deviceintgpio": {
+      "pin1": 16,
+      "pin2": 12
+    }
   },
   "IOPACK02": {
     "devicename": "IOPACK02",
     "deviceaddr": "0x21",
-    "devicemodule": "MCP23017"
+    "devicemodule": "MCP23017",
+    "deviceintgpio": {
+      "pin1": 20,
+      "pin2": 21
+    }
   },
   "IOPACK03": {
     "devicename": "IOPACK03",
     "deviceaddr": "0x22",
-    "devicemodule": "MCP23017"
+    "devicemodule": "MCP23017",
+    "deviceintgpio": {
+      "pin1": 24,
+      "pin2": 25
+    }
   },
   "IOPACK04": {
     "devicename": "IOPACK04",
     "deviceaddr": "0x23",
-    "devicemodule": "MCP23017"
+    "devicemodule": "MCP23017",
+    "deviceintgpio": {
+      "pin1": 18,
+      "pin2": 23
+    }
   },
   "LEDPACK01": {
     "devicename": "LEDPACK01",
     "deviceaddr": "0x70",
-    "devicemodule": "HT16K33"
+    "devicemodule": "HT16K33",
+    "deviceintgpio": {}
   }
 }
