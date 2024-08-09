@@ -29,10 +29,6 @@ logger.info(f'{INT1.listLoadedObjects()}')
 
 RMP0VHF1SWL = INT1.getObject('SWLIGHTS', 'RMP0VHF1SWL')
 RMP0NAVSWL = INT1.getObject('SWLIGHTS', 'RMP0NAVSWL')
-"""
-RMP0VHF1SWL.getDebugLevel()
-RMP0VHF1SWL.setDebugLevel(logging.DEBUG)
-"""
 
 logger.info(f'RMP0VHF1SWL Status : {RMP0VHF1SWL.getLightState()}')
 RMP0VHF1SWL.setLightState('ON')
