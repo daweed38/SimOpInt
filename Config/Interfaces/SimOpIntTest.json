@@ -21,6 +21,10 @@
       "SegDisplay": {
         "module": "ObjectDisplay",
         "class": "SegDisplay"
+      },
+      "Annunciator": {
+        "module": "ObjectDisplay",
+        "class": "Annunciator"
       }
     }
   },
@@ -30,6 +34,9 @@
   "OBJECTS": {
     "DISPLAYS": {
       "configfile": "displays.json"
+    },
+    "SWLIGHTS": {
+      "configfile": "swlights.json"
     }
   }
 }
