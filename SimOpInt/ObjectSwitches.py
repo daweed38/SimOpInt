@@ -36,6 +36,7 @@ class BaseSwitch(ObjectBase):
 
         self.values = values
         self.valuestype = valuestype
+        self.swstate = 0
 
     ###################################
     # Destructor
@@ -47,6 +48,9 @@ class BaseSwitch(ObjectBase):
     ###################################
     # System Methods
     ###################################
+
+    def getSwitchState(self):
+        return self.swstate
 
     def getTypedData(self, data) -> int | str | bool:
         if self.getValueType() == 'string':
@@ -99,6 +103,7 @@ class Switch(BaseSwitch):
         self.device = device
         self.port = port
         self.pin = pin
+        self.swstate = self.readSwitchState()
 
         self.logger = logging.getLogger(__name__)
         if self.logger.getEffectiveLevel() != self.debug:
@@ -118,6 +123,14 @@ class Switch(BaseSwitch):
     ###################################
     # Switch Object Methods
     ###################################
+
+    # Method getInputState()
+    # Return Switch GPIO Pin Status
+    def readSwitchState(self) -> int | str | bool:
+        if self.device.readGpioPin(self.port, self.pin) == 1:
+            return self.values[1]
+        else:
+            return self.values[0]
 
 
 ##################################################
@@ -146,8 +159,15 @@ class DoubleSwitch(BaseSwitch):
     # Constructor
     ###################################
 
-    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin: int, values: list, valuestype: str, output: bool = False, command: bool = False, debug: int = 30) -> None:
+    def __init__(self, name: str, node: str, nodetype: str, nodeformat: str, nodeconds: dict, device: MCP23017, port: str, pin1: int, pin2: int, values: list, valuestype: str, output: bool = False, command: bool = False, debug: int = 30) -> None:
         super().__init__(name, node, nodetype, nodeformat, nodeconds, values, valuestype, output, command, debug)
+
+        self.objtype = 'Double Switch'
+        self.device = device
+        self.port = port
+        self.pin1 = pin1
+        self.pin2 = pin2
+        self.swstate = self.readSwitchState()
 
     ###################################
     # Destructor
@@ -161,8 +181,18 @@ class DoubleSwitch(BaseSwitch):
     ###################################
 
     ###################################
-    # Switch Object Methods
+    # Double Switch Object Methods
     ###################################
+
+    def readSwitchState(self) -> int | str | bool | None:
+        if self.device.readGpioPin(self.port, self.pin1) == 1:
+            swstate = self.values[0]
+        elif self.device.readGpioPin(self.port, self.pin2) == 1:
+            swstate = self.values[2]
+        else:
+            swstate = self.values[1]
+
+        return swstate
 
 
 ##################################################
