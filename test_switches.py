@@ -17,6 +17,7 @@ from SimOpInt.SimOpInt import SimOpInt
 INTA3_GPIO = 18
 
 if platform.system() == 'Linux':
+    print(f'Importing RPi.GPIO Module')
     import RPi.GPIO as GPIO
 
     GPIO.setmode(GPIO.BCM)
@@ -48,6 +49,7 @@ logger.info(f'{INT1.listLoadedObjects()}')
 logger.info(f'{RMP0MSTSW.getName()}')
 
 if platform.system() == 'Linux':
+    print(f'Setup GPIO.add_event_detect')
     GPIO.add_event_detect(INTA3_GPIO, GPIO.RISING, callback=interrupt_callback, bouncetime=100)
 
 try:
@@ -56,4 +58,5 @@ try:
         
 except KeyboardInterrupt:
     if platform.system() == 'Linux':
+        print(f'GPIO Cleanup')
         GPIO.cleanup()
