@@ -60,3 +60,4 @@ except KeyboardInterrupt:
     if platform.system() == 'Linux':
         print(f'GPIO Cleanup')
         GPIO.cleanup()
+    IOPACK03.resetDeviceRegisters()
