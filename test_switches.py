@@ -50,7 +50,7 @@ logger.info(f'{RMP0MSTSW.getName()}')
 
 if platform.system() == 'Linux':
     print(f'Setup GPIO.add_event_detect')
-    GPIO.add_event_detect(INTA3_GPIO, GPIO.RISING, callback=interrupt_callback, bouncetime=150)
+    GPIO.add_event_detect(INTA3_GPIO, GPIO.RISING, callback=interrupt_callback, bouncetime=180)
 
 try:
     while True:
