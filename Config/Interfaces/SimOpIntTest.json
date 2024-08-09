@@ -25,6 +25,10 @@
       "Annunciator": {
         "module": "ObjectDisplay",
         "class": "Annunciator"
+      },
+      "Switch": {
+        "module": "ObjectSwitches",
+        "class": "Switch"
       }
     }
   },
@@ -36,7 +40,10 @@
       "configfile": "displays.json"
     },
     "SWLIGHTS": {
-      "configfile": "swlights.json"
+      "configfile": "annunciators.json"
+    },
+    "SWITCHES": {
+      "configfile": "switches.json"
     }
   }
 }
