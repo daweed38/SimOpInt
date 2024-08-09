@@ -14,7 +14,7 @@ import platform
 from SimOpInt.SimOpIntLogger import SimOpIntLogger
 from SimOpInt.SimOpInt import SimOpInt
 
-INTA3_GPIO = 18
+INTA3_GPIO = 24
 
 if platform.system() == 'Linux':
     print(f'Importing RPi.GPIO Module')
