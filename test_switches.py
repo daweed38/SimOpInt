@@ -27,7 +27,7 @@ if platform.system() == 'Linux':
 def interrupt_callback(channel):
     intflag = IOPACK03.getPortInterruptFlag('A')
     intcapture = IOPACK03.getPortInterruptCapture('A')
-    print(f'Interrupt Occurred {bin(intcapture)} Flag {intflag}')
+    print(f'Interrupt Occurred {bin(intcapture)} Flag {bin(intflag)}')
 
 
 simopintlogger = SimOpIntLogger('SimOpInt', 'Logs', 'simopint.log')
