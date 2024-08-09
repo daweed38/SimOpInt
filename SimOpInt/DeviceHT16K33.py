@@ -82,6 +82,18 @@ class HT16K33(DeviceBase):
     # System Methods
     ###################################
 
+    # Method getDebugLevel()
+    # Return object debug level
+    def getDebugLevel(self) -> int:
+        return self.debug
+
+    # Method settDevice(debuglevel)
+    # debuglevel is int
+    # Set object debug level
+    def setDebugLevel(self, debuglevel: int) -> None:
+        self.debug = debuglevel
+        self.logger.setLevel(self.debug)
+
     # configMCP(state) (Override from DeviceBase)
     # state is int
     # Enable or Disable the device

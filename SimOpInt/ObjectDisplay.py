@@ -343,6 +343,18 @@ class Annunciator(ObjectBase):
     # System Methods
     ###################################
 
+    # Method getDebugLevel()
+    # Return object debug level
+    def getDebugLevel(self) -> int:
+        return self.debug
+
+    # Method settDevice(debuglevel)
+    # debuglevel is int
+    # Set object debug level
+    def setDebugLevel(self, debuglevel: int) -> None:
+        self.debug = debuglevel
+        self.logger.setLevel(self.debug)
+
     # Method getStatus()
     # Return Object Status
     def getStatus(self) -> bool:
