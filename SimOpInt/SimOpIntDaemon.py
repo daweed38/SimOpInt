@@ -21,7 +21,7 @@ import signal
 # Sim Open Interface Import
 
 
-class SimOpIntServer:
+class SimOpIntDaemon:
 
     ###################################
     # Class Description

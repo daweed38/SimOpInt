@@ -1,2 +1,2 @@
 # SimOpInt
-Sim Open Interface Repository
+Sim Open Interface Project

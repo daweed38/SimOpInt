@@ -1,0 +1,7 @@
+{
+  "SERVER": {
+    "srvname": "SimOpIntd",
+    "srvaddr": "0.0.0.0",
+    "srvport": 49500
+  }
+}
