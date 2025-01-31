@@ -9,6 +9,8 @@
 # Standard Modules Import
 import logging
 import platform
+import sys
+from typing import Type
 
 if platform.system() != 'Windows':
     import smbus2
@@ -65,8 +67,39 @@ class I2CBus:
 
     # i2cBusScan()
     # Scan I2C bus and return result as a dict
-    def i2cBusScan(self) -> dict:
-        if self.i2c is not None:
-            # ... Process I2C Bus Scan
-            self.logger.debug(f'Scanning I2C Bus N° {self.bus} .... ')
-        return self.devices
+    def i2cBusScan(self, startaddr: int = 0, endaddr: int = 128) -> list:
+
+        headerline = f'   '
+        addrline = f''
+        devicelist = list()
+
+        self.logger.debug(f'Scanning I2C Bus N° {self.bus} .... ')
+        self.logger.debug(f'   ')
+
+        for address in range(16):
+            headerline = f'{headerline} {address:2x}'
+
+        self.logger.debug(headerline)
+
+        for address in range(startaddr, endaddr):
+            if not address % 16:
+                addrline = f'{address:02x}'
+
+            if 2 < address < 120:  # Skip reserved addresses
+                try:
+                    if self.i2c is not None:
+                        self.i2c.read_byte(address)
+                        addrline = f'{addrline} {address:02x}'  # Device address
+                    else:
+                        addrline = f'{addrline} --'  # Dummy Bus, nothing can be detect
+                    devicelist.append(address)
+
+                except:
+                    addrline = f'{addrline} --'  # No device detected
+            else:
+                addrline = f'{addrline}   '
+
+            if not (address + 1) % 16:
+                self.logger.debug(addrline)
+
+        return devicelist

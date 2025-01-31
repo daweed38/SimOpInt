@@ -41,6 +41,7 @@ class SimOpInt:
 
         self.debug = debug
         self.logger = logging.getLogger(__name__)
+
         if self.logger.getEffectiveLevel() != self.debug:
             self.logger.setLevel(self.debug)
 
@@ -52,7 +53,7 @@ class SimOpInt:
         self.objects = {}
         self.interrupt = {}
 
-        self.config = SimOpIntConfig(self.configdir, self.configfilename)
+        self.config = SimOpIntConfig(self.configdir, self.configfilename, logging.DEBUG)
         self.logger.debug(f'Interface Config : {self.config.getConfig()}')
 
         if self.config.isNewConfig():
@@ -68,16 +69,17 @@ class SimOpInt:
             self.intaddr = self.config.getConfigParameter('NETWORK', 'intaddr')
             self.intport = self.config.getConfigParameter('NETWORK', 'intport')
 
+        """
         if 'MODULES' in self.config.getConfig():
             self.logger.debug(f'--- Modules Configuration Management ---')
             modulesconfig = self.config.getConfigSection('MODULES')
 
             if modulesconfig:
                 self.logger.debug(f'Loading Modules from Configuration {modulesconfig}')
-                for modulestype, mdoules in modulesconfig.items():
-                    if len(mdoules) > 0:
-                        self.logger.debug(f'Module Section : {modulestype} : {mdoules}')
-                        for modulename, moduledata in mdoules.items():
+                for modulestype, modules in modulesconfig.items():
+                    if len(modules) > 0:
+                        self.logger.debug(f'Module Section : {modulestype} : {modules}')
+                        for modulename, moduledata in modules.items():
                             self.logger.debug(f'Loading Module {modulename} : Library {moduledata["module"]} => Class {moduledata["class"]}')
                             module = f'SimOpInt.{moduledata["module"]}'
                             self.loadModule(modulename, module, moduledata['class'])
@@ -95,8 +97,9 @@ class SimOpInt:
             self.logger.debug(f'--- Objects Configuration Management ---')
             self.createObjects()
             self.logger.debug(f'Loaded Objects : {self.listLoadedObjects()}')
-
-        self.logger.debug(f'--- Sim Open Interface {self.getName()} initialized ---')
+        
+        self.logger.info(f'--- Sim Open Interface {self.getName()} initialized ---')
+        """
 
     ###################################
     # Destructor
@@ -198,12 +201,12 @@ class SimOpInt:
 
     # getConfig()
     # Return interface configuration (SimOpIntConfig Class)
-    def getConfig(self) -> SimOpIntConfig:
+    def getConfigObj(self) -> SimOpIntConfig:
         return self.config
 
     # getIntConfig()
     # Return interface configuration dictionary
-    def getIntConfig(self) -> dict:
+    def getConfig(self) -> dict:
         return self.config.getConfig()
 
     ###################################

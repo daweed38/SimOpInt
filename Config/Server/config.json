@@ -1,7 +1,11 @@
 {
   "SERVER": {
-    "srvname": "SimOpIntd",
+    "srvname": "SimOpIntSrv",
     "srvaddr": "0.0.0.0",
     "srvport": 49500
+  },
+  "INTERFACE": {
+    "intshortname": "SimOpIntTest",
+    "intname": "Sim Open Interface Test"
   }
 }
