@@ -1,0 +1,12 @@
+{
+  "DEVICESMODULES": {
+    "MCP23017": {
+      "module": "DeviceMCP23017",
+      "class": "MCP23017"
+    },
+    "HT16K33": {
+      "module": "DeviceHT16K33",
+      "class": "HT16K33"
+    }
+  }
+}

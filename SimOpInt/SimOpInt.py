@@ -69,11 +69,9 @@ class SimOpInt:
             self.intaddr = self.config.getConfigParameter('NETWORK', 'intaddr')
             self.intport = self.config.getConfigParameter('NETWORK', 'intport')
 
-        """
         if 'MODULES' in self.config.getConfig():
             self.logger.debug(f'--- Modules Configuration Management ---')
             modulesconfig = self.config.getConfigSection('MODULES')
-
             if modulesconfig:
                 self.logger.debug(f'Loading Modules from Configuration {modulesconfig}')
                 for modulestype, modules in modulesconfig.items():
@@ -99,7 +97,6 @@ class SimOpInt:
             self.logger.debug(f'Loaded Objects : {self.listLoadedObjects()}')
         
         self.logger.info(f'--- Sim Open Interface {self.getName()} initialized ---')
-        """
 
     ###################################
     # Destructor
@@ -168,9 +165,9 @@ class SimOpInt:
         interfaceconfig['NETWORK']['intaddr'] = 'localhost'
         interfaceconfig['NETWORK']['intport'] = 49500
         interfaceconfig['MODULES'] = dict()
-        devicesmodulesconfig = SimOpIntConfig('Config/Gui', 'devicesmodules.json').getConfigSection('DEVICESMODULES')
+        devicesmodulesconfig = SimOpIntConfig('Config/Daemon', 'default_device_modules.json').getConfigSection('DEVICESMODULES')
         interfaceconfig['MODULES']['DEVICESMODULES'] = devicesmodulesconfig
-        objectsmodulesconfig = SimOpIntConfig('Config/Gui', 'objectsmodules.json').getConfigSection('OBJECTSMODULES')
+        objectsmodulesconfig = SimOpIntConfig('Config/Daemon', 'default_object_modules.json').getConfigSection('OBJECTSMODULES')
         interfaceconfig['MODULES']['OBJECTSMODULES'] = objectsmodulesconfig
         interfaceconfig['BOARDS'] = dict()
         interfaceconfig['DEVICES'] = dict()

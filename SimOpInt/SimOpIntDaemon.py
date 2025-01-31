@@ -41,7 +41,7 @@ class SimOpIntDaemon:
 
     def __init__(self, debug: int = 30) -> None:
         self.debug = debug
-        self.configdir = 'Config/Server'
+        self.configdir = 'Config/Daemon'
         self.configfile = 'config.json'
         self.baseconfigintdir = 'Config/Interfaces'
         self.srvsock = None
