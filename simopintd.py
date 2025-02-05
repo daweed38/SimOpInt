@@ -31,13 +31,16 @@ filehandler.setFormatter(fileformat)
 simopintsrv_logger.addHandler(filehandler)
 simopintsrv_logger.propagate = False
 
-simopintd = SimOpIntDaemon(logging.INFO)
+# SimOpInt Daemon Creation
+simopintd = SimOpIntDaemon(logging.DEBUG)
 
+# SimOpInt Daemon loop thread creation
 simopintd_thread = threading.Thread(target=simopintd.mainLoop)
-
 simopintd_thread.start()
 
+# Waiting for Opened Socket
 while simopintd.getSrvStatus() != 1:
     time.sleep(1)
 
+# Starting SimOpInt Daemon Loop
 simopintd.startSrvLoop()

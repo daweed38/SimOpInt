@@ -1,0 +1,10 @@
+{
+  "CLIENT": {
+    "cliname": "SimOpIntCli"
+  },
+  "SERVER": {
+    "srvname": "SimOpIntd",
+    "srvaddr": "localhost",
+    "srvport": 49500
+  }
+}

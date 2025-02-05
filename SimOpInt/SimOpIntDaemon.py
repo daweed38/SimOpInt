@@ -7,7 +7,7 @@
 ##################################################
 
 # System Modules Import
-# import sys
+import sys
 import pickle
 import socket
 import selectors
@@ -54,6 +54,7 @@ class SimOpIntDaemon:
         self.msgfullsize = 0
         self.fullmsg = b''
         self.remainsize = 0
+        self.clisocks = {}
 
         # Get Logger
         self.logger = logging.getLogger('SimOpInt.SimOpIntServer')
@@ -98,7 +99,7 @@ class SimOpIntDaemon:
     # setSrvName(srvname)
     # srvname is str
     # Set Server Name
-    def setSrvName(self, srvname) -> None:
+    def setSrvName(self, srvname: str) -> None:
         self.srvname = srvname
 
     # getSrvAddr()
@@ -107,9 +108,9 @@ class SimOpIntDaemon:
         return self.srvaddr
 
     # setSrvAddr(srvaddr)
-    # srvaddr is int
+    # srvaddr is str
     # Set server address to srvaddr
-    def setSrvAddr(self, srvaddr) -> None:
+    def setSrvAddr(self, srvaddr: str) -> None:
         self.srvaddr = srvaddr
 
     # getSrvPort()
@@ -120,7 +121,7 @@ class SimOpIntDaemon:
     # setSrvPort(srvport)
     # srvport is int
     # Set server port to srvport
-    def setSrvPort(self, srvport) -> None:
+    def setSrvPort(self, srvport: int) -> None:
         self.srvport = srvport
 
     # getSrvStatus()
@@ -130,8 +131,13 @@ class SimOpIntDaemon:
 
     # setSrvStatus(state)
     # Set server status to state
-    def setSrvStatus(self, state) -> None:
+    def setSrvStatus(self, state: int) -> None:
         self.srvstate = state
+
+    # getSrvConfig()
+    # Return server configuration (SimOpIntConfig Object)
+    def getSrvConfig(self) -> SimOpIntConfig:
+        return self.srvconfig
 
     ###################################
     # Server Methods
@@ -209,10 +215,12 @@ class SimOpIntDaemon:
 
         msgsrvname = self.encodeMessage(self.srvname)
         clisock.send(msgsrvname)
-
+        cliname = self.receiveMessage(clisock)
         clisock.setblocking(False)
-        data = types.SimpleNamespace(cliaddr=cliaddr, handler=self.dataHandler, newmsg=True)
+        data = types.SimpleNamespace(cliaddr=cliaddr, cliname=cliname, handler=self.dataHandler, newmsg=True)
         events = selectors.EVENT_READ | selectors.EVENT_WRITE
+        self.clisocks[cliname] = {}
+        self.clisocks[cliname]['output'] = None
         self.selsock.register(clisock, events, data=data)
 
     # Data Handler
@@ -230,6 +238,8 @@ class SimOpIntDaemon:
 
                 else:
                     self.selsock.unregister(clisock)
+                    if clisock in self.dataout:
+                        del self.dataout[clisock]
                     clisock.close()
 
             else:
@@ -250,11 +260,43 @@ class SimOpIntDaemon:
                     self.fullmsg = b''
 
         if mask & selectors.EVENT_WRITE:
-            """
-            enc_data = self.encodeMessage(data)
-            self.clisock.send(enc_data)
-            """
-            pass
+            if self.clisocks[data.cliname]['output'] is not None:
+                self.logger.debug(f'Sending dataout : {self.clisocks[data.cliname]['output']}')
+                # enc_data = self.encodeMessage(self.dataout)
+                # clisock.send(enc_data)
+                self.clisocks[data.cliname]['output'] = None
+
+    # receiveMessage()
+    # Receive Message Process
+    def receiveMessage(self, clisock):
+        data = None
+        while True:
+            if self.newmsg:
+                incom_data = clisock.recv(self.headersize)
+                if incom_data:
+                    self.newmsg = False
+                    self.msgfullsize = int(incom_data.decode('utf-8'))
+                    self.remainsize = self.msgfullsize
+                    self.logger.info(
+                        f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
+            else:
+                if self.remainsize > self.buffersize:
+                    incom_data = clisock.recv(self.buffersize)
+                else:
+                    incom_data = clisock.recv(self.remainsize)
+                received_data_len = len(incom_data)
+                self.fullmsg += incom_data
+                self.remainsize -= received_data_len
+                self.logger.info(f'Receiving Message. Remaining data to be received : {self.remainsize}')
+                if self.remainsize == 0:
+                    self.logger.info(f'Fully message received : {pickle.loads(self.fullmsg)}')
+                    data = self.fullmsg
+                    self.newmsg = True
+                    self.remainsize = 0
+                    self.msgfullsize = 0
+                    self.fullmsg = b''
+                    break
+        return data
 
     # encodeMessage(data)
     # Encoding Message Process
