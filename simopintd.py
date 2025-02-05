@@ -32,7 +32,7 @@ simopintsrv_logger.addHandler(filehandler)
 simopintsrv_logger.propagate = False
 
 # SimOpInt Daemon Creation
-simopintd = SimOpIntDaemon(logging.DEBUG)
+simopintd = SimOpIntDaemon(logging.INFO)
 
 # SimOpInt Daemon loop thread creation
 simopintd_thread = threading.Thread(target=simopintd.mainLoop)

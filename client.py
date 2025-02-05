@@ -54,7 +54,7 @@ simopintsrv_logger.propagate = False
 
 # SimOpInt Client Creation
 # simopintcli = SimOpIntClient(cliname, srvname, srvaddr, srvport, logging.INFO)
-simopintcli = SimOpIntClient(logging.DEBUG)
+simopintcli = SimOpIntClient(logging.INFO)
 
 # simopintcli.openCliSocket()
 # simopintcli.connectClient()

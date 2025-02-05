@@ -1,6 +1,6 @@
 {
   "CLIENT": {
-    "cliname": "SimOpIntCli"
+    "cliname": "SimOpIntTest"
   },
   "SERVER": {
     "srvname": "SimOpIntd",

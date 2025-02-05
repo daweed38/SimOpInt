@@ -45,12 +45,6 @@ class SimOpIntClient:
     # def __init__(self, cliname: str, srvname: str, srvaddr: str, srvport: str, debug: int = 30) -> None:
     def __init__(self, debug: int = 30) -> None:
         self.debug = debug
-        """
-        self.cliname = cliname
-        self.srvname = srvname
-        self.srvaddr = srvaddr
-        self.srvport = int(srvport)
-        """
         self.configdir = 'Config/Client'
         self.configfile = 'config.json'
         self.baseconfigintdir = 'Config/Interfaces'
@@ -256,7 +250,9 @@ class SimOpIntClient:
 
         if mask & selectors.EVENT_WRITE:
             if self.dataout is not None:
-                self.logger.debug(f'Sending dataout : {self.dataout}')
+                self.logger.info(f'Sending dataout : {self.dataout}')
+                enc_data = self.encodeMessage(self.dataout)
+                clisock.send(enc_data)
                 self.dataout = None
 
     # receiveMessage()
