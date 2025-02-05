@@ -1,0 +1,20 @@
+{
+  "OBJECTSMODULES": {
+    "SegDisplay": {
+      "module": "ObjectDisplay",
+      "class": "SegDisplay"
+    },
+    "Annunciator": {
+      "module": "ObjectDisplay",
+      "class": "Annunciator"
+    },
+    "Switch": {
+      "module": "ObjectSwitches",
+      "class": "Switch"
+    },
+    "PushButtonSwitch": {
+      "module": "ObjectSwitches",
+      "class": "PushButtonSwitch"
+    }
+  }
+}
