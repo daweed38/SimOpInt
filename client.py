@@ -66,8 +66,8 @@ simopintcli = SimOpIntClient(logging.INFO)
 # simopintcli.closeCliSocket()
 
 # SimOpInt Daemon loop thread creation
-simopint_thread = threading.Thread(target=simopintcli.mainLoop)
-simopint_thread.start()
+simopintcli_thread = threading.Thread(target=simopintcli.mainLoop)
+simopintcli_thread.start()
 
 # Waiting for Opened Socket
 while simopintcli.getCliStatus() != 1:

@@ -73,7 +73,7 @@ class SimOpIntDaemon:
 
         # Loading Sim Open Interface Configuration
         self.intshortname = self.srvconfig.getConfigParameter('INTERFACE', 'intshortname')
-        self.interface = SimOpInt('Config/Interfaces/' + self.intshortname, self.intshortname + '.json', logging.INFO)
+        self.interface = SimOpInt('Config/Interfaces/' + self.intshortname, self.intshortname + '.json', logging.DEBUG)
 
         signal.signal(signal.SIGTERM, self.signalHandler)
         signal.signal(signal.SIGINT, self.signalHandler)

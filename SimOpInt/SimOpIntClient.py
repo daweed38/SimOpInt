@@ -53,7 +53,7 @@ class SimOpIntClient:
         self.headersize = 10
         self.buffersize = 32
         self.running = False
-        self.clistate = False
+        self.clistate = 0
         self.newmsg = True
         self.msgfullsize = 0
         self.fullmsg = b''

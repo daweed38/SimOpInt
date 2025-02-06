@@ -7,10 +7,13 @@
 ##################################################
 
 # Standard Modules Import
+import sys
 import logging
 import os.path
 import platform
 import importlib
+import time
+import threading
 
 if platform.system() == 'Linux':
     print(f'Importing RPi.GPIO Module')
@@ -52,6 +55,9 @@ class SimOpInt:
         self.devices = {}
         self.objects = {}
         self.interrupt = {}
+        self.running = False
+        self.intstate = 0
+        self.simopint_thread = None
 
         self.config = SimOpIntConfig(self.configdir, self.configfilename, logging.DEBUG)
         self.logger.debug(f'Interface Config : {self.config.getConfig()}')
@@ -149,6 +155,61 @@ class SimOpInt:
     # Return Interface Interrupt Dictionary
     def getInterrupts(self):
         return self.interrupt
+
+    # getIntStatus()
+    # Return Interface status
+    def getIntStatus(self) -> int:
+        return self.intstate
+
+    # setIntStatus(state)
+    # Set Interface status to state
+    def setIntStatus(self, state: int) -> None:
+        self.intstate = state
+
+    # getIntThreadState()
+    # Get Interface Thread Status
+    def getIntThreadState(self):
+        return self.simopint_thread
+
+    ###################################
+    # Interface Method
+    ###################################
+
+    # openInterface()
+    # Open Interface
+    def openInterface(self):
+        self.logger.debug(f'Opening Interface {self.getName()}')
+        self.setIntStatus(1)
+        self.simopint_thread = threading.Thread(target=self.mainLoop)
+        self.simopint_thread.start()
+        self.logger.debug(f'Interface {self.getName()} Opened')
+
+    # closeInterface()
+    # Stop Main Loop Interface
+    def closeInterface(self):
+        self.logger.debug(f'Closing Interface {self.getName()}')
+        self.stopIntLoop()
+        while self.getIntStatus() > 1:
+            time.sleep(0.5)
+        self.setIntStatus(0)
+        self.simopint_thread = None
+        self.logger.debug(f'Interface {self.getName()} Closed')
+
+    # startIntLoop()
+    # Start Main Loop Interface
+    def startIntLoop(self):
+        self.logger.debug(f'Starting Interface {self.getName()} Main Loop')
+        self.running = True
+        self.setIntStatus(2)
+        self.logger.debug(f'Interface {self.getName()} Main Loop Started')
+
+    # stopIntLoop()
+    # Stop Main Loop Interface
+    def stopIntLoop(self):
+        self.logger.debug(f'Stopping Interface {self.getName()} Main Loop')
+        self.running = False
+        self.setIntStatus(1)
+        self.logger.debug(f'Interface {self.getName()} Main Loop Stopped')
 
     ###################################
     # Configuration Methods
@@ -468,3 +529,19 @@ class SimOpInt:
         self.logger.debug(f'Objects configuration : {objectsconfig}')
         for objcategory in objectsconfig:
             self.createObjectsCategory(objcategory)
+
+    ###################################
+    # Main Loop Interface
+    ###################################
+
+    def mainLoop(self):
+
+        while self.intstate != 0:
+
+            while self.running:
+
+                time.sleep(1)
+
+            time.sleep(5)
+
+        # sys.exit()
