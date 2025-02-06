@@ -86,7 +86,7 @@ class SimOpIntClient:
     ###################################
 
     def __del__(self) -> None:
-        pass
+        self.logger.info(f'Sim Open Interface Client Unloaded')
 
     ###################################
     # System Method

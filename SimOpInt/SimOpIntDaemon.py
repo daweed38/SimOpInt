@@ -85,7 +85,7 @@ class SimOpIntDaemon:
     ###################################
 
     def __del__(self) -> None:
-        pass
+        self.logger.info(f'Sim Open Interface Daemon Unloaded')
 
     ###################################
     # System Methods

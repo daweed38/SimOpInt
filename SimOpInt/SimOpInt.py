@@ -102,14 +102,14 @@ class SimOpInt:
             self.createObjects()
             self.logger.debug(f'Loaded Objects : {self.listLoadedObjects()}')
         
-        self.logger.info(f'--- Sim Open Interface {self.getName()} initialized ---')
+        self.logger.info(f'Sim Open Interface {self.getName()} Initialized')
 
     ###################################
     # Destructor
     ###################################
 
     def __del__(self) -> None:
-        pass
+        self.logger.info(f'Sim Open Interface {self.getName()} Unloaded')
 
     ###################################
     # System Method
