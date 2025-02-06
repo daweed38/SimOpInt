@@ -204,6 +204,24 @@ class SimOpIntDaemon:
     def getInterface(self) -> SimOpInt:
         return self.interface
 
+    # startInterface()
+    # Open & Start Main Loop Interface
+    def startInterface(self) -> None:
+        simopint = self.getInterface()
+        simopint.openInterface()
+        while simopint.getIntStatus() != 1:
+            time.sleep(0.5)
+        simopint.startIntLoop()
+
+    # stopInterface()
+    # Stop Main Loop & Close Interface
+    def stopInterface(self) -> None:
+        simopint = self.getInterface()
+        simopint.stopIntLoop()
+        while simopint.getIntStatus() != 1:
+            time.sleep(0.5)
+        simopint.closeInterface()
+
     ###################################
     # DATA Methods
     ###################################
@@ -252,8 +270,8 @@ class SimOpIntDaemon:
                 self.remainsize -= received_data_len
                 self.logger.debug(f'Receiving message. Remaining data to be received : {self.remainsize}')
                 if self.remainsize == 0:
-                    self.logger.info(f'Fully message received : {pickle.loads(self.fullmsg)} {type(self.fullmsg)} {type(pickle.loads(self.fullmsg))}')
-                    # self.processMessage(pickle.loads(self.fullmsg))
+                    self.logger.debug(f'Fully message received : {pickle.loads(self.fullmsg)} {type(self.fullmsg)} {type(pickle.loads(self.fullmsg))}')
+                    self.processMessage(pickle.loads(self.fullmsg))
                     data.newmsg = True
                     self.remainsize = 0
                     self.msgfullsize = 0
@@ -261,7 +279,7 @@ class SimOpIntDaemon:
 
         if mask & selectors.EVENT_WRITE:
             if data.cliname in self.clisocks and self.clisocks[data.cliname]['output'] is not None:
-                self.logger.info(f'Sending dataout : {self.clisocks[data.cliname]['output']}')
+                self.logger.debug(f'Sending dataout : {self.clisocks[data.cliname]['output']}')
                 enc_data = self.encodeMessage(self.clisocks[data.cliname]['output'])
                 clisock.send(enc_data)
                 self.clisocks[data.cliname]['output'] = None
@@ -269,7 +287,6 @@ class SimOpIntDaemon:
     # receiveMessage()
     # Receive Message Process
     def receiveMessage(self, clisock):
-        data = None
         while True:
             if self.newmsg:
                 incom_data = clisock.recv(self.headersize)
@@ -277,7 +294,7 @@ class SimOpIntDaemon:
                     self.newmsg = False
                     self.msgfullsize = int(incom_data.decode('utf-8'))
                     self.remainsize = self.msgfullsize
-                    self.logger.info(f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
+                    self.logger.debug(f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
             else:
                 if self.remainsize > self.buffersize:
                     incom_data = clisock.recv(self.buffersize)
@@ -286,9 +303,9 @@ class SimOpIntDaemon:
                 received_data_len = len(incom_data)
                 self.fullmsg += incom_data
                 self.remainsize -= received_data_len
-                self.logger.info(f'Receiving Message. Remaining data to be received : {self.remainsize}')
+                self.logger.debug(f'Receiving Message. Remaining data to be received : {self.remainsize}')
                 if self.remainsize == 0:
-                    self.logger.info(f'Fully message received : {pickle.loads(self.fullmsg)}')
+                    self.logger.debug(f'Fully message received : {pickle.loads(self.fullmsg)}')
                     data = self.fullmsg
                     self.newmsg = True
                     self.remainsize = 0
@@ -320,6 +337,14 @@ class SimOpIntDaemon:
     # Message should be formated as a dictionary
     def processMessage(self, message) -> None:
         self.logger.debug(f'Message Format Type : {type(message)}')
+        if isinstance(message, dict):
+            self.logger.debug(f'Processing message : {message}')
+        else:
+            self.logger.warning(f'Message cannot be processed. Wrong format. ({message})')
+
+    """
+    def processMessage(self, message) -> None:
+        self.logger.debug(f'Message Format Type : {type(message)}')
         if isinstance(message, dict) and 'type' in message:
             self.logger.debug(f'Processing message : {message}')
             if message['type'] == 'cmd':
@@ -329,13 +354,14 @@ class SimOpIntDaemon:
                 self.logger.error(f'Message type {msgtype} are not yet supported.')
         else:
             self.logger.warning(f'Message cannot be processed. Wrong format. ({message})')
+    """
 
     # processCmd(cmdname, cmdargs)
     # Process Command received from Message
     # cmdname is a string, cmdargs is a dictionary
+    """
     def processCmd(self, cmdname: str, cmdargs: dict) -> None:
         self.logger.debug(f'Executing Command {cmdname} with arguments {cmdargs}')
-        """
         # list command
         if cmdname.lower() == 'list':
             try:
@@ -352,7 +378,7 @@ class SimOpIntDaemon:
 
         else:
             self.logger.error(f'Command {cmdname.lower()} not recognized or not yet implemented.')
-        """
+    """
 
     ###################################
     # Loop Method

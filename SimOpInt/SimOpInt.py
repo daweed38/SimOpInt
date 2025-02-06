@@ -7,7 +7,7 @@
 ##################################################
 
 # Standard Modules Import
-import sys
+# import sys
 import logging
 import os.path
 import platform
@@ -168,7 +168,7 @@ class SimOpInt:
 
     # getIntThreadState()
     # Get Interface Thread Status
-    def getIntThreadState(self):
+    def getIntThreadState(self) -> threading:
         return self.simopint_thread
 
     ###################################
@@ -177,7 +177,7 @@ class SimOpInt:
 
     # openInterface()
     # Open Interface
-    def openInterface(self):
+    def openInterface(self) -> None:
         self.logger.info(f'Opening Interface {self.getName()}')
         self.setIntStatus(1)
         self.simopint_thread = threading.Thread(target=self.mainLoop)
@@ -186,9 +186,10 @@ class SimOpInt:
 
     # closeInterface()
     # Stop Main Loop Interface
-    def closeInterface(self):
+    def closeInterface(self) -> None:
         self.logger.info(f'Closing Interface {self.getName()}')
-        self.stopIntLoop()
+        if self.getIntStatus() != 1:
+            self.stopIntLoop()
         while self.getIntStatus() > 1:
             time.sleep(0.5)
         self.setIntStatus(0)
@@ -197,7 +198,7 @@ class SimOpInt:
 
     # startIntLoop()
     # Start Main Loop Interface
-    def startIntLoop(self):
+    def startIntLoop(self) -> None:
         self.logger.info(f'Starting Interface {self.getName()} Main Loop')
         self.running = True
         self.setIntStatus(2)
@@ -205,7 +206,7 @@ class SimOpInt:
 
     # stopIntLoop()
     # Stop Main Loop Interface
-    def stopIntLoop(self):
+    def stopIntLoop(self) -> None:
         self.logger.info(f'Stopping Interface {self.getName()} Main Loop')
         self.running = False
         self.setIntStatus(1)
@@ -374,7 +375,7 @@ class SimOpInt:
 
     # getBoards()
     def getBoards(self) -> dict:
-        return self.getConfig().getConfigSection('BOARDS')
+        return self.getConfigObj().getConfigSection('BOARDS')
 
     # setBoards(boards)
     def setBoards(self, boards) -> None:
@@ -382,7 +383,7 @@ class SimOpInt:
 
     # getBoard(boardname)
     def getBoard(self, boardname) -> dict:
-        return self.getConfig().getConfigParameter('BOARDS', boardname)
+        return self.getConfigObj().getConfigParameter('BOARDS', boardname)
 
     # setBoard(boardname, board)
     def setBoard(self, boardname, board) -> None:
