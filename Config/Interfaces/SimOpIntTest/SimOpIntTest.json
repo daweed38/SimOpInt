@@ -1,0 +1,52 @@
+{
+  "INTERFACE": {
+    "intname": "SimOpIntTest",
+    "gpiomode": "BCM"
+  },
+  "NETWORK": {
+    "intaddr": "localhost",
+    "intport": 49500
+  },
+  "MODULES": {
+    "DEVICESMODULES": {
+      "MCP23017": {
+        "module": "DeviceMCP23017",
+        "class": "MCP23017"
+      },
+      "HT16K33": {
+        "module": "DeviceHT16K33",
+        "class": "HT16K33"
+      }
+    },
+    "OBJECTSMODULES": {
+      "SegDisplay": {
+        "module": "ObjectDisplay",
+        "class": "SegDisplay"
+      },
+      "Annunciator": {
+        "module": "ObjectDisplay",
+        "class": "Annunciator"
+      },
+      "Switch": {
+        "module": "ObjectSwitches",
+        "class": "Switch"
+      },
+      "PushButtonSwitch": {
+        "module": "ObjectSwitches",
+        "class": "PushButtonSwitch"
+      }
+    }
+  },
+  "BOARDS": {},
+  "DEVICES": {
+    "configfile": "devices.json",
+    "interrupt": [],
+    "MCP23017": {
+      "bankmode": 1
+    },
+    "HT16K33": {
+      "brightness": 8
+    }
+  },
+  "OBJECTS": {}
+}
