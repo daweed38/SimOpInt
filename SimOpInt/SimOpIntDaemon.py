@@ -284,7 +284,8 @@ class SimOpIntDaemon:
 
         if mask & selectors.EVENT_WRITE:
             if data.cliname in self.clisocks and self.clisocks[data.cliname]['output'] is not None:
-                self.logger.debug(f'Sending dataout : {self.clisocks[data.cliname]['output']}')
+                outputdata = self.clisocks[data.cliname]['output']
+                self.logger.debug(f'Sending dataout : {outputdata}')
                 enc_data = self.encodeMessage(self.clisocks[data.cliname]['output'])
                 clisock.send(enc_data)
                 self.clisocks[data.cliname]['output'] = None
