@@ -178,13 +178,18 @@ class SimOpIntDaemon:
     # stopSrvLoop()
     # Stop Server Loop
     def stopSrvLoop(self) -> None:
-        self.logger.debug(f'Main loop Stopped .... ')
         self.running = False
         self.setSrvStatus(1)
+        self.logger.debug(f'Main loop Stopped .... ')
 
     # closeServer()
     # Close Server
     def closeServer(self) -> None:
+        if self.getInterface().getIntThreadState():
+            self.stopInterface()
+        while self.getInterface().getIntThreadState():
+            time.sleep(1)
+
         if self.getSrvStatus() > 1:
             self.stopSrvLoop()
         self.setSrvStatus(0)

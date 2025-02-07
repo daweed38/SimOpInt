@@ -169,7 +169,7 @@ class SimOpInt:
     # getIntThreadState()
     # Get Interface Thread Status
     def getIntThreadState(self) -> threading:
-        return self.simopint_thread
+        return self.simopint_thread.is_alive()
 
     ###################################
     # Interface Method
@@ -193,7 +193,7 @@ class SimOpInt:
         while self.getIntStatus() > 1:
             time.sleep(0.5)
         self.setIntStatus(0)
-        self.simopint_thread = None
+        # self.simopint_thread = None
         self.logger.info(f'Interface {self.getName()} Closed')
 
     # startIntLoop()

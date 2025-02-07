@@ -44,3 +44,9 @@ while simopintd.getSrvStatus() != 1:
 
 # Starting SimOpInt Daemon Loop
 simopintd.startSrvLoop()
+
+# Starting SimOpInt Interface
+while simopintd.getSrvStatus() != 2:
+    time.sleep(1)
+
+simopintd.startInterface()
