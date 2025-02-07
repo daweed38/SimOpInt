@@ -346,45 +346,7 @@ class SimOpIntDaemon:
         if isinstance(message, dict):
             self.logger.debug(f'Processing message : {message}')
         else:
-            self.logger.warning(f'Message cannot be processed. Wrong format. ({message})')
-
-    """
-    def processMessage(self, message) -> None:
-        self.logger.debug(f'Message Format Type : {type(message)}')
-        if isinstance(message, dict) and 'type' in message:
-            self.logger.debug(f'Processing message : {message}')
-            if message['type'] == 'cmd':
-                self.processCmd(message['name'], message['args'])
-            else:
-                msgtype = message['type']
-                self.logger.error(f'Message type {msgtype} are not yet supported.')
-        else:
-            self.logger.warning(f'Message cannot be processed. Wrong format. ({message})')
-    """
-
-    # processCmd(cmdname, cmdargs)
-    # Process Command received from Message
-    # cmdname is a string, cmdargs is a dictionary
-    """
-    def processCmd(self, cmdname: str, cmdargs: dict) -> None:
-        self.logger.debug(f'Executing Command {cmdname} with arguments {cmdargs}')
-        # list command
-        if cmdname.lower() == 'list':
-            try:
-                objlist = self.utils.listObject(cmdargs['object'], cmdargs['filter'])
-                self.logger.debug(f'{objlist}')
-            except Exception as e:
-                self.logger.error(f'Error in {cmdname} execution : {e}')
-        # read command
-        elif cmdname.lower() == 'read':
-            try:
-                data = self.utils.readData(cmdargs['object'], cmdargs['filter'])
-            except Exception as e:
-                self.logger.error(f'Error in {cmdname} execution : {e}')
-
-        else:
-            self.logger.error(f'Command {cmdname.lower()} not recognized or not yet implemented.')
-    """
+            self.logger.error(f'Message cannot be processed. Wrong format. ({message})')
 
     ###################################
     # Loop Method
