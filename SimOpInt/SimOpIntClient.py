@@ -22,7 +22,7 @@ import signal
 # Sim Open Interface Import
 from SimOpInt.SimOpIntConfig import SimOpIntConfig
 from SimOpInt.SimOpIntUtils import SimOpIntUtils
-from SimOpInt.SimOpInt import SimOpInt
+# from SimOpInt.SimOpInt import SimOpInt
 
 
 class SimOpIntClient:
