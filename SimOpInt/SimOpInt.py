@@ -169,7 +169,10 @@ class SimOpInt:
     # getIntThreadState()
     # Get Interface Thread Status
     def getIntThreadState(self) -> threading:
-        return self.simopint_thread.is_alive()
+        if self.simopint_thread is not None:
+            return self.simopint_thread.is_alive()
+        else:
+            return None
 
     ###################################
     # Interface Method
