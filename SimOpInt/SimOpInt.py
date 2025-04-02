@@ -489,8 +489,8 @@ class SimOpInt:
     def createObjectsCategory(self, objcategory: str) -> None:
         objectsconfigfile = self.config.getConfigSection("OBJECTS")[objcategory]["configfile"]
         self.logger.debug(f'Creating objects from category {objcategory} from configuration file {objectsconfigfile}')
-        objectsconfigdir = f'{self.configdir}/{self.intname}'
-        objectsconfig = SimOpIntConfig(objectsconfigdir, objectsconfigfile)
+        objectsconfigdir = f'{self.configdir}'
+        objectsconfig = SimOpIntConfig(objectsconfigdir, objectsconfigfile, logging.DEBUG)
 
         if objectsconfig:
             self.logger.debug(f'Reading Objects Configurations : {objectsconfig.getConfig()}')
