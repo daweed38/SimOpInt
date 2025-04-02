@@ -190,11 +190,11 @@ class SimOpInt:
     # closeInterface()
     # Stop Main Loop Interface
     def closeInterface(self) -> None:
-        self.logger.info(f'Closing Interface {self.getName()}')
         if self.getIntStatus() != 1:
             self.stopIntLoop()
         while self.getIntStatus() > 1:
             time.sleep(0.5)
+        self.logger.info(f'Closing Interface {self.getName()}')
         self.setIntStatus(0)
         # self.simopint_thread = None
         self.logger.info(f'Interface {self.getName()} Closed')
@@ -202,10 +202,13 @@ class SimOpInt:
     # startIntLoop()
     # Start Main Loop Interface
     def startIntLoop(self) -> None:
-        self.logger.info(f'Starting Interface {self.getName()} Main Loop')
-        self.running = True
-        self.setIntStatus(2)
-        self.logger.info(f'Interface {self.getName()} Main Loop Started')
+        if self.getIntThreadState() and self.getIntThreadState() == 1:
+            self.logger.info(f'Starting Interface {self.getName()} Main Loop')
+            self.running = True
+            self.setIntStatus(2)
+            self.logger.info(f'Interface {self.getName()} Main Loop Started')
+        else:
+            self.logger.error(f'Interface {self.getName()} Not Opened! Main Loop Can\'t Be Started')
 
     # stopIntLoop()
     # Stop Main Loop Interface
@@ -543,7 +546,6 @@ class SimOpInt:
         while self.intstate != 0:
 
             while self.running:
-
                 time.sleep(1)
 
             time.sleep(5)

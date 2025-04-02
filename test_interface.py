@@ -19,3 +19,6 @@ logger.setLevel(logging.DEBUG)
 
 # Test Interface Initialisation
 INT1 = SimOpInt('Config/Interfaces/SimOpIntTest', 'SimOpIntTest.json', logging.DEBUG)
+
+# Create & Start Interface Thread
+INT1.openInterface()
