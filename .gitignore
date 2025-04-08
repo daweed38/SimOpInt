@@ -236,4 +236,4 @@ fabric.properties
 .idea
 Logs/*
 Templates/
-Config/Temp/*
+Config/Dev/
