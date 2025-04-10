@@ -18,4 +18,7 @@ logger = simopintlogger.getLogger()
 logger.setLevel(logging.DEBUG)
 
 # Test Interface Initialisation
-INT1 = SimOpInt('Config/Interfaces/SimOpIntTest', 'SimOpIntTest.json', logging.DEBUG)
+INT1 = SimOpInt('Config/Interfaces/SimOpIntTest', 'SimOpIntTest.json')
+
+# Create & Start Interface Thread
+# INT1.openInterface()

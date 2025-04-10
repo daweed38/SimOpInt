@@ -1,0 +1,38 @@
+{
+    "CONF": {
+      "confname": "SWITCHES",
+      "library": "ObjSwitches",
+      "class": "Switch",
+      "propertieslist": "name,node,nodetype,nodeformat,nodeconds,device,pins,values,valuestype,output,command",
+      "isoutput": "no",
+      "iscommand": "yes"
+    },
+    "PROPERTIES": {
+      "prop01": "name",
+      "prop02": "node",
+      "prop03": "nodetype",
+      "prop04": "nodeformat",
+      "prop05": "nodeconds",
+      "prop06": "device",
+      "prop07": "pins",
+      "prop08": "values",
+      "prop09": "valuestype",
+      "prop10": "output",
+      "prop11": "command"
+    },
+    "OBJECTS": {
+        "RMP0MSTSW": {
+                "name": "rmp0mstsw",
+                "node": "",
+                "nodetype": "dref",
+                "nodeformat": "base",
+                "nodeconds": "None",
+                "device": "IOPACK03",
+                "pins": {"pin1":  {"port": "A", "pin": 7}},
+                "values": [0, 1],
+                "valuestype": "int",
+                "output": false,
+                "command": true
+        }
+    }
+}

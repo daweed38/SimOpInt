@@ -48,5 +48,9 @@
       "brightness": 8
     }
   },
-  "OBJECTS": {}
+  "OBJECTS": {
+    "SWITCHES": {
+      "configfile": "switches.json"
+    }
+  }
 }
