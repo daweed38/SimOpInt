@@ -278,7 +278,7 @@ class SimOpInt:
     # GPIO Interrupt Methods
     ###################################
 
-    # setGpioMode(gpiomode)
+    # getGpioMode(gpiomode)
     # gpiomode is str (BCM or BOARD)
     def getGpioMode(self) -> str | None:
         if platform.system() == 'Linux':
