@@ -161,11 +161,14 @@ class SimOpIntClient:
         self.logger.debug(f'Opening Client Socket ...')
         self.clisock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clisock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
-        data = types.SimpleNamespace(srvaddr=self.srvaddr, handler=self.dataHandler, newmsg=True)
+        self.logger.debug(f'Client Socket Opened ...')
+        self.connectClient()
+        srvname = self.receiveMessage()
+        self.clisock.setblocking(False)
+        data = types.SimpleNamespace(srvaddr=self.srvaddr, srvname=srvname, handler=self.dataHandler, newmsg=True)
         events = selectors.EVENT_READ | selectors.EVENT_WRITE
         self.selsock.register(self.clisock, events, data=data)
         self.setCliStatus(1)
-        self.logger.debug(f'Client Socket Opened ...')
 
     # closeCliSocket()
     # Close client socket
@@ -181,7 +184,7 @@ class SimOpIntClient:
     def connectClient(self) -> None:
         self.clisock.connect((self.srvaddr, self.srvport))
         self.sendMessage(self.getCliName())
-        self.clisock.setblocking(False)
+        # self.clisock.setblocking(False)
 
     # startCliLoop()
     # Start Client Loop
@@ -242,7 +245,7 @@ class SimOpIntClient:
                 self.logger.debug(f'Receiving message. Remaining data to be received : {self.remainsize}')
                 if self.remainsize == 0:
                     self.logger.info(f'Fully message received : {pickle.loads(self.fullmsg)} {type(self.fullmsg)} {type(pickle.loads(self.fullmsg))}')
-                    # self.processMessage(pickle.loads(self.fullmsg))
+                    self.processMessage(data.srvname, pickle.loads(self.fullmsg))
                     data.newmsg = True
                     self.remainsize = 0
                     self.msgfullsize = 0
@@ -284,7 +287,7 @@ class SimOpIntClient:
                     self.msgfullsize = 0
                     self.fullmsg = b''
                     break
-        return data
+        return pickle.loads(data)
 
     # sendMessage()
     # Send Message Process
@@ -308,6 +311,29 @@ class SimOpIntClient:
         return pickle.loads(message)
 
     ###################################
+    # Process Method
+    ###################################
+
+    # processMessage(srvname, message)
+    # Process Message received from Client
+    # Message should be formated as a dictionary
+    def processMessage(self, srvname: str, message) -> None:
+        # Setting debug level Temporary
+        self.logger.setLevel(logging.DEBUG)
+
+        # Begin Body Method
+        self.logger.debug(f'Message Format Type : {type(message)}')
+        if isinstance(message, dict):
+            self.logger.debug(f'Processing message from Server {srvname} : {message}')
+            self.logger.debug(f'Message from Server processed {srvname} : {message}')
+        else:
+            self.logger.error(f'Message from client cannot be processed. Wrong format. ({message})')
+        # End Body Method
+
+        # Reset debug level (Temporary)
+        self.logger.setLevel(self.debug)
+
+    ###################################
     # Loop Method
     ###################################
 
@@ -320,7 +346,7 @@ class SimOpIntClient:
 
         self.logger.info(f'Client Started ....')
 
-        self.connectClient()
+        # self.connectClient()
 
         while self.clistate != 0:
 

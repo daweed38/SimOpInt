@@ -49,4 +49,4 @@ simopintd.startSrvLoop()
 while simopintd.getSrvStatus() != 2:
     time.sleep(1)
 
-simopintd.startInterface()
+# simopintd.startInterface()
