@@ -546,6 +546,8 @@ class SimOpInt:
         while self.intstate != 0:
 
             while self.running:
+                self.logger.debug(f'Main loop running ....')
+
                 time.sleep(1)
 
             time.sleep(5)

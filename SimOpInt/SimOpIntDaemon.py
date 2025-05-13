@@ -276,7 +276,7 @@ class SimOpIntDaemon:
                 self.logger.debug(f'Receiving message. Remaining data to be received : {self.remainsize}')
                 if self.remainsize == 0:
                     self.logger.debug(f'Fully message received : {pickle.loads(self.fullmsg)} {type(self.fullmsg)} {type(pickle.loads(self.fullmsg))}')
-                    self.processMessage(pickle.loads(self.fullmsg))
+                    self.processMessage(data.cliname, pickle.loads(self.fullmsg))
                     data.newmsg = True
                     self.remainsize = 0
                     self.msgfullsize = 0
@@ -338,15 +338,25 @@ class SimOpIntDaemon:
     # Process Method
     ###################################
 
-    # processMessage(message)
+    # processMessage(cliname, message)
     # Process Message received from Client
     # Message should be formated as a dictionary
-    def processMessage(self, message) -> None:
+    def processMessage(self, cliname, message) -> None:
+        # Setting debug level Temporary
+        self.logger.setLevel(logging.DEBUG)
+
+        # Begin Body Method
         self.logger.debug(f'Message Format Type : {type(message)}')
         if isinstance(message, dict):
-            self.logger.debug(f'Processing message : {message}')
+            self.logger.debug(f'Processing message from client {cliname}: {message}')
+            self.logger.debug(f'Message from client {cliname} processed : {message}')
+            self.clisocks[cliname]['output'] = {'type': 'msg', 'content': 'Message processed'}
         else:
-            self.logger.error(f'Message cannot be processed. Wrong format. ({message})')
+            self.logger.error(f'Message from client {cliname} cannot be processed. Wrong format. ({message})')
+        # End Body Method
+
+        # Reset debug level (Temporary)
+        self.logger.setLevel(self.debug)
 
     ###################################
     # Loop Method
