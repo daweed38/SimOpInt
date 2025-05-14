@@ -16,12 +16,14 @@ import time
 import types
 import logging
 import signal
+import threading
 
 # Standard Modules Import
 
 # Sim Open Interface Import
 from SimOpInt.SimOpIntConfig import SimOpIntConfig
 from SimOpInt.SimOpIntUtils import SimOpIntUtils
+from SimOpInt.SimOpIntClient import SimOpIntClient
 from SimOpInt.SimOpInt import SimOpInt
 
 
@@ -39,10 +41,10 @@ class SimOpIntDaemon:
     # Constructor
     ###################################
 
-    def __init__(self, debug: int = 30) -> None:
+    def __init__(self, configfile: str = 'config.json', debug: int = 30) -> None:
         self.debug = debug
         self.configdir = 'Config/Daemon'
-        self.configfile = 'config.json'
+        self.configfile = configfile
         self.baseconfigintdir = 'Config/Interfaces'
         self.srvsock = None
         self.selsock = selectors.DefaultSelector()
@@ -55,6 +57,8 @@ class SimOpIntDaemon:
         self.fullmsg = b''
         self.remainsize = 0
         self.clisocks = {}
+        self.interface = None
+        self.simopintcli = None
 
         # Get Logger
         self.logger = logging.getLogger('SimOpInt.SimOpIntServer')
@@ -67,13 +71,22 @@ class SimOpIntDaemon:
         self.srvname = self.srvconfig.getConfigParameter('SERVER', 'srvname')
         self.srvaddr = self.srvconfig.getConfigParameter('SERVER', 'srvaddr')
         self.srvport = int(self.srvconfig.getConfigParameter('SERVER', 'srvport'))
+        self.srvintautoload = self.srvconfig.getConfigParameter('SERVER', 'srvintautoload')
 
         # Loading Sim Open Interfaces Utilities
         self.utils = SimOpIntUtils()
 
+        # SimOpInt Client Creation
+        self.simopintcli = SimOpIntClient(debug=logging.INFO)
+
+        # SimOpInt Daemon loop thread creation
+        # simopintcli_thread = threading.Thread(target=simopintcli.mainLoop)
+        # simopintcli_thread.start()
+
         # Loading Sim Open Interface Configuration
-        self.intshortname = self.srvconfig.getConfigParameter('INTERFACE', 'intshortname')
-        self.interface = SimOpInt('Config/Interfaces/' + self.intshortname, self.intshortname + '.json', logging.DEBUG)
+        if self.srvintautoload:
+            self.intshortname = self.srvconfig.getConfigParameter('INTERFACE', 'intshortname')
+            self.interface = SimOpInt('Config/Interfaces/' + self.intshortname, self.intshortname + '.json')
 
         signal.signal(signal.SIGTERM, self.signalHandler)
         signal.signal(signal.SIGINT, self.signalHandler)
@@ -185,10 +198,11 @@ class SimOpIntDaemon:
     # closeServer()
     # Close Server
     def closeServer(self) -> None:
-        if self.getInterface().getIntThreadState():
-            self.stopInterface()
-        while self.getInterface().getIntThreadState():
-            time.sleep(1)
+        if self.getInterface() is not None:
+            if self.getInterface().getIntThreadState():
+                self.stopInterface()
+            while self.getInterface().getIntThreadState():
+                time.sleep(1)
 
         if self.getSrvStatus() > 1:
             self.stopSrvLoop()
@@ -213,19 +227,25 @@ class SimOpIntDaemon:
     # Open & Start Main Loop Interface
     def startInterface(self) -> None:
         simopint = self.getInterface()
-        simopint.openInterface()
-        while simopint.getIntStatus() != 1:
-            time.sleep(0.5)
-        simopint.startIntLoop()
+        if simopint is not None:
+            simopint.openInterface()
+            while simopint.getIntStatus() != 1:
+                time.sleep(0.5)
+            simopint.startIntLoop()
+        else:
+            self.logger.error(f'Interface not defined. Cannot Start.')
 
     # stopInterface()
     # Stop Main Loop & Close Interface
     def stopInterface(self) -> None:
         simopint = self.getInterface()
-        simopint.stopIntLoop()
-        while simopint.getIntStatus() != 1:
-            time.sleep(0.5)
-        simopint.closeInterface()
+        if simopint is not None:
+            simopint.stopIntLoop()
+            while simopint.getIntStatus() != 1:
+                time.sleep(0.5)
+            simopint.closeInterface()
+        else:
+            self.logger.error(f'Interface not defined. Cannot Stop.')
 
     ###################################
     # DATA Methods

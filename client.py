@@ -37,13 +37,13 @@ fileformat = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messa
 filehandler.setFormatter(fileformat)
 logger.addHandler(filehandler)
 
-simopintsrv_logger = logging.getLogger('SimOpInt.SimOpIntClient')
+simopintcli_logger = logging.getLogger('SimOpInt.SimOpIntClient')
 logfile = 'Logs/simopintcli.log'
 filehandler = logging.FileHandler(filename=logfile, mode='w')
 fileformat = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d-%m-%y %H:%M:%S')
 filehandler.setFormatter(fileformat)
-simopintsrv_logger.addHandler(filehandler)
-simopintsrv_logger.propagate = False
+simopintcli_logger.addHandler(filehandler)
+simopintcli_logger.propagate = False
 
 # config = SimOpIntConfig(configdir, configfile, configtype)
 # config = SimOpIntConfig(configdir, configfile)

@@ -59,7 +59,7 @@ class SimOpInt:
         self.intstate = 0
         self.simopint_thread = None
 
-        self.config = SimOpIntConfig(self.configdir, self.configfilename, logging.DEBUG)
+        self.config = SimOpIntConfig(self.configdir, self.configfilename)
         self.logger.debug(f'Interface Config : {self.config.getConfig()}')
 
         if self.config.isNewConfig():
@@ -490,7 +490,7 @@ class SimOpInt:
         objectsconfigfile = self.config.getConfigSection("OBJECTS")[objcategory]["configfile"]
         self.logger.debug(f'Creating objects from category {objcategory} from configuration file {objectsconfigfile}')
         objectsconfigdir = f'{self.configdir}'
-        objectsconfig = SimOpIntConfig(objectsconfigdir, objectsconfigfile, logging.DEBUG)
+        objectsconfig = SimOpIntConfig(objectsconfigdir, objectsconfigfile)
 
         if objectsconfig:
             self.logger.debug(f'Reading Objects Configurations : {objectsconfig.getConfig()}')
