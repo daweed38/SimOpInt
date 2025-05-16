@@ -79,7 +79,7 @@ class SimOpInt:
             self.xpsrvaddr = self.config.getConfigParameter('NETWORK', 'xpsrvaddr')
             self.xpsrvport = self.config.getConfigParameter('NETWORK', 'xpsrvport')
 
-        self.simopintcli = SimOpIntClient(cliname=self.intname, srvaddr=self.xpsrvaddr, srvport=self.xpsrvport)
+        # self.simopintcli = SimOpIntClient(cliname=self.intname, srvaddr=self.xpsrvaddr, srvport=self.xpsrvport)
 
         if 'MODULES' in self.config.getConfig():
             self.logger.debug(f'--- Modules Configuration Management ---')
@@ -227,7 +227,7 @@ class SimOpInt:
     ###################################
     # Client Methods
     ###################################
-
+    """
     # getInterfaceClient()
     # Return the SimOpInt Client
     def getClient(self) -> SimOpIntClient:
@@ -257,6 +257,7 @@ class SimOpInt:
         self.simopintcli.stopClient()
         self.simopintcli_thread = None
         self.logger.info(f'Interface Client {self.simopintcli.getCliName()} Stopped')
+    """
 
     ###################################
     # Configuration Methods

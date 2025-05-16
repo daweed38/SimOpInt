@@ -210,6 +210,8 @@ class SimOpIntClient:
     def stopClient(self) -> None:
         if self.getCliStatus() > 2:
             self.stopCliLoop()
+        while self.getCliStatus() > 2:
+            time.sleep(1)
         self.setCliStatus(0)
 
     # startCliLoop()
@@ -348,17 +350,36 @@ class SimOpIntClient:
         # Setting debug level Temporary
         self.logger.setLevel(logging.DEBUG)
 
+        self.logger.debug(f'Processing message from Server {srvname} : {message}')
+
         # Begin Body Method
-        self.logger.debug(f'Message Format Type : {type(message)}')
-        if isinstance(message, dict):
-            self.logger.debug(f'Processing message from Server {srvname} : {message}')
-            self.logger.debug(f'Message from Server processed {srvname} : {message}')
+
+        if isinstance(message, dict) and 'msgtype' in message:
+
+            if message['msgtype'] == 'cmd':
+                self.processcmd(message)
+
+            elif message['msgtype'] == 'dref':
+                self.processdref(message)
+
+            else:
+                self.logger.debug(f'Wrong message type. Cannot be processed')
+
         else:
             self.logger.error(f'Message from client cannot be processed. Wrong format. ({message})')
+
         # End Body Method
+
+        self.logger.debug(f'Message from Server processed {srvname} : {message}')
 
         # Reset debug level (Temporary)
         self.logger.setLevel(self.debug)
+
+    def processcmd(self, message):
+        self.logger.debug(f'Processing command Message')
+
+    def processdref(self, message):
+        self.logger.debug(f'Processing data Message')
 
     ###################################
     # Loop Method

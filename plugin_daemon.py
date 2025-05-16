@@ -32,13 +32,13 @@ filehandler.setFormatter(fileformat)
 plugin_simopintsrv_logger.addHandler(filehandler)
 plugin_simopintsrv_logger.propagate = False
 
-# plugin_simopintcli_logger = logging.getLogger('SimOpInt.SimOpIntClient')
-# logfile = 'Logs/plugin_simopintcli.log'
-# filehandler = logging.FileHandler(filename=logfile, mode='w')
-# fileformat = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d-%m-%y %H:%M:%S')
-# filehandler.setFormatter(fileformat)
-# plugin_simopintcli_logger.addHandler(filehandler)
-# plugin_simopintcli_logger.propagate = False
+plugin_simopintcli_logger = logging.getLogger('SimOpInt.SimOpIntClient')
+logfile = 'Logs/plugin_simopintcli.log'
+filehandler = logging.FileHandler(filename=logfile, mode='w')
+fileformat = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d-%m-%y %H:%M:%S')
+filehandler.setFormatter(fileformat)
+plugin_simopintcli_logger.addHandler(filehandler)
+plugin_simopintcli_logger.propagate = False
 
 # SimOpInt Daemon Creation (Ex SimOpIntDaemon(configfile='SimOpIntTestSrv.json', debug=logging.INFO) - configfile & debug facultative
 # simopintd = SimOpIntDaemon()

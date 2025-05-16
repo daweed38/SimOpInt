@@ -16,7 +16,7 @@ import time
 import types
 import logging
 import signal
-# import threading
+import threading
 
 # Standard Modules Import
 
@@ -59,6 +59,7 @@ class SimOpIntDaemon:
         self.clisocks = {}
         self.interface = None
         self.simopintcli = None
+        self.simopintcli_thread = None
 
         # Get Logger
         self.logger = logging.getLogger('SimOpInt.SimOpIntServer')
@@ -76,17 +77,15 @@ class SimOpIntDaemon:
         # Loading Sim Open Interfaces Utilities
         self.utils = SimOpIntUtils()
 
-        # SimOpInt Client Creation
-        # self.simopintcli = SimOpIntClient(debug=logging.INFO)
-
-        # SimOpInt Daemon loop thread creation
-        # simopintcli_thread = threading.Thread(target=simopintcli.mainLoop)
-        # simopintcli_thread.start()
-
         # Loading Sim Open Interface Configuration
         if self.srvintautoload:
+            # SimOpInt Interface Creation
             self.intshortname = self.srvconfig.getConfigParameter('INTERFACE', 'intshortname')
             self.interface = SimOpInt('Config/Interfaces/' + self.intshortname, self.intshortname + '.json')
+
+            # SimOpInt Client Creation
+            self.simopintcli = SimOpIntClient(debug=logging.INFO)
+            self.startClient()
 
         signal.signal(signal.SIGTERM, self.signalHandler)
         signal.signal(signal.SIGINT, self.signalHandler)
@@ -248,6 +247,29 @@ class SimOpIntDaemon:
             self.logger.error(f'Interface not defined. Cannot Stop.')
 
     ###################################
+    # Client Methods
+    ###################################
+
+    def startClient(self):
+        self.logger.info(f'Starting Interface Client {self.simopintcli.getCliName()}')
+        # SimOpInt Client loop thread creation
+        self.simopintcli_thread = threading.Thread(target=self.simopintcli.mainLoop)
+        self.simopintcli_thread.start()
+
+        while self.simopintcli.getCliStatus() < 1:
+            time.sleep(1)
+
+        self.logger.debug(f'startClient : simopintcli_thread : {self.simopintcli_thread.is_alive()} simopintcli status : {self.simopintcli.getCliStatus()}')
+        self.simopintcli.connectClient()
+
+        while self.simopintcli.getCliStatus() < 2:
+            time.sleep(1)
+
+        self.simopintcli.startCliLoop()
+        self.logger.debug(f'startClient : simopintcli_thread : {self.simopintcli_thread.is_alive()} simopintcli status : {self.simopintcli.getCliStatus()}')
+        self.logger.info(f'Interface Client {self.simopintcli.getCliName()} Started')
+
+    ###################################
     # DATA Methods
     ###################################
 
@@ -366,13 +388,22 @@ class SimOpIntDaemon:
         self.logger.setLevel(logging.DEBUG)
 
         # Begin Body Method
-        self.logger.debug(f'Message Format Type : {type(message)}')
-        if isinstance(message, dict):
+
+        if isinstance(message, dict) and 'msgtype' in message:
             self.logger.debug(f'Processing message from client {cliname}: {message}')
+
+            if message['msgtype'] == 'cmd':
+                self.logger.debug(f'Processing command Message')
+            elif message['msgtype'] == 'dref':
+                self.logger.debug(f'Processing data Message')
+            else:
+                self.logger.debug(f'Wrong message type. Cannot be processed')
+
             self.logger.debug(f'Message from client {cliname} processed : {message}')
             # self.clisocks[cliname]['output'] = {'type': 'msg', 'content': 'Message processed'}
         else:
             self.logger.error(f'Message from client {cliname} cannot be processed. Wrong format. ({message})')
+
         # End Body Method
 
         # Reset debug level (Temporary)
