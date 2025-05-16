@@ -44,7 +44,7 @@ int_simopintcli_logger.propagate = False
 # simopintd = SimOpIntDaemon()
 # simopintd = SimOpIntDaemon(debug=logging.INFO)
 # simopintd = SimOpIntDaemon(configfile='SimOpIntTestSrv.json', debug=logging.INFO)
-simopintd = SimOpIntDaemon(configfile='SimOpIntTestSrv.json', debug=logging.INFO)
+simopintd = SimOpIntDaemon(configfile='SimOpIntTestSrv.json')
 
 # SimOpInt Daemon loop thread creation
 simopintd_thread = threading.Thread(target=simopintd.mainLoop)

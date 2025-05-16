@@ -79,7 +79,7 @@ class SimOpInt:
             self.xpsrvaddr = self.config.getConfigParameter('NETWORK', 'xpsrvaddr')
             self.xpsrvport = self.config.getConfigParameter('NETWORK', 'xpsrvport')
 
-        self.simopintcli = SimOpIntClient(cliname=self.intname, srvaddr=self.xpsrvaddr, srvport=self.xpsrvport, debug=logging.DEBUG)
+        self.simopintcli = SimOpIntClient(cliname=self.intname, srvaddr=self.xpsrvaddr, srvport=self.xpsrvport)
 
         if 'MODULES' in self.config.getConfig():
             self.logger.debug(f'--- Modules Configuration Management ---')
