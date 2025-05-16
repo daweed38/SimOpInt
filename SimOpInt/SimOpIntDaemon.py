@@ -16,7 +16,7 @@ import time
 import types
 import logging
 import signal
-import threading
+# import threading
 
 # Standard Modules Import
 
@@ -77,7 +77,7 @@ class SimOpIntDaemon:
         self.utils = SimOpIntUtils()
 
         # SimOpInt Client Creation
-        self.simopintcli = SimOpIntClient(debug=logging.INFO)
+        # self.simopintcli = SimOpIntClient(debug=logging.INFO)
 
         # SimOpInt Daemon loop thread creation
         # simopintcli_thread = threading.Thread(target=simopintcli.mainLoop)
@@ -86,7 +86,7 @@ class SimOpIntDaemon:
         # Loading Sim Open Interface Configuration
         if self.srvintautoload:
             self.intshortname = self.srvconfig.getConfigParameter('INTERFACE', 'intshortname')
-            self.interface = SimOpInt('Config/Interfaces/' + self.intshortname, self.intshortname + '.json')
+            self.interface = SimOpInt('Config/Interfaces/' + self.intshortname, self.intshortname + '.json', debug=logging.INFO)
 
         signal.signal(signal.SIGTERM, self.signalHandler)
         signal.signal(signal.SIGINT, self.signalHandler)
@@ -370,7 +370,7 @@ class SimOpIntDaemon:
         if isinstance(message, dict):
             self.logger.debug(f'Processing message from client {cliname}: {message}')
             self.logger.debug(f'Message from client {cliname} processed : {message}')
-            self.clisocks[cliname]['output'] = {'type': 'msg', 'content': 'Message processed'}
+            # self.clisocks[cliname]['output'] = {'type': 'msg', 'content': 'Message processed'}
         else:
             self.logger.error(f'Message from client {cliname} cannot be processed. Wrong format. ({message})')
         # End Body Method

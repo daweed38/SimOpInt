@@ -21,6 +21,7 @@ if platform.system() == 'Linux':
 
 # SimOpInt Module Import
 from SimOpInt.SimOpIntConfig import SimOpIntConfig
+from SimOpInt.SimOpIntClient import SimOpIntClient
 
 
 class SimOpInt:
@@ -58,6 +59,7 @@ class SimOpInt:
         self.running = False
         self.intstate = 0
         self.simopint_thread = None
+        self.simopintcli_thread = None
 
         self.config = SimOpIntConfig(self.configdir, self.configfilename)
         self.logger.debug(f'Interface Config : {self.config.getConfig()}')
@@ -74,6 +76,10 @@ class SimOpInt:
             self.intname = self.config.getConfigParameter('INTERFACE', 'intname')
             self.intaddr = self.config.getConfigParameter('NETWORK', 'intaddr')
             self.intport = self.config.getConfigParameter('NETWORK', 'intport')
+            self.xpsrvaddr = self.config.getConfigParameter('NETWORK', 'xpsrvaddr')
+            self.xpsrvport = self.config.getConfigParameter('NETWORK', 'xpsrvport')
+
+        self.simopintcli = SimOpIntClient(cliname=self.intname, srvaddr=self.xpsrvaddr, srvport=self.xpsrvport, debug=logging.DEBUG)
 
         if 'MODULES' in self.config.getConfig():
             self.logger.debug(f'--- Modules Configuration Management ---')
@@ -219,6 +225,40 @@ class SimOpInt:
         self.logger.info(f'Interface {self.getName()} Main Loop Stopped')
 
     ###################################
+    # Client Methods
+    ###################################
+
+    # getInterfaceClient()
+    # Return the SimOpInt Client
+    def getClient(self) -> SimOpIntClient:
+        return self.simopintcli
+
+    # startClient()
+    # Start Interface Client
+    def startClient(self) -> None:
+        self.logger.info(f'Starting Interface Client {self.simopintcli.getCliName()}')
+        self.simopintcli_thread = threading.Thread(target=self.simopintcli.mainLoop)
+        self.simopintcli_thread.start()
+        while self.simopintcli.getCliStatus() < 1:
+            time.sleep(1)
+        self.logger.debug(f'startClient : simopintcli_thread : {self.simopintcli_thread.is_alive()} simopintcli status : {self.simopintcli.getCliStatus()}')
+        self.simopintcli.connectClient()
+        self.logger.debug(f'startClient : simopintcli_thread : {self.simopintcli_thread.is_alive()} simopintcli status : {self.simopintcli.getCliStatus()}')
+        while self.simopintcli.getCliStatus() < 2:
+            time.sleep(1)
+        self.simopintcli.startCliLoop()
+        self.logger.debug(f'startClient : simopintcli_thread : {self.simopintcli_thread.is_alive()} simopintcli status : {self.simopintcli.getCliStatus()}')
+        self.logger.info(f'Interface Client {self.simopintcli.getCliName()} Started')
+
+    # stopClient()
+    # Stop Interface Client
+    def stopClient(self) -> None:
+        self.logger.info(f'Stopping Interface Client {self.simopintcli.getCliName()}')
+        self.simopintcli.stopClient()
+        self.simopintcli_thread = None
+        self.logger.info(f'Interface Client {self.simopintcli.getCliName()} Stopped')
+
+    ###################################
     # Configuration Methods
     ###################################
 
@@ -232,6 +272,8 @@ class SimOpInt:
         interfaceconfig['NETWORK'] = dict()
         interfaceconfig['NETWORK']['intaddr'] = 'localhost'
         interfaceconfig['NETWORK']['intport'] = 49500
+        interfaceconfig['NETWORK']['xpsrvaddr'] = 'localhost'
+        interfaceconfig['NETWORK']['xpsrvport'] = 49500
         interfaceconfig['MODULES'] = dict()
         devicesmodulesconfig = SimOpIntConfig('Config/Daemon', 'default_device_modules.json').getConfigSection('DEVICESMODULES')
         interfaceconfig['MODULES']['DEVICESMODULES'] = devicesmodulesconfig
