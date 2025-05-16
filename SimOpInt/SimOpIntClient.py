@@ -20,7 +20,7 @@ import signal
 # Standard Modules Import
 
 # Sim Open Interface Import
-from SimOpInt.SimOpIntConfig import SimOpIntConfig
+# from SimOpInt.SimOpIntConfig import SimOpIntConfig
 from SimOpInt.SimOpIntUtils import SimOpIntUtils
 # from SimOpInt.SimOpInt import SimOpInt
 
@@ -43,11 +43,18 @@ class SimOpIntClient:
     ###################################
 
     # def __init__(self, cliname: str, srvname: str, srvaddr: str, srvport: str, debug: int = 30) -> None:
-    def __init__(self, debug: int = 30) -> None:
+    # def __init__(self, debug: int = 30) -> None:
+    # def __init__(self, configfile: str = 'config.json', debug: int = 30) -> None:
+    def __init__(self, cliname: str = 'SimOpIntCli', srvname: str = 'SimOpIntSrv', srvaddr: str = 'localhost', srvport: int = 49500, debug: int = 30) -> None:
         self.debug = debug
-        self.configdir = 'Config/Client'
-        self.configfile = 'config.json'
-        self.baseconfigintdir = 'Config/Interfaces'
+        # self.configdir = 'Config/Client'
+        # self.configfile = 'config.json'
+        # self.configfile = configfile
+        # self.baseconfigintdir = 'Config/Interfaces'
+        self.cliname = cliname
+        self.srvname = srvname
+        self.srvaddr = srvaddr
+        self.srvport = srvport
         self.clisock = None
         self.selsock = selectors.DefaultSelector()
         self.headersize = 10
@@ -67,11 +74,11 @@ class SimOpIntClient:
             self.logger.setLevel(self.debug)
 
         # Loading Sim Open Interface Client Configuration
-        self.cliconfig = SimOpIntConfig(self.configdir, self.configfile)
-        self.cliname = self.cliconfig.getConfigParameter('CLIENT', 'cliname')
-        self.srvname = self.cliconfig.getConfigParameter('SERVER', 'srvname')
-        self.srvaddr = self.cliconfig.getConfigParameter('SERVER', 'srvaddr')
-        self.srvport = int(self.cliconfig.getConfigParameter('SERVER', 'srvport'))
+        # self.cliconfig = SimOpIntConfig(self.configdir, self.configfile)
+        # self.cliname = self.cliconfig.getConfigParameter('CLIENT', 'cliname')
+        # self.srvname = self.cliconfig.getConfigParameter('SERVER', 'srvname')
+        # self.srvaddr = self.cliconfig.getConfigParameter('SERVER', 'srvaddr')
+        # self.srvport = int(self.cliconfig.getConfigParameter('SERVER', 'srvport'))
 
         # Loading Sim Open Interfaces Utilities
         self.utils = SimOpIntUtils()
@@ -146,10 +153,10 @@ class SimOpIntClient:
     def setCliStatus(self, state: int) -> None:
         self.clistate = state
 
-    # getCliConfig()
+    # getCliConfig() # Remove as no client config is loaded 2025/05/15
     # Return Client configuration (SimOpIntConfig Object)
-    def getCliConfig(self) -> SimOpIntConfig:
-        return self.cliconfig
+    # def getCliConfig(self) -> SimOpIntConfig:
+    #    return self.cliconfig
 
     ###################################
     # Client Method
@@ -162,12 +169,12 @@ class SimOpIntClient:
         self.clisock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clisock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
         self.logger.debug(f'Client Socket Opened ...')
-        self.connectClient()
-        srvname = self.receiveMessage()
-        self.clisock.setblocking(False)
-        data = types.SimpleNamespace(srvaddr=self.srvaddr, srvname=srvname, handler=self.dataHandler, newmsg=True)
-        events = selectors.EVENT_READ | selectors.EVENT_WRITE
-        self.selsock.register(self.clisock, events, data=data)
+        # self.connectClient()
+        # srvname = self.receiveMessage()
+        # self.clisock.setblocking(False)
+        # data = types.SimpleNamespace(srvaddr=self.srvaddr, srvname=srvname, handler=self.dataHandler, newmsg=True)
+        # events = selectors.EVENT_READ | selectors.EVENT_WRITE
+        # self.selsock.register(self.clisock, events, data=data)
         self.setCliStatus(1)
 
     # closeCliSocket()
@@ -177,41 +184,61 @@ class SimOpIntClient:
         if self.clisock:
             self.clisock.close()
         self.setCliStatus(0)
+        self.clisock = None
         self.logger.debug(f'Client Socket Closed ...')
 
     # connectClient()
     # Connect client socket to server socket
-    def connectClient(self) -> None:
-        self.clisock.connect((self.srvaddr, self.srvport))
-        self.sendMessage(self.getCliName())
-        # self.clisock.setblocking(False)
+    # def connectClient(self) -> None:
+    def connectClient(self):
+        if self.getCliStatus() < 1:
+            self.logger.error(f'Client socket not opened')
+        elif self.getCliStatus() > 2:
+            self.logger.warning(f'Client already connected')
+        else:
+            self.clisock.connect((self.srvaddr, self.srvport))
+            self.sendMessage(self.getCliName())
+            srvname = self.receiveMessage()
+            self.clisock.setblocking(False)
+            data = types.SimpleNamespace(srvname=srvname, srvaddr=self.srvaddr, srvport=self.srvport, handler=self.dataHandler, newmsg=True)
+            events = selectors.EVENT_READ | selectors.EVENT_WRITE
+            self.selsock.register(self.clisock, events, data=data)
+            self.setCliStatus(2)
+
+    # disconnectClient()
+    # Disconnect Client
+    def stopClient(self) -> None:
+        if self.getCliStatus() > 2:
+            self.stopCliLoop()
+        self.setCliStatus(0)
 
     # startCliLoop()
     # Start Client Loop
     def startCliLoop(self) -> None:
-        self.running = True
-        self.setCliStatus(2)
-        self.logger.debug(f'Main loop Started .... ')
+        if self.getCliStatus() < 2:
+            self.logger.error(f'startCliLoop : Client not connected')
+        else:
+            self.running = True
+            self.setCliStatus(3)
+            self.logger.debug(f'Main loop Started .... ')
 
     # stopCliLoop()
     # Stop Client Loop
     def stopCliLoop(self) -> None:
-        self.running = False
-        self.setCliStatus(1)
-        self.logger.debug(f'Main loop Stopped .... ')
-
-    # closeServer()
-    # Close Server
-    def closeClient(self) -> None:
-        if self.getCliStatus() > 1:
-            self.stopCliLoop()
-        self.setCliStatus(0)
+        if self.getCliStatus() < 2:
+            self.logger.error(f'stopCliLoop : Client not connected')
+        elif self.getCliStatus() < 3:
+            self.logger.error(f'Client not running')
+        else:
+            self.running = False
+            self.setCliStatus(2)
+            self.logger.debug(f'Main loop Stopped .... ')
 
     # signalHandler()
     # SIGTERM Handler
     def signalHandler(self, sig, frame) -> None:
         self.stopCliLoop()
-        self.closeClient()
+        self.stopClient()
 
     ###################################
     # DATA Method
@@ -232,7 +259,7 @@ class SimOpIntClient:
 
                 # else:
                 #    self.selsock.unregister(clisock)
-                #     clisock.close()
+                #    clisock.close()
 
             else:
                 if self.remainsize > self.buffersize:
@@ -346,12 +373,9 @@ class SimOpIntClient:
 
         self.logger.info(f'Client Started ....')
 
-        # self.connectClient()
-
         while self.clistate != 0:
 
             while self.running:
-
                 events = self.selsock.select(timeout=.5)
                 for key, mask in events:
                     callback = key.data.handler
@@ -367,4 +391,4 @@ class SimOpIntClient:
 
         self.logger.info(f'Client Stopped ....')
 
-        sys.exit()
+        # sys.exit()

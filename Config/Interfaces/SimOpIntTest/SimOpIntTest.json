@@ -1,11 +1,13 @@
 {
+  "NETWORK": {
+    "intaddr": "localhost",
+    "intport": 49500,
+    "xpsrvaddr": "localhost",
+    "xpsrvport": 49500
+  },
   "INTERFACE": {
     "intname": "SimOpIntTest",
     "gpiomode": "BCM"
-  },
-  "NETWORK": {
-    "intaddr": "localhost",
-    "intport": 49500
   },
   "MODULES": {
     "DEVICESMODULES": {
