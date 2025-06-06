@@ -387,28 +387,37 @@ class SimOpIntDaemon:
         # Setting debug level Temporary
         self.logger.setLevel(logging.DEBUG)
 
+        self.logger.debug(f'Processing message from client {cliname}: {message}')
+
         # Begin Body Method
 
         if isinstance(message, dict) and 'msgtype' in message:
-            self.logger.debug(f'Processing message from client {cliname}: {message}')
 
             if message['msgtype'] == 'cmd':
-                self.logger.debug(f'Processing command Message')
+                self.processcmd(message)
+
             elif message['msgtype'] == 'dref':
-                self.logger.debug(f'Processing data Message')
+                self.processdref(message)
+
             else:
                 self.logger.debug(f'Wrong message type. Cannot be processed')
 
-            self.logger.debug(f'Message from client {cliname} processed : {message}')
-            # self.clisocks[cliname]['output'] = {'type': 'msg', 'content': 'Message processed'}
         else:
             self.logger.error(f'Message from client {cliname} cannot be processed. Wrong format. ({message})')
 
         # End Body Method
 
+        self.logger.debug(f'Message from client {cliname} processed : {message}')
+
         # Reset debug level (Temporary)
         self.logger.setLevel(self.debug)
 
+    def processcmd(self, message):
+        self.logger.debug(f'Processing command Message')
+
+    def processdref(self, message):
+        self.logger.debug(f'Processing data Message')
+        
     ###################################
     # Loop Method
     ###################################

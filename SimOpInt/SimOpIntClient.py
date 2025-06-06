@@ -366,7 +366,7 @@ class SimOpIntClient:
                 self.logger.debug(f'Wrong message type. Cannot be processed')
 
         else:
-            self.logger.error(f'Message from client cannot be processed. Wrong format. ({message})')
+            self.logger.error(f'Message from Server cannot be processed. Wrong format. ({message})')
 
         # End Body Method
 
