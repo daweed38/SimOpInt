@@ -7,14 +7,14 @@
 ##################################################
 
 # Standard Modules Import
-import pickle
-import socket
-import selectors
-import sys
-import time
-import types
+# import sys
 import logging
+import time
+import socket
 import signal
+import selectors
+import types
+# import pickle
 
 # Sim Open Interface Import
 from SimOpInt.SimOpIntConfig import SimOpIntConfig
