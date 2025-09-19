@@ -18,6 +18,7 @@ import json
 # from SimOpInt.SimOpIntConfig import SimOpIntConfig
 from SimOpInt.SimOpIntClient import SimOpIntClient
 
+"""
 testdict = {'type': 'cmd', 'name': 'read', 'args': {'object': 'config', 'filter': 'simopintd'}}
 
 jsondata = open('Config/Client/data.json')
@@ -29,13 +30,16 @@ configfile = 'configcli.json'
 # configtype = 'json'
 
 clientrun = True
+"""
 
+"""
 logger = logging.getLogger('SimOpInt')
 logfile = 'Logs/simopint.log'
 filehandler = logging.FileHandler(filename=logfile, mode='w')
 fileformat = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d-%m-%y %H:%M:%S')
 filehandler.setFormatter(fileformat)
 logger.addHandler(filehandler)
+"""
 
 simopintcli_logger = logging.getLogger('SimOpInt.SimOpIntClient')
 logfile = 'Logs/simopintcli.log'
@@ -45,16 +49,18 @@ filehandler.setFormatter(fileformat)
 simopintcli_logger.addHandler(filehandler)
 simopintcli_logger.propagate = False
 
+"""
 # config = SimOpIntConfig(configdir, configfile, configtype)
 # config = SimOpIntConfig(configdir, configfile)
 # srvname = config.getConfigParameter('SERVER', 'srvname')
 # srvaddr = config.getConfigParameter('SERVER', 'srvaddr')
 # srvport = config.getConfigParameter('SERVER', 'srvport')
 # cliname = config.getConfigParameter('CLIENT', 'cliname')
+"""
 
 # SimOpInt Client Creation
 # simopintcli = SimOpIntClient(cliname, srvname, srvaddr, srvport, logging.INFO)
-simopintcli = SimOpIntClient(logging.INFO)
+simopintcli = SimOpIntClient(debug=logging.INFO)
 
 # simopintcli.openCliSocket()
 # simopintcli.connectClient()
@@ -72,6 +78,3 @@ simopintcli_thread.start()
 # Waiting for Opened Socket
 while simopintcli.getCliStatus() != 1:
     time.sleep(1)
-
-# Starting SimOpInt Daemon Loop
-simopintcli.startCliLoop()

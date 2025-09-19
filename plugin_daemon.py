@@ -13,7 +13,7 @@ import time
 # Standard Modules Import
 
 # Sim Open Interface Import
-from SimOpInt.SimOpIntDaemon import SimOpIntDaemon
+from SimOpInt.SimOpIntServer import SimOpIntServer
 from SimOpInt.SimOpIntClient import SimOpIntClient
 
 # Logger Creation
@@ -40,11 +40,11 @@ filehandler.setFormatter(fileformat)
 plugin_simopintcli_logger.addHandler(filehandler)
 plugin_simopintcli_logger.propagate = False
 
-# SimOpInt Daemon Creation (Ex SimOpIntDaemon(configfile='SimOpIntTestSrv.json', debug=logging.INFO) - configfile & debug facultative
-# simopintd = SimOpIntDaemon()
-# simopintd = SimOpIntDaemon(debug=logging.INFO)
-# simopintd = SimOpIntDaemon(configfile='SimOpIntTestSrv.json', debug=logging.INFO)
-simopintd = SimOpIntDaemon(debug=logging.INFO)
+# SimOpInt Daemon Creation (Ex SimOpIntServer(configfile='SimOpIntTestSrv.json', debug=logging.INFO) - configfile & debug facultative
+# simopintd = SimOpIntServer()
+# simopintd = SimOpIntServer(debug=logging.INFO)
+# simopintd = SimOpIntServer(configfile='SimOpIntTestSrv.json', debug=logging.INFO)
+simopintd = SimOpIntServer(debug=logging.INFO)
 
 # SimOpInt Daemon loop thread creation
 simopintd_thread = threading.Thread(target=simopintd.mainLoop)

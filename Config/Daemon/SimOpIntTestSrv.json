@@ -1,12 +1,12 @@
 {
-  "SERVER": {
-    "srvname": "SimOpIntTestSrv",
-    "srvaddr": "0.0.0.0",
-    "srvport": 49550,
-    "srvintautoload": true
+  "DAEMON": {
+    "name": "SimOpIntTestSrv",
+    "addr": "0.0.0.0",
+    "port": 49500,
+    "intautoload": true
   },
   "INTERFACE": {
-    "intshortname": "SimOpIntTest",
-    "intname": "Sim Open Interface Test"
+    "shortname": "SimOpIntTest",
+    "name": "Sim Open Interface Test"
   }
 }

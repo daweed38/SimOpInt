@@ -356,15 +356,15 @@ class SimOpIntClient:
 
         if isinstance(message, dict) and 'msgtype' in message:
 
-            if message['msgtype'] == 'cmd':
-                self.processcmd(message)
+            match message['msgtype']:
+                case 'cmd':
+                    self.logger.debug(f'Processing Command Message ...')
 
-            elif message['msgtype'] == 'dref':
-                self.processdref(message)
+                case 'dref':
+                    self.logger.debug(f'Processing Data Message ...')
 
-            else:
-                self.logger.debug(f'Wrong message type. Cannot be processed')
-
+                case _:
+                    self.logger.debug(f'Wrong message type. Cannot be processed')
         else:
             self.logger.error(f'Message from Server cannot be processed. Wrong format. ({message})')
 
@@ -374,12 +374,6 @@ class SimOpIntClient:
 
         # Reset debug level (Temporary)
         self.logger.setLevel(self.debug)
-
-    def processcmd(self, message):
-        self.logger.debug(f'Processing command Message')
-
-    def processdref(self, message):
-        self.logger.debug(f'Processing data Message')
 
     ###################################
     # Loop Method
@@ -412,4 +406,4 @@ class SimOpIntClient:
 
         self.logger.info(f'Client Stopped ....')
 
-        # sys.exit()
+        sys.exit()
