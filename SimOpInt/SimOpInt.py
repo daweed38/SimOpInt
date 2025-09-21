@@ -174,7 +174,7 @@ class SimOpInt:
 
     # getIntThreadState()
     # Get Interface Thread Status
-    def getIntThreadState(self) -> threading:
+    def getIntThreadState(self) -> bool | None:
         if self.simopint_thread is not None:
             return self.simopint_thread.is_alive()
         else:
@@ -183,27 +183,6 @@ class SimOpInt:
     ###################################
     # Interface Method
     ###################################
-
-    # openInterface()
-    # Open Interface
-    def startInterface(self) -> None:
-        self.logger.info(f'Opening Interface {self.getName()}')
-        self.setIntStatus(1)
-        self.simopint_thread = threading.Thread(target=self.mainLoop)
-        self.simopint_thread.start()
-        self.logger.info(f'Interface {self.getName()} Opened')
-
-    # closeInterface()
-    # Stop Main Loop Interface
-    def stopInterface(self) -> None:
-        if self.getIntStatus() != 1:
-            self.stopIntLoop()
-        while self.getIntStatus() > 1:
-            time.sleep(0.5)
-        self.logger.info(f'Closing Interface {self.getName()}')
-        self.setIntStatus(0)
-        self.simopint_thread = None
-        self.logger.info(f'Interface {self.getName()} Closed')
 
     # startIntLoop()
     # Start Main Loop Interface
@@ -219,10 +198,39 @@ class SimOpInt:
     # stopIntLoop()
     # Stop Main Loop Interface
     def stopIntLoop(self) -> None:
-        self.logger.info(f'Stopping Interface {self.getName()} Main Loop')
+        self.logger.info(f'Stopping interface {self.getName()} main loop')
         self.running = False
         self.setIntStatus(1)
-        self.logger.info(f'Interface {self.getName()} Main Loop Stopped')
+        self.logger.info(f'Interface {self.getName()} main loop stopped')
+
+    # openInterface()
+    # Open Interface
+    def startInterface(self) -> None:
+        if self.simopint_thread is None:
+            self.logger.info(f'Starting Interface {self.getName()}')
+
+            self.simopint_thread = threading.Thread(target=self.mainLoop)
+            self.simopint_thread.start()
+            while not self.getIntThreadState():
+                time.sleep(1)
+
+            self.startIntLoop()
+
+            self.logger.info(f'Interface {self.getName()} started')
+        else:
+            self.logger.critical(f'Interface Thread can\'t be created, already existing')
+
+    # closeInterface()
+    # Stop Main Loop Interface
+    def stopInterface(self) -> None:
+        if self.getIntStatus() != 1:
+            self.stopIntLoop()
+        while self.getIntStatus() > 1:
+            time.sleep(0.5)
+        self.logger.info(f'Closing Interface {self.getName()}')
+        self.setIntStatus(0)
+        self.simopint_thread = None
+        self.logger.info(f'Interface {self.getName()} Closed')
 
     ###################################
     # Client Methods

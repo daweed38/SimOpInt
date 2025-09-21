@@ -15,6 +15,7 @@ import signal
 import selectors
 import types
 import pickle
+import threading
 
 # Sim Open Interface Import
 from SimOpInt.SimOpIntConfig import SimOpIntConfig
@@ -53,9 +54,10 @@ class SimOpIntDaemon:
         self.remainsize = 0
         self.clisocks = {}
         self.interface = None
+        self.daemon_thread = None
 
         # Get Logger
-        self.logger = logging.getLogger('SimOpInt.SimOpIntServer')
+        self.logger = logging.getLogger('SimOpInt.SimOpIntDaemon')
 
         if self.logger.getEffectiveLevel() != self.debug:
             self.logger.setLevel(self.debug)
@@ -142,6 +144,14 @@ class SimOpIntDaemon:
     def getInterface(self):
         return self.interface
 
+    # getDaemonThreadState()
+    # Get Interface Thread Status
+    def getDaemonThreadState(self) -> bool | None:
+        if self.daemon_thread is not None:
+            return self.daemon_thread.is_alive()
+        else:
+            return None
+
     ###################################
     # TCP Socket Methods
     ###################################
@@ -158,8 +168,8 @@ class SimOpIntDaemon:
         events = selectors.EVENT_READ
         data = types.SimpleNamespace(srvaddr=self.addr, handler=self.connexionHandler)
         self.selsock.register(self.sock, events, data=data)
-        self.setStatus(1)
         self.logger.debug(f'Server Socket Opened...')
+        self.setStatus(1)
 
     # closeSrvSocket()
     # Close Server Socket
@@ -314,39 +324,58 @@ class SimOpIntDaemon:
     # startSrvLoop()
     # Start Server Loop
     def startSrvLoop(self) -> None:
-        self.running = True
         self.setStatus(2)
         self.logger.debug(f'Main loop Started .... ')
 
     # stopSrvLoop()
     # Stop Server Loop
     def stopSrvLoop(self) -> None:
-        self.running = False
         self.setStatus(1)
         self.logger.debug(f'Main loop Stopped .... ')
 
     # startServer()
     # Star Server
     def startServer(self) -> None:
-        if self.getInterface() is not None:
-            if self.getInterface().getIntThreadState() is None:
-                self.interface.startInterface()
-            while not self.getInterface().getIntThreadState():
+        if self.daemon_thread is None:
+            self.logger.info(f'Starting SimOpInt Daemon Server')
+
+            self.daemon_thread = threading.Thread(target=self.mainLoop)
+            self.daemon_thread.start()
+
+            while not self.getDaemonThreadState():
                 time.sleep(1)
-            if self.getStatus() < 2:
-                self.startSrvLoop()
+
+            while self.getStatus() != 1:
+                time.sleep(1)
+
+            self.startSrvLoop()
+
+            self.logger.info(f'SimOpInt Daemon started')
+        else:
+            self.logger.critical(f'Daemon thread can\'t be created, already existing. Starting SimOpInt Daemon not started')
+            self.stopServer()
 
     # stopServer()
     # stop Server
     def stopServer(self) -> None:
-        if self.getInterface() is not None:
-            if self.getInterface().getIntThreadState():
-                self.interface.stopInterface()
-            while self.getInterface().getIntThreadState():
-                time.sleep(1)
-        if self.getStatus() > 1:
+        if self.daemon_thread is not None:
+            self.logger.info(f'Stopping SimOpInt Daemon Server')
+
             self.stopSrvLoop()
-        self.setStatus(0)
+
+            while self.getStatus() != 1:
+                time.sleep(1)
+
+            self.setStatus(0)
+
+            while self.getDaemonThreadState():
+                time.sleep(1)
+
+            self.logger.info(f'SimOpInt Daemon Server stopped')
+
+        else:
+            self.logger.critical(f'Daemon thread not found. Error in stopping server')
+
         sys.exit()
 
     # signalHandler()
@@ -419,7 +448,7 @@ class SimOpIntDaemon:
     # Message should be formated as a dictionary
     def processMessage(self, cliname, message) -> None:
         # Setting debug level Temporary
-        self.logger.setLevel(logging.DEBUG)
+        # self.logger.setLevel(logging.DEBUG)
 
         self.logger.debug(f'Processing message from client {cliname}: {message}')
 
@@ -450,7 +479,7 @@ class SimOpIntDaemon:
         self.logger.debug(f'Message from client {cliname} processed : {message}')
 
         # Reset debug level (Temporary)
-        self.logger.setLevel(self.debug)
+        # self.logger.setLevel(self.debug)
 
     ###################################
     # Main Loop
@@ -460,15 +489,13 @@ class SimOpIntDaemon:
     # side is str [ server | client ]
     def mainLoop(self):
         if self.side is not None:
-            self.logger.info(f'Starting {self.side} ....')
-
             self.openSrvSocket()
 
-            self.logger.info(f'{self.side} Started ....')
+            # while self.status != 0:
+            while self.getStatus() != 0:
 
-            while self.status != 0:
-
-                while self.running:
+                # while self.running:
+                while self.getStatus() > 1:
 
                     events = self.selsock.select(timeout=.5)
                     for key, mask in events:
@@ -477,13 +504,7 @@ class SimOpIntDaemon:
 
                 time.sleep(5)
 
-            self.logger.info(f'Stopping {self.side} ....')
-
             self.closeSrvSocket()
-
-            self.logger.info(f'{self.side} Stopped ....')
 
         else:
             self.logger.error(f'Daemon side (Server or Client) not defined ! Please add side parameter un daemon configuration')
-
-        # sys.exit()
