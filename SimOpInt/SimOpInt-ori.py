@@ -21,6 +21,7 @@ if platform.system() == 'Linux':
 
 # SimOpInt Module Import
 from SimOpInt.SimOpIntConfig import SimOpIntConfig
+from SimOpInt.SimOpIntClient import SimOpIntClient
 
 
 class SimOpInt:
@@ -186,61 +187,85 @@ class SimOpInt:
     # startIntLoop()
     # Start Main Loop Interface
     def startIntLoop(self) -> None:
-        self.setStatus(2)
-        self.logger.debug(f'Main loop Started .... ')
+        if self.getIntThreadState() and self.getIntThreadState() == 1:
+            self.logger.info(f'Starting Interface {self.getName()} Main Loop')
+            self.running = True
+            self.setIntStatus(2)
+            self.logger.info(f'Interface {self.getName()} Main Loop Started')
+        else:
+            self.logger.error(f'Interface {self.getName()} Not Opened! Main Loop Can\'t Be Started')
 
     # stopIntLoop()
     # Stop Main Loop Interface
     def stopIntLoop(self) -> None:
-        self.setStatus(1)
-        self.logger.debug(f'Main loop Stopped .... ')
+        self.logger.info(f'Stopping interface {self.getName()} main loop')
+        self.running = False
+        self.setIntStatus(1)
+        self.logger.info(f'Interface {self.getName()} main loop stopped')
 
-    # startInterface()
-    # Start Interface
+    # openInterface()
+    # Open Interface
     def startInterface(self) -> None:
         if self.simopint_thread is None:
-            self.logger.info(f'Starting SimOpInt interface {self.getName()}')
+            self.logger.info(f'Starting Interface {self.getName()}')
 
             self.simopint_thread = threading.Thread(target=self.mainLoop)
             self.simopint_thread.start()
-
-            while not self.getThreadState():
-                time.sleep(1)
-
-            while self.getStatus() != 1:
+            while not self.getIntThreadState():
                 time.sleep(1)
 
             self.startIntLoop()
 
-            self.logger.info(f'SimOpInt interface {self.getName()} started')
-
+            self.logger.info(f'Interface {self.getName()} started')
         else:
-            self.logger.critical(f'Interface thread can\'t be created, already existing. Starting SimOpInt interface not started')
-            self.stopIntLoop()
+            self.logger.critical(f'Interface Thread can\'t be created, already existing')
 
-    # stopInterface()
-    # Stop Interface
+    # closeInterface()
+    # Stop Main Loop Interface
     def stopInterface(self) -> None:
-        if self.simopint_thread is not None:
-            self.logger.info(f'Stopping SimOpInt interface {self.getName()}')
+        if self.getIntStatus() != 1:
+            self.stopIntLoop()
+        while self.getIntStatus() > 1:
+            time.sleep(0.5)
+        self.logger.info(f'Closing Interface {self.getName()}')
+        self.setIntStatus(0)
+        self.simopint_thread = None
+        self.logger.info(f'Interface {self.getName()} Closed')
 
-            if self.getStatus() > 1:
-                self.stopIntLoop()
+    ###################################
+    # Client Methods
+    ###################################
+    """
+    # getInterfaceClient()
+    # Return the SimOpInt Client
+    def getClient(self) -> SimOpIntClient:
+        return self.simopintcli
 
-            while self.getStatus() != 1:
-                time.sleep(1)
+    # startClient()
+    # Start Interface Client
+    def startClient(self) -> None:
+        self.logger.info(f'Starting Interface Client {self.simopintcli.getCliName()}')
+        self.simopintcli_thread = threading.Thread(target=self.simopintcli.mainLoop)
+        self.simopintcli_thread.start()
+        while self.simopintcli.getCliStatus() < 1:
+            time.sleep(1)
+        self.logger.debug(f'startClient : simopintcli_thread : {self.simopintcli_thread.is_alive()} simopintcli status : {self.simopintcli.getCliStatus()}')
+        self.simopintcli.connectClient()
+        self.logger.debug(f'startClient : simopintcli_thread : {self.simopintcli_thread.is_alive()} simopintcli status : {self.simopintcli.getCliStatus()}')
+        while self.simopintcli.getCliStatus() < 2:
+            time.sleep(1)
+        self.simopintcli.startCliLoop()
+        self.logger.debug(f'startClient : simopintcli_thread : {self.simopintcli_thread.is_alive()} simopintcli status : {self.simopintcli.getCliStatus()}')
+        self.logger.info(f'Interface Client {self.simopintcli.getCliName()} Started')
 
-            self.setStatus(0)
-
-            while self.getThreadState():
-                time.sleep(1)
-
-            self.simopint_thread = None
-
-            self.logger.info(f'SimOpInt interface {self.getName()} stopped')
-
-        else:
-            self.logger.critical(f'Interface thread not found. Error in stopping server')
+    # stopClient()
+    # Stop Interface Client
+    def stopClient(self) -> None:
+        self.logger.info(f'Stopping Interface Client {self.simopintcli.getCliName()}')
+        self.simopintcli.stopClient()
+        self.simopintcli_thread = None
+        self.logger.info(f'Interface Client {self.simopintcli.getCliName()} Stopped')
+    """
 
     ###################################
     # Configuration Methods
@@ -569,11 +594,9 @@ class SimOpInt:
 
     def mainLoop(self):
 
-        self.setStatus(1)
-
         while self.getStatus() != 0:
 
-            while self.getStatus() > 1:
+            while self.getStatus() != 1:
                 self.logger.debug(f'Interface main loop running ....')
 
                 time.sleep(1)

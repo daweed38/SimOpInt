@@ -73,7 +73,7 @@ class SimOpIntDaemon:
         if self.intautoload:
             # SimOpInt Interface Creation
             self.intshortname = self.config.getConfigParameter('INTERFACE', 'shortname')
-            self.interface = SimOpInt('Config/Interfaces/' + self.intshortname, self.intshortname + '.json')
+            self.interface = SimOpInt('Config/Interfaces/' + self.intshortname, self.intshortname + '.json', debug=logging.DEBUG)
 
         signal.signal(signal.SIGTERM, self.signalHandler)
         signal.signal(signal.SIGINT, self.signalHandler)
@@ -337,7 +337,13 @@ class SimOpIntDaemon:
     # Star Server
     def startServer(self) -> None:
         if self.daemon_thread is None:
-            self.logger.info(f'Starting SimOpInt Daemon Server')
+            if self.getInterface() is not None:
+                self.getInterface().startInterface()
+
+                while self.getInterface().getStatus() != 2:
+                    time.sleep(1)
+
+            self.logger.info(f'Starting SimOpInt Daemon Server {self.getName()}')
 
             self.daemon_thread = threading.Thread(target=self.mainLoop)
             self.daemon_thread.start()
@@ -350,7 +356,8 @@ class SimOpIntDaemon:
 
             self.startSrvLoop()
 
-            self.logger.info(f'SimOpInt Daemon started')
+            self.logger.info(f'SimOpInt Daemon Server {self.getName()} started')
+
         else:
             self.logger.critical(f'Daemon thread can\'t be created, already existing. Starting SimOpInt Daemon not started')
             self.stopServer()

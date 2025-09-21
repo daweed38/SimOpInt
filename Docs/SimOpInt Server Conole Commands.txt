@@ -1,0 +1,57 @@
+#############################################
+SimOpInt Server Class Python Console Commands
+#############################################
+
+=========================
+Thread Commands
+=========================
+
+* Create Thread
+simopintd_thread = threading.Thread(target=simopintd.mainLoop)
+
+* Start Thread
+simopintd_thread.start()
+
+=========================
+Selector Commands
+=========================
+
+* list selector socket
+simopintd.selsock.select(timeout=.5)
+
+=========================
+Status Commands
+=========================
+
+* Get simopintd status
+simopintd.getStatus()
+
+* Set simopintd status [ statusid : 0 => server stopped / server socket closed, 1 => server socket open / server loop stopped , 2 => server loop started ]
+simopintd.setStatus(<statusid) # statusid is int
+
+=========================
+Server Commands
+=========================
+
+* Start Server
+simopintd.startServer()
+
+* Stop Server
+simopintd.stopServer()
+
+=========================
+Server Main Loop Commands
+=========================
+
+* Start server main loop
+simopintd.startSrvLoop()
+
+* Stop server main loop
+simopintd.stopSrvLoop()
+
+=========================
+Server Interface Commands
+=========================
+
+* Get server interface (if exist, if not return None)
+interface = simopintd.getInterface()
