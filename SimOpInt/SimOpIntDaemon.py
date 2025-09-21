@@ -7,14 +7,14 @@
 ##################################################
 
 # Standard Modules Import
-# import sys
+import sys
 import logging
 import time
 import socket
 import signal
 import selectors
 import types
-# import pickle
+import pickle
 
 # Sim Open Interface Import
 from SimOpInt.SimOpIntConfig import SimOpIntConfig
@@ -37,6 +37,7 @@ class SimOpIntDaemon:
 
     def __init__(self, configfile: str = 'config.json', debug: int = 30) -> None:
         self.debug = debug
+        self.side = None
         self.configdir = 'Config/Daemon'
         self.configfile = configfile
         self.baseconfigintdir = 'Config/Interfaces'
@@ -63,12 +64,13 @@ class SimOpIntDaemon:
         self.name = self.config.getConfigParameter('DAEMON', 'name')
         self.addr = self.config.getConfigParameter('DAEMON', 'addr')
         self.port = int(self.config.getConfigParameter('DAEMON', 'port'))
+        self.side = self.config.getConfigParameter('DAEMON', 'side')
         self.intautoload = self.config.getConfigParameter('DAEMON', 'intautoload')
 
         # IF autoload is True Then loading Sim Open Interface Configuration
         if self.intautoload:
             # SimOpInt Interface Creation
-            self.intshortname = self.config.getConfigParameter('INTERFACE', 'intshortname')
+            self.intshortname = self.config.getConfigParameter('INTERFACE', 'shortname')
             self.interface = SimOpInt('Config/Interfaces/' + self.intshortname, self.intshortname + '.json')
 
         signal.signal(signal.SIGTERM, self.signalHandler)
@@ -150,7 +152,7 @@ class SimOpIntDaemon:
         self.logger.debug(f'Opening Server Socket ...')
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
-        self.sock.bind((self.addr, self.addr))
+        self.sock.bind((self.addr, self.port))
         self.sock.listen()
         self.sock.setblocking(False)
         events = selectors.EVENT_READ
@@ -189,31 +191,125 @@ class SimOpIntDaemon:
         self.logger.debug(f'Client Socket Closed ...')
 
     ###################################
-    # TCP Server Methods
+    # TCP DATA Methods
     ###################################
 
-    # signalHandler()
-    # SIGTERM Handler
-    def signalHandler(self, sig, frame) -> None:
-        self.stopSrvLoop()
-        self.stopServer()
+    # encodeMessage(data)
+    # Encoding Message Process
+    # Return encoded data in bytes format
+    def encodeMessage(self, data) -> bytes:
+        dataheader = f'{len(pickle.dumps(data)):<{self.headersize}}'.encode('utf-8')
+        return dataheader + pickle.dumps(data)
 
-    # startServer()
-    # Star Server
-    def startServer(self) -> None:
-        pass
+    # decodeMessage(data)
+    # Decoding Message Process
+    # Return decoded data encoded in bytes format
+    def decodeMessage(self, data):
+        message = data[self.headersize:]
+        return pickle.loads(message)
 
-    # stopServer()
-    # stop Server
-    def stopServer(self) -> None:
-        if self.getInterface() is not None:
-            if self.getInterface().getIntThreadState():
-                self.interface.stopInterface()
-            while self.getInterface().getIntThreadState():
-                time.sleep(1)
-        if self.getStatus() > 1:
-            self.stopSrvLoop()
-        self.setStatus(0)
+    # sendMessage()
+    # Send Message Process
+    def sendMessage(self, data):
+        self.logger.info(f'Sending message {data} to {self.name}')
+        enc_data = self.encodeMessage(data)
+        self.sock.send(enc_data)
+
+    # receiveMessage()
+    # Receive Message Process
+    def receiveMessage(self, clisock):
+        while True:
+            if self.newmsg:
+                incom_data = clisock.recv(self.headersize)
+                if incom_data:
+                    self.newmsg = False
+                    self.msgfullsize = int(incom_data.decode('utf-8'))
+                    self.remainsize = self.msgfullsize
+                    self.logger.debug(
+                        f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
+            else:
+                if self.remainsize > self.buffersize:
+                    incom_data = clisock.recv(self.buffersize)
+                else:
+                    incom_data = clisock.recv(self.remainsize)
+                received_data_len = len(incom_data)
+                self.fullmsg += incom_data
+                self.remainsize -= received_data_len
+                self.logger.debug(f'Receiving Message. Remaining data to be received : {self.remainsize}')
+                if self.remainsize == 0:
+                    self.logger.debug(f'Fully message received : {pickle.loads(self.fullmsg)}')
+                    data = self.fullmsg
+                    self.newmsg = True
+                    self.remainsize = 0
+                    self.msgfullsize = 0
+                    self.fullmsg = b''
+                    break
+        return pickle.loads(data)
+
+    # Connexion Handler
+    def connexionHandler(self, sock, mask) -> None:
+        clisock, cliaddr = sock.accept()
+        self.logger.debug(f'Connexion {clisock} from {cliaddr}')
+        msgsrvname = self.encodeMessage(self.name)
+        clisock.send(msgsrvname)
+        cliname = self.receiveMessage(clisock)
+        self.logger.debug(cliname)
+        clisock.setblocking(False)
+        data = types.SimpleNamespace(cliaddr=cliaddr, cliname=cliname, handler=self.dataHandler, newmsg=True)
+        events = selectors.EVENT_READ | selectors.EVENT_WRITE
+        self.clisocks[cliname] = {}
+        self.clisocks[cliname]['output'] = None
+        self.selsock.register(clisock, events, data=data)
+
+    # Data Handler
+    def dataHandler(self, clisock, mask) -> None:
+        data = self.selsock.get_map()[clisock].data
+
+        if mask & selectors.EVENT_READ:
+            if data.newmsg:
+                incom_data = clisock.recv(self.headersize)
+                if incom_data:
+                    data.newmsg = False
+                    self.msgfullsize = int(incom_data.decode('utf-8'))
+                    self.remainsize = self.msgfullsize
+                    self.logger.debug(
+                        f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
+
+                else:
+                    self.selsock.unregister(clisock)
+                    if data.cliname in self.clisocks:
+                        del self.clisocks[data.cliname]
+                    clisock.close()
+
+            else:
+                if self.remainsize > self.buffersize:
+                    incom_data = clisock.recv(self.buffersize)
+                else:
+                    incom_data = clisock.recv(self.remainsize)
+                received_data_len = len(incom_data)
+                self.fullmsg += incom_data
+                self.remainsize -= received_data_len
+                self.logger.debug(f'Receiving message. Remaining data to be received : {self.remainsize}')
+                if self.remainsize == 0:
+                    self.logger.debug(
+                        f'Fully message received : {pickle.loads(self.fullmsg)} {type(self.fullmsg)} {type(pickle.loads(self.fullmsg))}')
+                    self.processMessage(data.cliname, pickle.loads(self.fullmsg))
+                    data.newmsg = True
+                    self.remainsize = 0
+                    self.msgfullsize = 0
+                    self.fullmsg = b''
+
+        if mask & selectors.EVENT_WRITE:
+            if data.cliname in self.clisocks and self.clisocks[data.cliname]['output'] is not None:
+                outputdata = self.clisocks[data.cliname]['output']
+                self.logger.debug(f'Sending dataout : {outputdata}')
+                enc_data = self.encodeMessage(self.clisocks[data.cliname]['output'])
+                clisock.send(enc_data)
+                self.clisocks[data.cliname]['output'] = None
+
+    ###################################
+    # Server Methods
+    ###################################
 
     # startSrvLoop()
     # Start Server Loop
@@ -228,3 +324,166 @@ class SimOpIntDaemon:
         self.running = False
         self.setStatus(1)
         self.logger.debug(f'Main loop Stopped .... ')
+
+    # startServer()
+    # Star Server
+    def startServer(self) -> None:
+        if self.getInterface() is not None:
+            if self.getInterface().getIntThreadState() is None:
+                self.interface.startInterface()
+            while not self.getInterface().getIntThreadState():
+                time.sleep(1)
+            if self.getStatus() < 2:
+                self.startSrvLoop()
+
+    # stopServer()
+    # stop Server
+    def stopServer(self) -> None:
+        if self.getInterface() is not None:
+            if self.getInterface().getIntThreadState():
+                self.interface.stopInterface()
+            while self.getInterface().getIntThreadState():
+                time.sleep(1)
+        if self.getStatus() > 1:
+            self.stopSrvLoop()
+        self.setStatus(0)
+        sys.exit()
+
+    # signalHandler()
+    # SIGTERM Handler
+    def signalHandler(self, sig, frame) -> None:
+        self.stopSrvLoop()
+        self.stopServer()
+
+    ###################################
+    # Client Methods
+    ###################################
+
+    # startCliLoop()
+    # Start Client Loop
+    def startCliLoop(self) -> None:
+        if self.getStatus() < 2:
+            self.logger.error(f'startCliLoop : Client not connected')
+        else:
+            self.running = True
+            self.setStatus(3)
+            self.logger.debug(f'Main loop Started .... ')
+
+    # stopCliLoop()
+    # Stop Client Loop
+    def stopCliLoop(self) -> None:
+        if self.getStatus() < 2:
+            self.logger.error(f'stopCliLoop : Client not connected')
+        elif self.getStatus() < 3:
+            self.logger.error(f'Client not running')
+        else:
+            self.running = False
+            self.setStatus(2)
+            self.logger.debug(f'Main loop Stopped .... ')
+
+    """
+    # connectClient()
+    # Connect client socket to server socket
+    # def connectClient(self) -> None:
+    def connectClient(self):
+        if self.getStatus() < 1:
+            self.logger.error(f'Client socket not opened')
+        elif self.getStatus() > 2:
+            self.logger.warning(f'Client already connected')
+        else:
+            self.sock.connect((self.addr, self.port))
+            self.sendMessage(self.getName())
+            srvname = self.receiveMessage()
+            self.sock.setblocking(False)
+            data = types.SimpleNamespace(srvname=srvname, srvaddr=self.addr, srvport=self.port, handler=self.dataHandler, newmsg=True)
+            events = selectors.EVENT_READ | selectors.EVENT_WRITE
+            self.selsock.register(self.sock, events, data=data)
+            self.setStatus(2)
+
+    # disconnectClient()
+    # Disconnect Client
+    def stopClient(self) -> None:
+        if self.getStatus() > 2:
+            self.stopCliLoop()
+        while self.getStatus() > 2:
+            time.sleep(1)
+        self.setStatus(0)
+    """
+
+    ###################################
+    # Messages Process Method
+    ###################################
+
+    # processMessage(cliname, message)
+    # Process Message received from Client
+    # Message should be formated as a dictionary
+    def processMessage(self, cliname, message) -> None:
+        # Setting debug level Temporary
+        self.logger.setLevel(logging.DEBUG)
+
+        self.logger.debug(f'Processing message from client {cliname}: {message}')
+
+        # Begin Body Method
+
+        if isinstance(message, dict) and 'msgtype' in message:
+            match message['msgtype']:
+                case 'cmd':
+                    self.logger.debug(f'Processing Command Message ...')
+
+                case 'dref':
+                    self.logger.debug(f'Processing Data Message ...')
+
+                case 'int':
+                    self.logger.debug(f'Processing Interface Message ...')
+
+                case 'config':
+                    self.logger.debug(f'Processing Configuration Message ...')
+
+                case _:
+                    self.logger.debug(f'Wrong message type. Cannot be processed')
+
+        else:
+            self.logger.error(f'Message from client {cliname} cannot be processed. Wrong format. ({message})')
+
+        # End Body Method
+
+        self.logger.debug(f'Message from client {cliname} processed : {message}')
+
+        # Reset debug level (Temporary)
+        self.logger.setLevel(self.debug)
+
+    ###################################
+    # Main Loop
+    ###################################
+
+    # Server Main Loop
+    # side is str [ server | client ]
+    def mainLoop(self):
+        if self.side is not None:
+            self.logger.info(f'Starting {self.side} ....')
+
+            self.openSrvSocket()
+
+            self.logger.info(f'{self.side} Started ....')
+
+            while self.status != 0:
+
+                while self.running:
+
+                    events = self.selsock.select(timeout=.5)
+                    for key, mask in events:
+                        callback = key.data.handler
+                        callback(key.fileobj, mask)
+
+                time.sleep(5)
+
+            self.logger.info(f'Stopping {self.side} ....')
+
+            self.closeSrvSocket()
+
+            self.logger.info(f'{self.side} Stopped ....')
+
+        else:
+            self.logger.error(f'Daemon side (Server or Client) not defined ! Please add side parameter un daemon configuration')
+
+        # sys.exit()
