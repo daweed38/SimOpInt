@@ -337,13 +337,13 @@ class SimOpIntDaemon:
     # Star Server
     def startServer(self) -> None:
         if self.daemon_thread is None:
+            self.logger.info(f'Starting SimOpInt Daemon Server {self.getName()}')
+
             if self.getInterface() is not None:
                 self.getInterface().startInterface()
 
                 while self.getInterface().getStatus() != 2:
                     time.sleep(1)
-
-            self.logger.info(f'Starting SimOpInt Daemon Server {self.getName()}')
 
             self.daemon_thread = threading.Thread(target=self.mainLoop)
             self.daemon_thread.start()
@@ -366,7 +366,13 @@ class SimOpIntDaemon:
     # stop Server
     def stopServer(self) -> None:
         if self.daemon_thread is not None:
-            self.logger.info(f'Stopping SimOpInt Daemon Server')
+            self.logger.info(f'Stopping SimOpInt Daemon Server {self.getName()}')
+
+            if self.getInterface() is not None:
+                self.getInterface().stopInterface()
+
+                while self.getInterface().getStatus() != 0:
+                    time.sleep(1)
 
             self.stopSrvLoop()
 
@@ -378,7 +384,7 @@ class SimOpIntDaemon:
             while self.getDaemonThreadState():
                 time.sleep(1)
 
-            self.logger.info(f'SimOpInt Daemon Server stopped')
+            self.logger.info(f'SimOpInt Daemon Server {self.getName()} stopped')
 
         else:
             self.logger.critical(f'Daemon thread not found. Error in stopping server')

@@ -215,16 +215,14 @@ class SimOpInt:
             self.logger.info(f'SimOpInt interface {self.getName()} started')
 
         else:
-            self.logger.critical(f'Interface thread can\'t be created, already existing. Starting SimOpInt interface not started')
-            self.stopIntLoop()
+            self.logger.error(f'Interface thread can\'t be created, already existing. Starting SimOpInt interface not started')
 
     # stopInterface()
     # Stop Interface
     def stopInterface(self) -> None:
+        self.logger.info(f'Stopping SimOpInt interface {self.getName()}')
         if self.simopint_thread is not None:
-            self.logger.info(f'Stopping SimOpInt interface {self.getName()}')
-
-            if self.getStatus() > 1:
+            if self.getStatus() != 1:
                 self.stopIntLoop()
 
             while self.getStatus() != 1:
@@ -237,10 +235,9 @@ class SimOpInt:
 
             self.simopint_thread = None
 
-            self.logger.info(f'SimOpInt interface {self.getName()} stopped')
-
         else:
-            self.logger.critical(f'Interface thread not found. Error in stopping server')
+            self.setStatus(0)
+        self.logger.info(f'SimOpInt interface {self.getName()} stopped')
 
     ###################################
     # Configuration Methods
