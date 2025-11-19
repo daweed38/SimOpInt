@@ -1,0 +1,12 @@
+{
+  "DAEMON": {
+    "name": "SimOpIntTestCli",
+    "addr": "0.0.0.0",
+    "port": 49000,
+    "intautoload": false
+  },
+  "SERVER": {
+    "srvaddr": "localhost",
+    "srvport": 49500
+  }
+}

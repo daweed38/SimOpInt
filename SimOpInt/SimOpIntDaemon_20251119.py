@@ -38,12 +38,12 @@ class SimOpIntDaemon:
 
     def __init__(self, configfile: str = 'config.json', debug: int = 30) -> None:
         self.debug = debug
-        # self.side = None
+        self.side = None
         self.configdir = 'Config/Daemon'
         self.configfile = configfile
         self.baseconfigintdir = 'Config/Interfaces'
         self.sock = None
-        self.selsock = None
+        self.selsock = selectors.DefaultSelector()
         self.headersize = 10
         self.buffersize = 32
         self.status = 0
@@ -66,7 +66,7 @@ class SimOpIntDaemon:
         self.name = self.config.getConfigParameter('DAEMON', 'name')
         self.addr = self.config.getConfigParameter('DAEMON', 'addr')
         self.port = int(self.config.getConfigParameter('DAEMON', 'port'))
-        # self.side = self.config.getConfigParameter('DAEMON', 'side')
+        self.side = self.config.getConfigParameter('DAEMON', 'side')
         self.intautoload = self.config.getConfigParameter('DAEMON', 'intautoload')
         if 'SERVER' in self.config.getConfig():
             self.srvaddr = self.config.getConfigParameter('SERVER', 'srvaddr')
@@ -136,12 +136,7 @@ class SimOpIntDaemon:
     # Set server status to state
     def setStatus(self, status: int) -> None:
         self.status = status
-
-    # isRunning()
-    # Check if main loop is running
-    def isRunning(self):
-        return self.running
-
+    
     # getConfig()
     # Return server configuration (SimOpIntConfig Object)
     def getConfig(self) -> SimOpIntConfig:
@@ -160,11 +155,6 @@ class SimOpIntDaemon:
         else:
             return None
 
-    # signalHandler()
-    # Signals Handler
-    def signalHandler(self, sig, frame) -> None:
-        self.stopServer()
-
     ###################################
     # TCP Socket Methods
     ###################################
@@ -172,7 +162,7 @@ class SimOpIntDaemon:
     # openSrvSocket()
     # Open Server Socket
     def openSrvSocket(self) -> None:
-        self.logger.debug(f'Opening server socket ...')
+        self.logger.debug(f'Opening Server Socket ...')
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
         self.sock.bind((self.addr, self.port))
@@ -180,22 +170,20 @@ class SimOpIntDaemon:
         self.sock.setblocking(False)
         events = selectors.EVENT_READ
         data = types.SimpleNamespace(srvaddr=self.addr, handler=self.connexionHandler)
-        self.selsock = selectors.DefaultSelector()
         self.selsock.register(self.sock, events, data=data)
         self.setStatus(1)
-        self.logger.debug(f'Server socket opened...')
+        self.logger.debug(f'Server Socket Opened...')
 
     # closeSrvSocket()
     # Close Server Socket
     def closeSrvSocket(self) -> None:
-        self.logger.debug(f'Closing server socket ...')
+        self.logger.debug(f'Closing Server Socket ...')
+        self.selsock.close()
         if self.sock:
             self.sock.close()
         self.setStatus(0)
-        self.selsock.close()
-        self.selsock = None
         self.sock = None
-        self.logger.debug(f'Server socket closed ...')
+        self.logger.debug(f'Server Socket Closed ...')
 
     # openCliSocket()
     # Open client socket
@@ -204,170 +192,25 @@ class SimOpIntDaemon:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
         self.setStatus(1)
-        self.logger.debug(f'Client socket opened...')
-
-    # closeCliSocket()
-    # Close client socket
-    def closeCliSocket(self) -> None:
-        self.logger.debug(f'Closing client socket ...')
-        if self.sock:
-            self.sock.close()
-        self.setStatus(0)
-        self.selsock.close()
-        self.selsock = None
-        self.sock = None
-        self.logger.debug(f'Client socket closed ...')
-
-    # closeCliSocket()
-    # Close client socket
-    def connectCliSocket(self) -> None:
-        self.logger.debug(f'Connecting client socket ...')
         self.sock.connect((self.srvaddr, self.srvport))
         self.sendMessage(self.getName())
         srvname = self.receiveMessage(self.sock)
         self.sock.setblocking(False)
         data = types.SimpleNamespace(srvname=srvname, srvaddr=self.srvaddr, srvport=self.srvport, handler=self.dataHandler, newmsg=True)
         events = selectors.EVENT_READ | selectors.EVENT_WRITE
-        self.selsock = selectors.DefaultSelector()
         self.selsock.register(self.sock, events, data=data)
         self.setStatus(2)
-        self.logger.debug(f'Client socket connected...')
+        self.logger.debug(f'Client Socket Opened & Connected...')
 
-    ###################################
-    # Server Methods
-    ###################################
-
-    # startSrvLoop()
-    # Start Server Loop
-    def startSrvLoop(self) -> None:
-        if self.getStatus() <2:
-            if self.getStatus() < 1:
-                self.logger.error(f'Server socket not opened')
-            else:
-                self.setStatus(2)
-                self.running = True
-                self.logger.info(f'Server main loop Started .... ')
-        else:
-            self.logger.warning(f'Server main loop already running .... ')
-
-    # stopSrvLoop()
-    # Stop Server Loop
-    def stopSrvLoop(self) -> None:
-        if self.getStatus() < 2:
-            self.logger.warning(f'Server main loop not running')
-        else:
-            if self.getStatus() < 1:
-                self.logger.error(f'Server socket not opened')
-            else:
-                self.setStatus(1)
-                self.running = False
-                self.logger.info(f'Server main loop Stopped .... ')
-
-    # startServer()
-    # Star Server
-    def startServer(self) -> None:
-        # Check if Daemon thread exist
-        if self.daemon_thread is None:
-            self.logger.info(f'Starting SimOpInt Daemon Server {self.getName()} ...')
-
-            if self.getStatus() == 0:
-                # Opening Socket
-                self.openSrvSocket()
-
-                # Waiting for available socket
-                while self.getStatus() != 1:
-                    time.sleep(1)
-
-                # Starting Daemon thread
-                self.daemon_thread = threading.Thread(target=self.mainLoop)
-                self.daemon_thread.start()
-
-                # Waiting for Daemon thread to be started
-                while not self.getDaemonThreadState():
-                    time.sleep(1)
-
-                # Starting main loop
-                self.startSrvLoop()
-
-                self.logger.info(f'SimOpInt Daemon Server {self.getName()} started')
-
-            else:
-                self.logger.error(f'SimOpInt server seems have not properly shutdown ...')
-
-        else:
-            self.logger.warning(f'Daemon thread seems to already exist, cannot start it twice')
-
-    # stopServer()
-    # stop Server
-    def stopServer(self) -> None:
-        # Check if Daemon thread exist
-        if self.daemon_thread is not None:
-            self.logger.info(f'Stopping SimOpInt Daemon Server {self.getName()}')
-
-            if self.getStatus() != 0:
-                # Stopping main loop
-                self.stopSrvLoop()
-
-                # Waiting for main loop to be stopped
-                while self.getStatus() != 1:
-                    time.sleep(1)
-
-                # Stopping Daemon thread
-                self.setStatus(0)
-
-                # Waiting for Daemon thread to be stopped
-                while self.getDaemonThreadState():
-                    time.sleep(1)
-
-                # Remove Daemon thread
-                self.daemon_thread = None
-
-                # Closing Socket
-                self.closeSrvSocket()
-
-                self.logger.info(f'SimOpInt Daemon Server {self.getName()} stopped')
-
-                sys.exit(0)
-
-            else:
-                self.logger.error(f'SimOpInt server seems have not properly started ...')
-
-        else:
-            self.logger.warning(f'Daemon thread not found. Error in stopping server')
-
-    ###################################
-    # Client Methods
-    ###################################
-
-    # startCliLoop()
-    # Start Client Loop
-    def startCliLoop(self) -> None:
-        if self.getStatus() < 2:
-            self.logger.error(f'startCliLoop : Client not connected')
-        else:
-            self.setStatus(3)
-            self.logger.debug(f'Client main loop started .... ')
-
-    # stopCliLoop()
-    # Stop Client Loop
-    def stopCliLoop(self) -> None:
-        if self.getStatus() < 2:
-            self.logger.error(f'stopCliLoop : Client not connected')
-        elif self.getStatus() < 3:
-            self.logger.error(f'Client not running')
-        else:
-            self.setStatus(2)
-            self.logger.debug(f'Client main loop stopped .... ')
-
-    # startClient()
-    # Star Client
-    def startClient(self) -> None:
-        pass
-
-    # stopClient()
-    # Star Client
-    def stopClient(self) -> None:
-        pass
+    # closeCliSocket()
+    # Close client socket
+    def closeCliSocket(self) -> None:
+        self.logger.debug(f'Closing Client Socket ...')
+        if self.sock:
+            self.sock.close()
+        self.setStatus(0)
+        self.sock = None
+        self.logger.debug(f'Client Socket Closed ...')
 
     ###################################
     # TCP DATA Methods
@@ -404,8 +247,7 @@ class SimOpIntDaemon:
                     self.newmsg = False
                     self.msgfullsize = int(incom_data.decode('utf-8'))
                     self.remainsize = self.msgfullsize
-                    self.logger.debug(
-                        f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
+                    self.logger.debug(f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
             else:
                 if self.remainsize > self.buffersize:
                     incom_data = clisock.recv(self.buffersize)
@@ -451,8 +293,7 @@ class SimOpIntDaemon:
                     data.newmsg = False
                     self.msgfullsize = int(incom_data.decode('utf-8'))
                     self.remainsize = self.msgfullsize
-                    self.logger.debug(
-                        f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
+                    self.logger.debug(f'New message arrived. Message length : {self.msgfullsize}. Remaining data to be received : {self.remainsize}')
 
                 else:
                     self.selsock.unregister(clisock)
@@ -470,8 +311,7 @@ class SimOpIntDaemon:
                 self.remainsize -= received_data_len
                 self.logger.debug(f'Receiving message. Remaining data to be received : {self.remainsize}')
                 if self.remainsize == 0:
-                    self.logger.debug(
-                        f'Fully message received : {pickle.loads(self.fullmsg)} {type(self.fullmsg)} {type(pickle.loads(self.fullmsg))}')
+                    self.logger.debug(f'Fully message received : {pickle.loads(self.fullmsg)} {type(self.fullmsg)} {type(pickle.loads(self.fullmsg))}')
                     self.processMessage(data.cliname, pickle.loads(self.fullmsg))
                     data.newmsg = True
                     self.remainsize = 0
@@ -485,6 +325,108 @@ class SimOpIntDaemon:
                 enc_data = self.encodeMessage(self.clisocks[data.cliname]['output'])
                 clisock.send(enc_data)
                 self.clisocks[data.cliname]['output'] = None
+
+    ###################################
+    # Server Methods
+    ###################################
+
+    # startServer()
+    # Star Server
+    def startServer(self) -> None:
+        if self.daemon_thread is None:
+            self.logger.info(f'Starting SimOpInt Daemon Server {self.getName()}')
+
+            if self.getInterface() is not None:
+                self.getInterface().startInterface()
+
+                while self.getInterface().getStatus() != 2:
+                    time.sleep(1)
+
+            self.daemon_thread = threading.Thread(target=self.mainLoop)
+            self.daemon_thread.start()
+
+            while not self.getDaemonThreadState():
+                time.sleep(1)
+
+            while self.getStatus() != 1:
+                time.sleep(1)
+
+            self.startSrvLoop()
+
+            self.logger.info(f'SimOpInt Daemon Server {self.getName()} started')
+
+        else:
+            self.logger.warning(f'Daemon thread can\'t be created, already existing. Starting SimOpInt Daemon twice is not possible.')
+
+    # stopServer()
+    # stop Server
+    def stopServer(self) -> None:
+        if self.daemon_thread is not None:
+            self.logger.info(f'Stopping SimOpInt Daemon Server {self.getName()}')
+
+            if self.getInterface() is not None:
+                self.getInterface().stopInterface()
+
+                while self.getInterface().getStatus() != 0:
+                    time.sleep(1)
+
+            self.stopSrvLoop()
+
+            while self.getStatus() != 1:
+                time.sleep(1)
+
+            self.setStatus(0)
+
+            while self.getDaemonThreadState():
+                time.sleep(1)
+
+            self.logger.info(f'SimOpInt Daemon Server {self.getName()} stopped')
+        else:
+            self.logger.warning(f'Daemon thread not found. Error in stopping server')
+        sys.exit()
+
+    # startSrvLoop()
+    # Start Server Loop
+    def startSrvLoop(self) -> None:
+        self.setStatus(2)
+        self.logger.debug(f'Main loop Started .... ')
+
+    # stopSrvLoop()
+    # Stop Server Loop
+    def stopSrvLoop(self) -> None:
+        self.setStatus(1)
+        self.logger.debug(f'Main loop Stopped .... ')
+
+    # signalHandler()
+    # SIGTERM Handler
+    def signalHandler(self, sig, frame) -> None:
+        self.stopServer()
+
+    ###################################
+    # Client Methods
+    ###################################
+
+    # startCliLoop()
+    # Start Client Loop
+    def startCliLoop(self) -> None:
+        if self.getStatus() < 2:
+            self.logger.error(f'startCliLoop : Client not connected')
+        else:
+            self.running = True
+            self.setStatus(3)
+            self.logger.debug(f'Main loop Started .... ')
+
+    # stopCliLoop()
+    # Stop Client Loop
+    def stopCliLoop(self) -> None:
+        if self.getStatus() < 2:
+            self.logger.error(f'stopCliLoop : Client not connected')
+        elif self.getStatus() < 3:
+            self.logger.error(f'Client not running')
+        else:
+            self.running = False
+            self.setStatus(2)
+            self.logger.debug(f'Main loop Stopped .... ')
 
     ###################################
     # Messages Process Method

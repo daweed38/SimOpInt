@@ -290,7 +290,7 @@ class SimOpIntClient:
     # receiveMessage()
     # Receive Message Process
     def receiveMessage(self):
-        data = None
+        # data = None
         while True:
             if self.newmsg:
                 incom_data = self.clisock.recv(self.headersize)

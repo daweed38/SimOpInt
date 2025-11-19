@@ -237,3 +237,4 @@ fabric.properties
 Logs/*
 Templates/
 Config/Dev/
+Config/Data/
