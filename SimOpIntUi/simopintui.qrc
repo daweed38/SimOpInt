@@ -1,0 +1,23 @@
+<RCC>
+  <qresource>
+    <file>imgs/simopintgui.png</file>
+    <file>imgs/device.png</file>
+    <file>imgs/minus.png</file>
+    <file>imgs/plus.png</file>
+    <file>imgs/encoder.png</file>
+    <file>imgs/exit.png</file>
+    <file>imgs/greenstatusdot.png</file>
+    <file>imgs/help.png</file>
+    <file>imgs/indicator.png</file>
+    <file>imgs/interface.png</file>
+    <file>imgs/networking.png</file>
+    <file>imgs/param.png</file>
+    <file>imgs/redstatusdot.png</file>
+    <file>imgs/rotswitch.png</file>
+    <file>imgs/switch.png</file>
+    <file>imgs/display_green.png</file>
+    <file>imgs/display_red.png</file>
+    <file>imgs/unknowned.png</file>
+    <file>imgs/toogleswitch.png</file>
+  </qresource>
+</RCC>

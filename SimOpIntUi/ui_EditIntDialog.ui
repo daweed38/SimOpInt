@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EditInterface</class>
+ <widget class="QDialog" name="EditInterface">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>508</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Edit Interface Dialog</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="simopintui.qrc">
+    <normaloff>:/imgs/interface.png</normaloff>:/imgs/interface.png</iconset>
+  </property>
+  <widget class="QDialogButtonBox" name="EditIntBtnBox">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>460</y>
+     <width>341</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Orientation::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="FormInterfaceLbl">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>26</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Edit Interface</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="FormInterfaceNameLbl">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>26</y>
+     <width>231</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>InterfaceName</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>60</y>
+     <width>371</width>
+     <height>83</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QLabel" name="InterfaceNameLbl">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Interface Name : </string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="InterfaceName">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="InterfacHostLbl">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Interface Host Address :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="InterfaceHost">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="InterfacePortLbl">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Interface Host Port :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="InterfacePort">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QTreeWidget" name="treeWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>160</y>
+     <width>371</width>
+     <height>291</height>
+    </rect>
+   </property>
+   <column>
+    <property name="text">
+     <string>InterfaceName</string>
+    </property>
+    <property name="icon">
+     <iconset resource="simopintui.qrc">
+      <normaloff>:/imgs/interface.png</normaloff>:/imgs/interface.png</iconset>
+    </property>
+   </column>
+   <item>
+    <property name="text">
+     <string>Devices</string>
+    </property>
+    <property name="icon">
+     <iconset resource="simopintui.qrc">
+      <normaloff>:/imgs/device.png</normaloff>:/imgs/device.png</iconset>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>7 Seg Displays</string>
+    </property>
+    <property name="icon">
+     <iconset resource="simopintui.qrc">
+      <normaloff>:/imgs/display_green.png</normaloff>:/imgs/display_green.png</iconset>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Annunciators</string>
+    </property>
+    <property name="icon">
+     <iconset resource="simopintui.qrc">
+      <normaloff>:/imgs/indicator.png</normaloff>:/imgs/indicator.png</iconset>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Switches</string>
+    </property>
+    <property name="icon">
+     <iconset resource="simopintui.qrc">
+      <normaloff>:/imgs/switch.png</normaloff>:/imgs/switch.png</iconset>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Push Buttons</string>
+    </property>
+    <property name="icon">
+     <iconset resource="simopintui.qrc">
+      <normaloff>:/imgs/toogleswitch.png</normaloff>:/imgs/toogleswitch.png</iconset>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Encoders</string>
+    </property>
+    <property name="icon">
+     <iconset resource="simopintui.qrc">
+      <normaloff>:/imgs/encoder.png</normaloff>:/imgs/encoder.png</iconset>
+    </property>
+   </item>
+  </widget>
+ </widget>
+ <resources>
+  <include location="simopintui.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>EditIntBtnBox</sender>
+   <signal>accepted()</signal>
+   <receiver>EditInterface</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>EditIntBtnBox</sender>
+   <signal>rejected()</signal>
+   <receiver>EditInterface</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
