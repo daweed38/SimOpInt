@@ -30,5 +30,3 @@ window.show()
 
 # Starting Event Loop
 app.exec()
-
-# logger.warning(f'Application ended at {datetime.datetime.now()}')

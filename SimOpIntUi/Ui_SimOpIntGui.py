@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'Ui_SimOpIntGuiMain.ui'
+## Form generated from reading UI file 'Ui_SimOpIntGui.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.9.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -26,6 +26,8 @@ class Ui_SimOpIntGui(object):
         SimOpIntGui.resize(800, 600)
         self.actionQuit = QAction(SimOpIntGui)
         self.actionQuit.setObjectName(u"actionQuit")
+        self.actionInterface_Management = QAction(SimOpIntGui)
+        self.actionInterface_Management.setObjectName(u"actionInterface_Management")
         self.centralwidget = QWidget(SimOpIntGui)
         self.centralwidget.setObjectName(u"centralwidget")
         SimOpIntGui.setCentralWidget(self.centralwidget)
@@ -34,13 +36,17 @@ class Ui_SimOpIntGui(object):
         self.menubar.setGeometry(QRect(0, 0, 800, 33))
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
+        self.menuSimOpInt = QMenu(self.menubar)
+        self.menuSimOpInt.setObjectName(u"menuSimOpInt")
         SimOpIntGui.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(SimOpIntGui)
         self.statusbar.setObjectName(u"statusbar")
         SimOpIntGui.setStatusBar(self.statusbar)
 
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuSimOpInt.menuAction())
         self.menuFile.addAction(self.actionQuit)
+        self.menuSimOpInt.addAction(self.actionInterface_Management)
 
         self.retranslateUi(SimOpIntGui)
 
@@ -50,6 +56,8 @@ class Ui_SimOpIntGui(object):
     def retranslateUi(self, SimOpIntGui):
         SimOpIntGui.setWindowTitle(QCoreApplication.translate("SimOpIntGui", u"MainWindow", None))
         self.actionQuit.setText(QCoreApplication.translate("SimOpIntGui", u"Quit&", None))
+        self.actionInterface_Management.setText(QCoreApplication.translate("SimOpIntGui", u"Interface Management", None))
         self.menuFile.setTitle(QCoreApplication.translate("SimOpIntGui", u"File", None))
+        self.menuSimOpInt.setTitle(QCoreApplication.translate("SimOpIntGui", u"SimOpInt", None))
     # retranslateUi
 

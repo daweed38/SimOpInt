@@ -29,12 +29,24 @@
     </property>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuSimOpInt">
+    <property name="title">
+     <string>SimOpInt</string>
+    </property>
+    <addaction name="actionInterface_Management"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuSimOpInt"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionQuit">
    <property name="text">
     <string>Quit&amp;</string>
+   </property>
+  </action>
+  <action name="actionInterface_Management">
+   <property name="text">
+    <string>Interface Management</string>
    </property>
   </action>
  </widget>
