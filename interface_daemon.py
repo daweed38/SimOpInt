@@ -1,14 +1,12 @@
 ##################################################
-# FarmerSoft Open Interface Daemon
+# FarmerSoft Sim Open Interface Daemon
 ##################################################
-# FarmerSoft © 2025
+# FarmerSoft © 2026
 # By Daweed
 ##################################################
 
 # System Modules Import
 import logging
-# import threading
-# import time
 
 # Standard Modules Import
 
