@@ -33,4 +33,4 @@ simopint_logger.addHandler(filehandler)
 simopint_logger.propagate = False
 
 # SimOpInt Daemon Creation (Ex SimOpIntServer(configfile='SimOpIntTestSrv.json', debug=logging.INFO) - configfile & debug facultatif
-simopintcli = SimOpIntDaemon(configfile='SimOpIntTestCli.json', debug=logging.INFO)
+simopintcli = SimOpIntDaemon(configfile='SimOpIntTestCli.json', debug=logging.DEBUG)
